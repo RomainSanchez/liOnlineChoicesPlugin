@@ -32,8 +32,7 @@ class ocApiEventsActions extends apiActions
     public function getAll(sfWebRequest $request, array $query)
     {
         $events  = $this->getService('events_service');
-        $results = $events->getFormattedEntities($events->buildQuery($query)->execute());
-        $result  = $this->getListWithDecorator($results, $query);
+        $result  = $this->getListWithDecorator($events->findAll($query), $query);
         return $this->createJsonResponse($result);
     }
 }
