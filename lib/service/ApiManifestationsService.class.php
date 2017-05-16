@@ -14,10 +14,13 @@
 class ApiManifestationsService extends ApiEntityService
 {
 
+    protected $translationService;
     protected static $FIELD_MAPPING = [
         'id' => 'id',
         'startsAt' => 'happens_at',
         'endsAt' => 'ends_at',
+        'event_id' => 'Event.id',
+        'event'  => 'Event.Translation',
         'metaEvent' => 'Event.MetaEvent.Translation',
         'location.id' => 'Location.id',
         'location.name' => 'Location.name',
@@ -38,7 +41,7 @@ class ApiManifestationsService extends ApiEntityService
      * 
      * @return array
      */
-    public function findAll($query)
+    public function findAll(array $query)
     {
         $q = $this->buildQuery($query);
         $manifestations = $q->execute();
@@ -83,6 +86,11 @@ class ApiManifestationsService extends ApiEntityService
     
     protected function postFormatEntity(array $entity, Doctrine_Record $manif)
     {
+        // metaEvent
+        $entity['metaEvent'] = $this->translationService->reformat($entity['metaEvent']);
+        $entity['event'] = $this->translationService->reformat($entity['event']);
+        
+        // gauges
         $currency = sfConfig::get('project_internals_currency', ['iso' => 978, 'symbol' => '€']);
         foreach ( $entity['gauges'] as $id => $gauge ) {
             // availableUnits
@@ -93,8 +101,8 @@ class ApiManifestationsService extends ApiEntityService
             
             // gauges.prices
             $entity['gauges'][$id]['prices'] = [];
-            foreach ( ['manif' => 'PriceManifestations', 'gauge' => 'PriceGauges'] as $object => $collection )
-            foreach ( ${$object}->$collection as $pm ) { // prices from manifestation
+            foreach ( ['PriceManifestations' => $manif, 'PriceGauges' => $manif->Gauges[$id]] as $collection => $object )
+            foreach ( $object->$collection as $pm ) { // prices from manifestation
                 $price = [
                     'id' => $pm->price_id,
                     'value' => $pm->value,
@@ -112,5 +120,11 @@ class ApiManifestationsService extends ApiEntityService
         }
         
         return $entity;
+    }
+    
+    public function setTranslationService(ApiTranslationService $i18n)
+    {
+        $this->translationService = $i18n;
+        return $this;
     }
 }

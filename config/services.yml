@@ -8,6 +8,8 @@ all:
   services:
       actions_service:
           class: ApiActionsService
+      translation_service:
+          class: ApiTranslationService
       oauth_service:
           class: ApiOAuthService
       customers_service:
@@ -18,9 +20,12 @@ all:
           arguments: ["@oauth_service"]
           calls:
             - ['setManifestationsService', ['@manifestations_service']]
+            - ['setTranslationService', ['@translation_service']]
       manifestations_service:
           class: ApiManifestationsService
           arguments: ["@oauth_service"]
+          calls:
+            - ['setTranslationService', ['@translation_service']]
       carts_service:
           class: ApiCartsService
       cartitems_service:

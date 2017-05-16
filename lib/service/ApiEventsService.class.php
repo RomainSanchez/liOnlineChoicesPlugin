@@ -12,6 +12,7 @@
  */
 class ApiEventsService extends ApiEntityService
 {
+    protected $translationService;
     protected static $FIELD_MAPPING = [
         'id'            => 'id',
         'metaEvent.id'  => 'MetaEvent.id',
@@ -32,6 +33,19 @@ class ApiEventsService extends ApiEntityService
         $this->manifestationsService = $manifestations;
     }
     
+    /**
+     * 
+     * @return array
+     */
+    public function findAll(array $query)
+    {
+        $q = $this->buildQuery($query);
+        $events = $q->execute();
+
+        return $this->getFormattedEntities($events);
+    }
+
+
     public function buildInitialQuery()
     {
         return Doctrine::getTable('Event')->createQuery('root')
@@ -42,16 +56,8 @@ class ApiEventsService extends ApiEntityService
     protected function postFormatEntity(array $entity, Doctrine_Record $record)
     {
         // translations
-        if ( isset($entity['translations']) )
-        foreach ( $entity['translations'] as $key => $value )
-        {
-            $entity['translations'][$value['lang']] = $value;
-            unset(
-                $entity['translations'][$key],
-                $entity['translations'][$value['lang']]['lang'],
-                $entity['translations'][$value['lang']]['id']
-            );
-        }
+        $entity['translations'] = $this->translationService->reformat($entity['translations']);
+        $entity['metaEvent']['translations'] = $this->translationService->reformat($entity['metaEvent']['translations']);
         
         // imageURL
         sfContext::getInstance()->getConfiguration()->loadHelpers(array('CrossAppLink'));
@@ -73,8 +79,15 @@ class ApiEventsService extends ApiEntityService
             'sorting'  => [],
             'page'     => 1,
         ];
-        //$entity['manifestations'] = $this->manifestationsService->findAll($query)['_embedded']['items'];
+        
+        $entity['manifestations'] = $this->manifestationsService->findAll($query);
         
         return $entity;
+    }
+
+    public function setTranslationService(ApiTranslationService $i18n)
+    {
+        $this->translationService = $i18n;
+        return $this;
     }
 }
