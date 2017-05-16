@@ -39,9 +39,10 @@ class ApiEventsService extends ApiEntityService
         ;
     }
     
-    protected function postFormatEntity(array $entity)
+    protected function postFormatEntity(array $entity, Doctrine_Record $record)
     {
         // translations
+        if ( isset($entity['translations']) )
         foreach ( $entity['translations'] as $key => $value )
         {
             $entity['translations'][$value['lang']] = $value;
@@ -73,7 +74,6 @@ class ApiEventsService extends ApiEntityService
             'page'     => 1,
         ];
         //$entity['manifestations'] = $this->manifestationsService->findAll($query)['_embedded']['items'];
-        // TODO (a call to ApiManifestationService may be a good idea)
         
         return $entity;
     }

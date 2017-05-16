@@ -71,17 +71,11 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
 
         $formattedEntity = [];
         foreach ($this->getFieldsEquivalents() as $api => $db) {
-            // case of "not implemented" fields
-            if ($db === NULL) {
-                $formattedEntity = $this->_setSourceOnTarget($formattedEntity, explode('.', $api), NULL);
-                continue;
-            }
-
-            $value = $this->_getSource($record, explode('.', $db));
+            $value = $db ? $this->_getSource($record, explode('.', $db)) : NULL;
             $formattedEntity = $this->_setSourceOnTarget($formattedEntity, explode('.', $api), $value);
         }
 
-        return $this->postFormatEntity($formattedEntity);
+        return $this->postFormatEntity($formattedEntity, $record);
     }
     
     private function _setSourceOnTarget(array $target, array $api, $source)
@@ -104,6 +98,9 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         
         if ( $collection ) {
             foreach ( $source as $id => $value ) {
+                if ( !isset($target[$key][$id]) ) {
+                    $target[$key][$id] = [];
+                }
                 $target[$key][$id] = $this->_setSourceOnTarget($target[$key][$id], $api, $value);
             }
         }
@@ -116,15 +113,20 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     
     private function _getSource(Doctrine_Record $record, array $db)
     {
-        if ( count($db) == 0 )
+        if ( count($db) == 0 ) {
             return $record;
+        }
         
         $sublevel = array_shift($db);
-        $inverse = strpos($sublevel, '!') !== false;
+        $inverse  = strpos($sublevel, '!') !== false;
         $sublevel = preg_replace('/^!/', '', $sublevel);
         
         if ( $record->$sublevel instanceof Doctrine_Collection )
         {
+            if ( !$db ) {
+                return $record->$sublevel;
+            }
+            
             $r = [];
             foreach ( $record->$sublevel as $rec )
                 $r[] = $this->_getSource($rec, $db);
@@ -143,7 +145,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
      * @return array post-formatted entities
      *
      */
-    protected function postFormatEntity(array $entity)
+    protected function postFormatEntity(array $entity, Doctrine_Record $record)
     {
         return $entity;
     }
