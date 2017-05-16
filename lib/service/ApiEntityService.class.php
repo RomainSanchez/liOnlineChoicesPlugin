@@ -69,49 +69,71 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         if ($record === NULL)
             return [];
 
-        $arr = [];
+        $formattedEntity = [];
         foreach ($this->getFieldsEquivalents() as $api => $db) {
             // case of "not implemented" fields
             if ($db === NULL) {
-                $arr = $this->setResultValue(NULL, $api, $arr);
+                $formattedEntity = $this->_setSourceOnTarget($formattedEntity, explode('.', $api), NULL);
                 continue;
             }
 
-            // direct fields from the root entity
-            if (strpos($db, '.') === false) {
-                $field = preg_replace('/^!/', '', $db);
-                $value = $record->$field instanceof Doctrine_Collection || $record->$field instanceof Doctrine_Record ? $this->getDoctrineFlatData($record->$field) : $record->$field;
-                $arr = $this->setResultValue(
-                    $this->toggleBoolean($value, $field != $db), $api, $arr);
-                continue;
-            }
-
-            // prepare data
-            $subEntities = explode('.', preg_replace('/^!/', '', $db));
-            $property = array_pop($subEntities);
-
-            // get back the last Doctrine_Record child
-            $rec = $record;
-            foreach ($subEntities as $entity) {
-                $rec = $rec->$entity;
-            }
-
-            // in case of unexistent property/object before getting back $property
-            if (!( $rec instanceof Doctrine_Record || $rec instanceof Doctrine_Collection )) {
-                $arr = $this->setResultValue(NULL, $api, $arr);
-                continue;
-            }
-
-            $value = $rec->$property instanceof Doctrine_Collection || $rec->$property instanceof Doctrine_Record ? $this->getDoctrineFlatData($rec->$property) : $rec->$property;
-
-            $value = $rec->$property;
-            // find out the targeted property to render
-            $arr = $this->setResultValue(
-                $this->toggleBoolean($value, preg_match('/^!/', $db) === 1), $api, $arr
-            );
+            $value = $this->_getSource($record, explode('.', $db));
+            $formattedEntity = $this->_setSourceOnTarget($formattedEntity, explode('.', $api), $value);
         }
 
-        return $this->postFormatEntity($arr);
+        return $this->postFormatEntity($formattedEntity);
+    }
+    
+    private function _setSourceOnTarget(array $target, array $api, $source)
+    {
+        $completeKey = array_shift($api);
+        $collection = is_array($source);
+        $key = str_replace('[]', '', $completeKey);
+        
+        if ( count($api) == 0 ) {
+            $target[$key] = $source instanceof Doctrine_Record || $source instanceof Doctrine_Collection
+                ? $this->getDoctrineFlatData($source)
+                : $source;
+            return $target;
+        }
+        
+        // init
+        if ( !isset($target[$key]) ) {
+            $target[$key] = $collection ? [[]] : [];
+        }
+        
+        if ( $collection ) {
+            foreach ( $source as $id => $value ) {
+                $target[$key][$id] = $this->_setSourceOnTarget($target[$key][$id], $api, $value);
+            }
+        }
+        else {
+            $target[$key] = $this->_setSourceOnTarget($target[$key], $api, $source);
+        }
+        
+        return $target;
+    }
+    
+    private function _getSource(Doctrine_Record $record, array $db)
+    {
+        if ( count($db) == 0 )
+            return $record;
+        
+        $sublevel = array_shift($db);
+        $inverse = strpos($sublevel, '!') !== false;
+        $sublevel = preg_replace('/^!/', '', $sublevel);
+        
+        if ( $record->$sublevel instanceof Doctrine_Collection )
+        {
+            $r = [];
+            foreach ( $record->$sublevel as $rec )
+                $r[] = $this->_getSource($rec, $db);
+            return $r;
+        }
+        
+        return $record->$sublevel instanceof Doctrine_Record || $record->$sublevel instanceof Doctrine_Collection
+            ? $this->_getSource($record->$sublevel, $db)
+            : ($inverse ? !$record->$sublevel : $record->$sublevel);
     }
 
     /**
@@ -144,7 +166,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     protected function buildQuerySorting(Doctrine_Query $q, array $sorting = [])
     {
         $orderBy = '';
-        foreach ($sorting as $field => $direction) {
+        foreach ( $sorting as $field => $direction ) {
             if (!in_array($field, $this->getFieldsEquivalents()))
                 continue;
             $orderBy .= array_search($field, $this->getFieldsEquivalents()) . ' ' . $direction . ' ';
@@ -155,14 +177,14 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
 
     protected function buildQueryLimit(Doctrine_Query $q, $limit = NULL)
     {
-        if ($limit !== NULL)
+        if ( $limit !== NULL )
             $q->limit($limit);
         return $q;
     }
 
     protected function buildQueryPagination(Doctrine_Query $q, $page = 1)
     {
-        if ($page !== NULL)
+        if ( $page !== NULL )
             $q->offset($page - 1);
         return $q;
     }
@@ -172,18 +194,18 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         $fields = array_merge($this->getFieldsEquivalents(), $this->getHiddenFieldsEquivalents());
         $operands = $this->getOperandEquivalents();
 
-        foreach ($criterias as $criteria => $search)
-            if (isset($fields[$criteria]) && isset($search['value'])) {
+        foreach ( $criterias as $criteria => $search )
+            if ( isset($fields[$criteria]) && isset($search['value']) ) {
                 $field = strpos('.', $fields[$criteria]) === false ? $q->getRootAlias() . '.' . $fields[$criteria] . ' ' : $fields[$criteria] . ' ';
                 $compare = $operands[$search['type']];
                 $args = [$search['value']];
                 $dql = '?';
 
-                if (is_array($compare)) {
+                if ( is_array($compare) ) {
                     $args = $compare[1]($search['value']);
-                    if (is_array($args)) {
+                    if ( is_array($args) ) {
                         $dql = [];
-                        foreach ($args as $arg)
+                        foreach ( $args as $arg )
                             $dql[] = '?';
                         $dql = implode(',', $dql);
                     }
@@ -236,54 +258,34 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         ];
     }
 
-    /**
-     * Sets a value in an array depending on its string description
-     * using "." as a dimension separator
-     *
-     * @param mixed $value
-     * @param string $key    description to the position in $result where to put $value
-     * @param array $result  the array to modify
-     *
-     * */
-    private function setResultValue($value, $key, array $result)
-    {
-        $tmp = &$result;
-        foreach (explode('.', $key) as $field) {
-            if (!isset($tmp[$field]))
-                $tmp[$field] = [];
-            $tmp = &$tmp[$field];
-        }
-        $tmp = $value;
-
-        return $result;
-    }
-
-    private function toggleBoolean($value, $bool)
-    {
-        return $bool ? !$value : $value;
-    }
-
     private function getDoctrineFlatData($data)
     {
         if (!$data instanceof Doctrine_Collection && !$data instanceof Doctrine_Record)
             throw new liOnlineSaleException('Doctrine_Collection or Doctrine_Record expected, ' . get_class($data) . ' given.');
 
         $fct = function(Doctrine_Record $rec) {
+        
             $arr = [];
-            foreach ($rec->getTable()->getColumns() as $colname => $coldef)
-                if (!is_object($rec->$colname))
+            foreach ( $rec->getTable()->getColumns() as $colname => $coldef )
+            {
+                if ( !is_object($rec->$colname) )
+                {
                     $arr[$colname] = $rec->$colname;
+                }
+            }
             return $arr;
         };
 
         $res = [];
-        if ($data instanceof Doctrine_Collection) {
-            foreach ($data as $rec) {
+        if ( $data instanceof Doctrine_Collection ) {
+            foreach ( $data as $rec ) {
                 $res[] = $fct($rec);
             }
-        } else
-            $res = $fct($rec);
-
+        }
+        else {
+            $res = $fct($data);
+        }
+        
         return $res;
     }
 

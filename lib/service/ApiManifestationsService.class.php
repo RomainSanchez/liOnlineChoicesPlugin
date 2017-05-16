@@ -17,16 +17,22 @@ class ApiManifestationsService extends ApiEntityService
         'id' => 'id',
         'startsAt' => 'happens_at',
         'endsAt' => 'ends_at',
-        'location' => 'Location', //object
-        //'gauges' => null, //array
+        'metaEvent' => 'Event.MetaEvent.Translation',
+        'location.id' => 'Location.id',
+        'location.name' => 'Location.name',
+        'location.address' => 'Location.address',
+        'location.zip' => 'Location.postalcode',
+        'location.city' => 'Location.city',
+        'location.country' => 'Location.country',
         'gauges.id' => 'Gauges.id',
-        'gauges.translations' => 'Gauges.Translation',
+        'gauges.name' => 'Gauges.Workspace.name',
         'gauges.availableUnits' => 'Gauges.free',
-        //'gauges.prices' => null, //array
+        /*
         'gauges.prices.id' => 'Gauges.Prices.id',
         'gauges.prices.translations' => 'Gauges.Prices.Translation',
         'gauges.prices.value' => 'Gauges.Prices.value',
         'gauges.prices.currencyCode' => null,
+        */
     ];
 
     /**
@@ -69,5 +75,22 @@ class ApiManifestationsService extends ApiEntityService
     public function buildInitialQuery()
     {
         return Doctrine::getTable('Manifestation')->createQuery('root');
+    }
+    
+    public function getMaxShownAvailableUnits()
+    {
+        return 10;
+    }
+    
+    protected function postFormatEntity(array $entity)
+    {
+        foreach ( $entity['gauges'] as $id => $gauge ) {
+            $free = $entity['gauges'][$id]['availableUnits'];
+            $entity['gauges'][$id]['availableUnits'] = $free > $this->getMaxShownAvailableUnits()
+                ? $this->getMaxShownAvailableUnits()
+                : $free;
+        }
+        
+        return $entity;
     }
 }

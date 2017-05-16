@@ -30,7 +30,7 @@ class ApiCustomersService extends ApiEntityService
         //'password'      => 'Contact.password',
     ];
     
-    protected $HIDDEN_FIELD_MAPPING = [
+    protected static $HIDDEN_FIELD_MAPPING = [
         'password'      => 'Contact.password',
     ];
     

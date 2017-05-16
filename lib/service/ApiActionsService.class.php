@@ -17,6 +17,6 @@ class ApiActionsService
         $response = $action->getResponse();
         $response->setHttpHeader('Access-Control-Allow-Origin', '*');
         $response->setHttpHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, OPTIONS, DELETE');
-        $response->setHttpHeader('Access-Control-Allow-Headers', 'authorization, x-requested-with, content-type');
+        header('Access-Control-Allow-Headers: authorization, x-requested-with, content-type');
     }
 }
