@@ -6,16 +6,16 @@
  */
 
 /**
- * Description of ApiHttpStatus
+ * Description of OcLogger
  *
  * @author Baptiste SIMON <baptiste.simon@libre-informatique.fr>
  */
 
 class OcLogger
 {
-    public function log($message, apiAction $object = NULL)
+    public static function log($message, sfActions $object = NULL)
     {
         $cat = is_object($object) ? preg_replace('/Actions$/', '', get_class($object)) : 'liOnlineChoicePlugin';
-        error_log('['.$cat'] '.$message);
+        error_log('['.$cat.'] '.$message);
     }
 }
