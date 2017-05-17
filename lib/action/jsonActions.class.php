@@ -25,10 +25,13 @@ abstract class jsonActions extends sfActions
             /* @var $oauthService ApiAuthService */
             $oauthService = $this->getService('oauth_service');
 
+            
             if ( !$oauthService->isAuthenticated($this->getRequest()) ) {
                 $this->getResponse()->setStatusCode(ApiHttpStatus::UNAUTHORIZED);
                 throw new sfException('Invalid authentication credentials');
             }
+            sfContext::getInstance()->getUser()->signIn(
+                $oauthService->getToken()->OcApplication->User, true);
         }
         $contentType = $this->getRequest()->getContentType();
         $content = $this->getRequest()->getContent();
