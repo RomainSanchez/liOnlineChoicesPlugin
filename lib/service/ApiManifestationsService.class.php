@@ -79,7 +79,7 @@ class ApiManifestationsService extends ApiEntityService
 
     public function buildInitialQuery()
     {
-        return Doctrine::getTable('Manifestation')->createQuery('root')->andWhere('root.id = ?', 121);
+        return Doctrine::getTable('Manifestation')->createQuery('root');
     }
     
     public function getMaxShownAvailableUnits()
