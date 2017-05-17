@@ -15,7 +15,7 @@ all:
       customers_service:
           class: ApiCustomersService
           calls:
-            - ['setOAuthServiceService', ['@oauth_service']]
+            - ['setOAuthService', ['@oauth_service']]
       events_service:
           class: ApiEventsService
           calls:
