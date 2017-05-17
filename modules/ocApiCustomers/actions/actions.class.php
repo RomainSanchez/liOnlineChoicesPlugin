@@ -12,50 +12,49 @@
  */
 class ocApiCustomersActions extends apiActions
 {
+
     public function executeLogin(sfWebRequest $request)
     {
-        $email    = $request->getParameter('email');
+        $email = $request->getParameter('email');
         $password = $request->getParameter('password');
-        
-        if (!( $email && $password ))
-        {
+
+        if ( !( $email && $password ) ) {
             return $this->createJsonResponse([
-                'code' => ApiHttpStatus::BAD_REQUEST,
-                'message' => 'Validation failed',
-                'errors' => [
-                    'children' => [
-                        'email'    => !$email ? ['errors' => ['Please provide an email']] : new ArrayObject,
-                        'password' => !$password ? ['errors' => ['Please provide a password']] : new ArrayObject,
+                    'code' => ApiHttpStatus::BAD_REQUEST,
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'children' => [
+                            'email' => !$email ? ['errors' => ['Please provide an email']] : new ArrayObject,
+                            'password' => !$password ? ['errors' => ['Please provide a password']] : new ArrayObject,
+                        ],
                     ],
-                ],
-            ], ApiHttpStatus::BAD_REQUEST);
+                    ], ApiHttpStatus::BAD_REQUEST);
         }
-        
+
         $query = $this->buildQuery($request, [
             'criteria' => [
-                'password'  => ['value' => $password, 'type' => 'equal'],
-                'email'     => ['value' => $email, 'type' => 'equal'],
+                'password' => ['value' => $password, 'type' => 'equal'],
+                'email' => ['value' => $email, 'type' => 'equal'],
             ],
         ]);
-        
+
         $customers = $this->getService('customers_service');
-        if ( !$customers->identify($query) )
-        {
+        if ( !$customers->identify($query) ) {
             return $this->createJsonResponse([
-                'code' => ApiHttpStatus::UNAUTHORIZED,
-                'message' => 'Verification failed',
-            ], ApiHttpStatus::UNAUTHORIZED);
+                    'code' => ApiHttpStatus::UNAUTHORIZED,
+                    'message' => 'Verification failed',
+                    ], ApiHttpStatus::UNAUTHORIZED);
         }
-        
+
         return $this->createJsonResponse([
-            'code' => ApiHttpStatus::SUCCESS,
-            'message' => 'Verification successful',
-            'success' => [
-                'customer' => $customers->getIdentifiedCustomer(),
-            ],
+                'code' => ApiHttpStatus::SUCCESS,
+                'message' => 'Verification successful',
+                'success' => [
+                    'customer' => $customers->getIdentifiedCustomer(),
+                ],
         ]);
     }
-    
+
     /**
      * 
      * @param sfWebRequest $request
@@ -65,29 +64,27 @@ class ocApiCustomersActions extends apiActions
     public function create(sfWebRequest $request)
     {
         return $this->createJsonResponse([
-            'code' => ApiHttpStatus::NOT_IMPLEMENTED,
-            'message' => 'Creation of customers not implemented here',
-            'errors' => [],
-        ], ApiHttpStatus::NOT_IMPLEMENTED);
-        
+                'code' => ApiHttpStatus::NOT_IMPLEMENTED,
+                'message' => 'Creation of customers not implemented here',
+                'errors' => [],
+                ], ApiHttpStatus::NOT_IMPLEMENTED);
+
         // never goes here, function not implemented
-        $data = $request->getPostParameters();
-        foreach ( ['name', 'email', 'password'] as $field )
-        {
-            if (!( isset($data[$field]) && $data[$field] ))
-            {
-                $data[$field] = ['errors' => 'Please enter your '.$field];
+        $data = $request->getParameters();
+        foreach ( ['name', 'email', 'password'] as $field ) {
+            if ( !( isset($data[$field]) && $data[$field] ) ) {
+                $data[$field] = ['errors' => 'Please enter your ' . $field];
                 return $this->createJsonResponse([
-                    'code' => ApiHttpStatus::BAD_REQUEST,
-                    'message' => 'Validation failed',
-                    'errors' => [
-                        'children' => $data,
-                    ],
-                ], ApiHttpStatus::BAD_REQUEST);
+                        'code' => ApiHttpStatus::BAD_REQUEST,
+                        'message' => 'Validation failed',
+                        'errors' => [
+                            'children' => $data,
+                        ],
+                        ], ApiHttpStatus::BAD_REQUEST);
             }
         }
     }
-    
+
     /**
      * 
      * @param sfWebRequest $request
@@ -128,11 +125,9 @@ class ocApiCustomersActions extends apiActions
     public function getOne(sfWebRequest $request)
     {
         $customers = $this->getService('customers_service');
-        
+
         $pro = $customers->getIdentifiedProfessional();
-        $result = !$pro instanceof Professional
-            ? new ArrayObject
-            : $customers->getFormattedEntity($pro);
+        $result = !$pro instanceof Professional ? new ArrayObject : $customers->getFormattedEntity($pro);
         return $this->createJsonResponse($result);
     }
 
@@ -145,24 +140,22 @@ class ocApiCustomersActions extends apiActions
     public function getAll(sfWebRequest $request, array $query)
     {
         $customers = $this->getService('customers_service');
-        
-        if ( $customers->isIdentificated() && !$query['criteria'] )
-        {
+
+        if ( $customers->isIdentificated() && !$query['criteria'] ) {
             $customer = $customers->getIdentifiedCustomer();
             $query['criteria']['id']['value'] = $customer['id'];
-            $query['criteria']['id']['type']  = 'equal';
+            $query['criteria']['id']['type'] = 'equal';
             return $this->createJsonResponse($this->getListWithDecorator([$customer], $query));
         }
-        
+
         // restricts access to customers collection to requests filtering on password and email
         if ( !$customers->isIdentificated() && !$query['criteria'] )
             return $this->createJsonResponse($this->getListWithDecorator([], $query));
-        if (!( isset($query['criteria']['email']) && isset($query['criteria']['password'])
-            && isset($query['criteria']['email']['value']) && isset($query['criteria']['password']['value']) ))
+        if ( !( isset($query['criteria']['email']) && isset($query['criteria']['password']) && isset($query['criteria']['email']['value']) && isset($query['criteria']['password']['value']) ) )
             return $this->createJsonResponse($this->getListWithDecorator([], $query));
-        
+
         $customer = $customers->identify($query);
-        
+
         return $this->createJsonResponse($this->getListWithDecorator([$customers->getIdentifiedCustomer()], $query));
     }
 }

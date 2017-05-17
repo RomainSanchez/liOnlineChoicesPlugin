@@ -14,10 +14,7 @@ class ocApiOAuthActions extends jsonActions
 {
     public function preExecute()
     {
-        $this->getContext()
-            ->getContainer()
-            ->get('actions_service')
-            ->preExecute($this);
+        $this->getService('actions_service')->preExecute($this);
         parent::preExecute();
     }
     
@@ -25,9 +22,7 @@ class ocApiOAuthActions extends jsonActions
     {
         $response = $this->getResponse();
         $response->clearHttpHeaders();
-        $response->setHttpHeader('Access-Control-Allow-Origin', '*');
-        $response->setHttpHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, OPTIONS, DELETE');
-        $response->setHttpHeader('Access-Control-Allow-Headers', 'authorization, x-requested-with');
+        $this->getService('actions_service')->preExecute($this);
         return sfView::NONE;
     }
     
