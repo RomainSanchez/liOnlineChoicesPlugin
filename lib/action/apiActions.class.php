@@ -13,6 +13,7 @@
  */
 abstract class apiActions extends jsonActions
 {
+
     public function preExecute()
     {
         $this->getService('actions_service')
@@ -31,7 +32,7 @@ abstract class apiActions extends jsonActions
         $status = ApiHttpStatus::SUCCESS;
         $query = $this->buildQuery($request);
 
-        switch (strtoupper($request->getMethod())) {
+        switch ( strtoupper($request->getMethod()) ) {
             case 'GET':
                 // get all resources
                 $response = $this->getAll($request, $query);
@@ -58,7 +59,7 @@ abstract class apiActions extends jsonActions
         $response = null;
         $status = ApiHttpStatus::SUCCESS;
 
-        switch (strtoupper($request->getMethod())) {
+        switch ( strtoupper($request->getMethod()) ) {
             case 'GET':
                 // get one resource
                 $response = $this->getOne($request);
@@ -93,12 +94,12 @@ abstract class apiActions extends jsonActions
 
         // requirements for do_action must be defined in route configuration
         // example: do_action: action1|action2|action3
-        if ($this->actionRequirementsIsEmpty($request)) {
+        if ( $this->actionRequirementsIsEmpty($request) ) {
             return $this->createJsonResponse(['error']
                     , ApiHttpStatus::INTERNAL_SERVER_ERROR);
         }
 
-        switch (strtoupper($request->getMethod())) {
+        switch ( strtoupper($request->getMethod()) ) {
             case 'GET':
                 $response = $this->{$doAction . 'Action'}($request, $query);
                 break;
@@ -136,42 +137,42 @@ abstract class apiActions extends jsonActions
     {
         return array('message' => __METHOD__);
     }
-    
+
     protected function getListWithDecorator(array $data, array $query)
     {
         $this->getContext()->getConfiguration()->loadHelpers('Url');
         $customers = $this->getService('customers_service');
         $total = $data ? $customers->countResults($query) : 0;
         $limit = $query['limit'] ? $query['limit'] : 10;
-        $page  = $data ? ($query['page'] ? $query['page'] : 1) : 0;
+        $page = $data ? ($query['page'] ? $query['page'] : 1) : 0;
         $params = $this->getRequest()->getGetParameters();
-        
+
         // qstrings
         $params['limit'] = $limit;
         $qstrings['self'] = http_build_query($params);
-        
+
         $params['page'] = $data ? 1 : 0;
         $qstrings['first'] = http_build_query($params);
-        
+
         $params['page'] = $nbpages = ceil($total / $limit);
         $qstrings['last'] = http_build_query($params);
-        
+
         $params['page'] = $page == $nbpages ? $page : $page + 1;
         $qstrings['next'] = http_build_query($params);
-        
+
         // return
         return [
-            'page'   => $page,
-            'limit'  => $limit,
-            'pages'  => $nbpages,
-            'total'  => $total,
+            'page' => $page,
+            'limit' => $limit,
+            'pages' => $nbpages,
+            'total' => $total,
             '_links' => [
-                'self'  => [ 'href' => url_for($this->getContext()->getModuleName().'/'.$this->getContext()->getActionName().'?'.$qstrings['self'])  ],
-                'first' => [ 'href' => url_for($this->getContext()->getModuleName().'/'.$this->getContext()->getActionName().'?'.$qstrings['first']) ],
-                'last'  => [ 'href' => url_for($this->getContext()->getModuleName().'/'.$this->getContext()->getActionName().'?'.$qstrings['last']) ],
-                'next'  => [ 'href' => url_for($this->getContext()->getModuleName().'/'.$this->getContext()->getActionName().'?'.$qstrings['next']) ],
+                'self' => ['href' => url_for($this->getContext()->getModuleName() . '/' . $this->getContext()->getActionName() . '?' . $qstrings['self'])],
+                'first' => ['href' => url_for($this->getContext()->getModuleName() . '/' . $this->getContext()->getActionName() . '?' . $qstrings['first'])],
+                'last' => ['href' => url_for($this->getContext()->getModuleName() . '/' . $this->getContext()->getActionName() . '?' . $qstrings['last'])],
+                'next' => ['href' => url_for($this->getContext()->getModuleName() . '/' . $this->getContext()->getActionName() . '?' . $qstrings['next'])],
             ],
-            '_embedded' => [ 'items' => $data ],
+            '_embedded' => ['items' => $data],
         ];
     }
 
@@ -236,10 +237,10 @@ abstract class apiActions extends jsonActions
     {
         $params = array_merge($query, $request->getGetParameters());
         return [
-            'page'      => isset($params['page'])     ? $this->buildPageQuery($params['page'])         : 1,
-            'limit'     => isset($params['limit'])    ? $this->buildLimitQuery($params['limit'])       : 10,
-            'sorting'   => isset($params['sorting'])  ? $this->buildSortingQuery($params['sorting'])   : [],
-            'criteria'  => isset($params['criteria']) ? $this->buildCriteriaQuery($params['criteria']) : [],
+            'page' => isset($params['page']) ? $this->buildPageQuery($params['page']) : 1,
+            'limit' => isset($params['limit']) ? $this->buildLimitQuery($params['limit']) : 10,
+            'sorting' => isset($params['sorting']) ? $this->buildSortingQuery($params['sorting']) : [],
+            'criteria' => isset($params['criteria']) ? $this->buildCriteriaQuery($params['criteria']) : [],
         ];
     }
 
@@ -260,9 +261,7 @@ abstract class apiActions extends jsonActions
      */
     private function buildPageQuery($params = [])
     {
-        return $params !== null && isset($params['page']) && intval($params['page']).'' === ''.$params['page']
-            ? $params['page']
-            : 1;
+        return $params !== null && isset($params['page']) && intval($params['page']) . '' === '' . $params['page'] ? $params['page'] : 1;
     }
 
     /**
@@ -273,15 +272,13 @@ abstract class apiActions extends jsonActions
     private function buildSortingQuery($params = [])
     {
         $sortingParams = (null === $params ? [] : $params);
-        
-        foreach ( $sortingParams as $key => $value )
-        {
-            if ( !in_array($value, ['asc', 'desc']) )
-            {
+
+        foreach ( $sortingParams as $key => $value ) {
+            if ( !in_array($value, ['asc', 'desc']) ) {
                 unset($sortingParams[$key]);
             }
         }
-        
+
         return $sortingParams;
     }
 
@@ -307,27 +304,22 @@ abstract class apiActions extends jsonActions
             'greater or equal', 'lesser or equal',
         ];
 
-        foreach ( $criteriaParams as $criteria => $options )
-        {
+        foreach ( $criteriaParams as $criteria => $options ) {
             // this is done to limit allowed criterias, usually useless
-            if ( is_array($allowedCriteria)
-              && count($allowedCriteria) > 0
-              && !in_array($criteria, $allowedCriteria) )
-            {
+            if ( is_array($allowedCriteria) && count($allowedCriteria) > 0 && !in_array($criteria, $allowedCriteria) ) {
                 continue;
             }
-            
-            if (!( isset($options['type']) && $options['type'] ))
+
+            if ( !( isset($options['type']) && $options['type'] ) )
                 $options['type'] = 'equal';
 
-            if ( !in_array($options['type'], $allowedTypes) )
-            {
+            if ( !in_array($options['type'], $allowedTypes) ) {
                 continue;
             }
 
             $result[$criteria] = [
                 'value' => $options['value'],
-                'type'  => $options['type'],
+                'type' => $options['type'],
             ];
         }
 
