@@ -59,6 +59,7 @@ class ocApiCustomersActions extends apiActions
      * 
      * @param sfWebRequest $request
      * @return array
+     * @TODO everything... maybe reusing the match-maker array
      */
     public function create(sfWebRequest $request)
     {
@@ -84,6 +85,38 @@ class ocApiCustomersActions extends apiActions
         }
     }
 
+    /**
+     * 
+     * @param sfWebRequest $request
+     * @return array
+     * @TODO everything... maybe reusing the match-maker array
+     */
+    public function update(sfWebRequest $request)
+    {
+        return $this->createJsonResponse([
+            'code' => ApiHttpStatus::NOT_IMPLEMENTED,
+            'message' => 'Updating customers not implemented here',
+            'errors' => [],
+        ], ApiHttpStatus::NOT_IMPLEMENTED);
+        
+        // never goes here, function not implemented
+        $data = $request->getPostParameters();
+        foreach ( ['name', 'email', 'password'] as $field )
+        {
+            if (!( isset($data[$field]) && $data[$field] ))
+            {
+                $data[$field] = ['errors' => 'Please enter your '.$field];
+                return $this->createJsonResponse([
+                    'code' => ApiHttpStatus::BAD_REQUEST,
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'children' => $data,
+                    ],
+                ], ApiHttpStatus::BAD_REQUEST);
+            }
+        }
+    }
+    
     /**
      * 
      * @param sfWebRequest $request
