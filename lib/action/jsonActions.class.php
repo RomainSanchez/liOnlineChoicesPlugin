@@ -19,20 +19,37 @@ abstract class jsonActions extends sfActions
      */
     public function preExecute()
     {
+        $this->authenticate();
+        $this->convertJsonToParameters();
+
+        //disable layout
+        $this->setLayout(false);
+        //json response header
+        $this->getResponse()->setHttpHeader('Content-type', 'application/json');
+    }
+
+    private function authenticate()
+    {
+        $request = $this->getRequest();
 
         // to be tested only if the module "is_secure"
         if ( $this->getSecurityValue('is_secure', false) ) {
+
             /* @var $oauthService ApiAuthService */
             $oauthService = $this->getService('oauth_service');
 
-            
-            if ( !$oauthService->isAuthenticated($this->getRequest()) ) {
-                $this->getResponse()->setStatusCode(ApiHttpStatus::UNAUTHORIZED);
-                throw new sfException('Invalid authentication credentials');
+            //check oauth authentification
+            if ( !$oauthService->isAuthenticated($request) ) {
+                throw new ocAuthCredentialsException('Invalid authentication credentials');
             }
+            //assign user
             sfContext::getInstance()->getUser()->signIn(
                 $oauthService->getToken()->OcApplication->User, true);
         }
+    }
+
+    private function convertJsonToParameters()
+    {
         $contentType = $this->getRequest()->getContentType();
         $content = $this->getRequest()->getContent();
 
@@ -42,11 +59,6 @@ abstract class jsonActions extends sfActions
                 $this->getRequest()->setParameter($k, $v);
             }
         }
-
-        //disable layout
-        $this->setLayout(false);
-        //json response header
-        $this->getResponse()->setHttpHeader('Content-type', 'application/json');
     }
 
     /**
