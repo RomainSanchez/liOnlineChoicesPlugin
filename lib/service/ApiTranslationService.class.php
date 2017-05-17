@@ -12,17 +12,15 @@
  */
 class ApiTranslationService
 {
-    public function reformat($originals)
+    public function reformat(&$originals)
     {
         foreach ( $originals as $id => $original ) {
-            $lang = $original['lang'];
             unset(
-                $original['id'],
-                $original['lang'],
-                $originals[$id]
+                $originals[$id]['id'],
+                $originals[$id]['lang']
             );
-            $originals[$lang] = $original;
         }
-        return $originals;
+        
+        return $this;
     }
 }

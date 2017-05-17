@@ -19,14 +19,25 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     protected $oauth;
 
     /**
-     *
-     * @var array 
+     * @var array
+     * any field and sub-field have to be represented as "field" and "field.sub-field" 
+     * any collections is accessed as if it was a simple property, the engine does the rest
+     * left side: the API representation for datas
+     * right side: array containing: 'type' => the type of data expected, 'value' => the path to data in Doctrine_Records
+     * type: the type can be 'simple', 'collection', null or 'sub-record' (with value null)
+     * value: can be null if null is expected
+     * for data coming from sub-collection records, the type needs to be set as 'collection.simple' for example...
      */
     protected static $HIDDEN_FIELD_MAPPING = [];
 
     /**
-     *
-     * @var array 
+     * @var array
+     * any field and sub-field have to be represented as "field" and "field.sub-field" 
+     * any collections is accessed as if it was a simple property, the engine does the rest
+     * left side: the API representation for datas
+     * right side: array containing: 'type' => the type of data expected, 'value' => the path to data in Doctrine_Records
+     * type: the type can be 'simple', 'collection' (is useless standalone), null or 'sub-record' (with value null)
+     * for data coming from sub-collection records, the type needs to be set as 'collection.simple' for example...
      */
     protected static $FIELD_MAPPING = [];
 
@@ -68,74 +79,11 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     {
         if ($record === NULL)
             return [];
-
-        $formattedEntity = [];
-        foreach ($this->getFieldsEquivalents() as $api => $db) {
-            $value = $db ? $this->_getSource($record, explode('.', $db)) : NULL;
-            $formattedEntity = $this->_setSourceOnTarget($formattedEntity, explode('.', $api), $value);
-        }
-
-        return $this->postFormatEntity($formattedEntity, $record);
-    }
-    
-    private function _setSourceOnTarget(array $target, array $api, $source)
-    {
-        $completeKey = array_shift($api);
-        $collection = is_array($source);
-        $key = str_replace('[]', '', $completeKey);
+        $accessor = new ocPropertyAccessor;
         
-        if ( count($api) == 0 ) {
-            $target[$key] = $source instanceof Doctrine_Record || $source instanceof Doctrine_Collection
-                ? $this->getDoctrineFlatData($source)
-                : $source;
-            return $target;
-        }
+        $entity = $accessor->toAPI($record, $this->getFieldsEquivalents());
         
-        // init
-        if ( !isset($target[$key]) ) {
-            $target[$key] = $collection ? [[]] : [];
-        }
-        
-        if ( $collection ) {
-            foreach ( $source as $id => $value ) {
-                if ( !isset($target[$key][$id]) ) {
-                    $target[$key][$id] = [];
-                }
-                $target[$key][$id] = $this->_setSourceOnTarget($target[$key][$id], $api, $value);
-            }
-        }
-        else {
-            $target[$key] = $this->_setSourceOnTarget($target[$key], $api, $source);
-        }
-        
-        return $target;
-    }
-    
-    private function _getSource(Doctrine_Record $record, array $db)
-    {
-        if ( count($db) == 0 ) {
-            return $record;
-        }
-        
-        $sublevel = array_shift($db);
-        $inverse  = strpos($sublevel, '!') !== false;
-        $sublevel = preg_replace('/^!/', '', $sublevel);
-        
-        if ( $record->$sublevel instanceof Doctrine_Collection )
-        {
-            if ( !$db ) {
-                return $record->$sublevel;
-            }
-            
-            $r = [];
-            foreach ( $record->$sublevel as $rec )
-                $r[] = $this->_getSource($rec, $db);
-            return $r;
-        }
-        
-        return $record->$sublevel instanceof Doctrine_Record || $record->$sublevel instanceof Doctrine_Collection
-            ? $this->_getSource($record->$sublevel, $db)
-            : ($inverse ? !$record->$sublevel : $record->$sublevel);
+        return $this->postFormatEntity($entity, $record);
     }
 
     /**
@@ -198,7 +146,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
 
         foreach ( $criterias as $criteria => $search )
             if ( isset($fields[$criteria]) && isset($search['value']) ) {
-                $field = strpos('.', $fields[$criteria]) === false ? $q->getRootAlias() . '.' . $fields[$criteria] . ' ' : $fields[$criteria] . ' ';
+                $field = $q->getRootAlias() . '.' . $fields[$criteria]['value'].' ';
                 $compare = $operands[$search['type']];
                 $args = [$search['value']];
                 $dql = '?';
@@ -263,7 +211,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     private function getDoctrineFlatData($data)
     {
         if (!$data instanceof Doctrine_Collection && !$data instanceof Doctrine_Record)
-            throw new liOnlineSaleException('Doctrine_Collection or Doctrine_Record expected, ' . get_class($data) . ' given.');
+            throw new liOnlineSaleException('Doctrine_Collection or Doctrine_Record expected, ' . get_class($data) . ' given on line '.__LINE__.' of '.__FILE__.'.');
 
         $fct = function(Doctrine_Record $rec) {
         

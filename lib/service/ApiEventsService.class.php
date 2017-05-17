@@ -14,13 +14,14 @@ class ApiEventsService extends ApiEntityService
 {
     protected $translationService;
     protected static $FIELD_MAPPING = [
-        'id'            => 'id',
-        'metaEvent.id'  => 'MetaEvent.id',
-        'metaEvent.translations' => 'MetaEvent.Translation',
-        'category'      => 'EventCategory.name',
-        'translations'  => 'Translation',
-        'imageURL'      => null,
-        'manifestations'=> null,
+        'id'              => ['type' => 'simple', 'value' => 'id'],
+        'metaEvent'       => ['type' => 'sub-record', 'value' => null],
+        'metaEvent.id'    => ['type' => 'simple', 'value' => 'MetaEvent.id'],
+        'metaEvent.translations' => ['type' => 'collection', 'value' => 'MetaEvent.Translation'],
+        'category'        => ['type' => 'simple', 'value' => 'EventCategory.name'],
+        'translations'    => ['type' => 'collection', 'value' => 'Translation'],
+        'imageURL'        => ['type' => null, 'value' => null],
+        'manifestations'  => ['type' => 'collection', 'value' => null],
     ];
     
     /**
@@ -56,8 +57,9 @@ class ApiEventsService extends ApiEntityService
     protected function postFormatEntity(array $entity, Doctrine_Record $record)
     {
         // translations
-        $entity['translations'] = $this->translationService->reformat($entity['translations']);
-        $entity['metaEvent']['translations'] = $this->translationService->reformat($entity['metaEvent']['translations']);
+        $this->translationService
+            ->reformat($entity['translations'])
+            ->reformat($entity['metaEvent']['translations']);
         
         // imageURL
         sfContext::getInstance()->getConfiguration()->loadHelpers(array('CrossAppLink'));

@@ -15,25 +15,28 @@ class ApiManifestationsService extends ApiEntityService
 {
 
     protected $translationService;
+    
     protected static $FIELD_MAPPING = [
-        'id' => 'id',
-        'startsAt' => 'happens_at',
-        'endsAt' => 'ends_at',
-        'event_id' => 'Event.id',
-        'event'  => 'Event.Translation',
-        'metaEvent' => 'Event.MetaEvent.Translation',
-        'location.id' => 'Location.id',
-        'location.name' => 'Location.name',
-        'location.address' => 'Location.address',
-        'location.zip' => 'Location.postalcode',
-        'location.city' => 'Location.city',
-        'location.country' => 'Location.country',
-        'gauges.id' => 'Gauges.id',
-        'gauges.name' => 'Gauges.Workspace.name',
-        'gauges.availableUnits' => 'Gauges.free',
-        //'gauges.prices.id' => 'Gauges.Prices.id',
-        //'gauges.prices.translations' => 'Gauges.Prices.Translation',
-        //'gauges.prices.value' => 'Gauges.Prices.value',
+        'id'                => ['type' => 'simple', 'value' => 'id'],
+        'startsAt'          => ['type' => 'simple', 'value' => 'happens_at'],
+        'endsAt'            => ['type' => 'simple', 'value' => 'ends_at'],
+        'event_id'          => ['type' => 'simple', 'value' => 'Event.id'],
+        'event'             => ['type' => 'collection', 'value' => 'Event.Translation'],
+        'metaEvent'         => ['type' => 'collection', 'value' => 'Event.MetaEvent.Translation'],
+        'location'          => ['type' => 'sub-record', 'value' => null],
+        'location.id'       => ['type' => 'simple', 'value' => 'Location.id'],
+        'location.name'     => ['type' => 'simple', 'value' => 'Location.name'],
+        'location.address'  => ['type' => 'simple', 'value' => 'Location.address'],
+        'location.zip'      => ['type' => 'simple', 'value' => 'Location.postalcode'],
+        'location.city'     => ['type' => 'simple', 'value' => 'Location.city'],
+        'location.country'  => ['type' => 'simple', 'value' => 'Location.country'],
+        //'gauges'            => ['type' => 'collection', 'value' => null],
+        'gauges.id'         => ['type' => 'collection.simple', 'value' => 'Gauges.id'],
+        'gauges.name'       => ['type' => 'collection.simple', 'value' => 'Gauges.Workspace.name'],
+        //'gauges.availableUnits' => ['type' => 'simple', 'value' => 'Gauges.free'],
+        //'gauges.prices.id' => ['type' => 'simple', 'value' => 'Gauges.Prices.id'],
+        //'gauges.prices.translations' => ['type' => 'simple', 'value' => 'Gauges.Prices.Translation'],
+        //'gauges.prices.value' => ['type' => 'simple', 'value' => 'Gauges.Prices.value'],
         //'gauges.prices.currencyCode' => null,
     ];
 
@@ -76,7 +79,7 @@ class ApiManifestationsService extends ApiEntityService
 
     public function buildInitialQuery()
     {
-        return Doctrine::getTable('Manifestation')->createQuery('root');
+        return Doctrine::getTable('Manifestation')->createQuery('root')->andWhere('root.id = ?', 121);
     }
     
     public function getMaxShownAvailableUnits()
@@ -86,6 +89,8 @@ class ApiManifestationsService extends ApiEntityService
     
     protected function postFormatEntity(array $entity, Doctrine_Record $manif)
     {
+        return $entity;
+        
         // metaEvent
         $entity['metaEvent'] = $this->translationService->reformat($entity['metaEvent']);
         $entity['event'] = $this->translationService->reformat($entity['event']);
@@ -94,10 +99,12 @@ class ApiManifestationsService extends ApiEntityService
         $currency = sfConfig::get('project_internals_currency', ['iso' => 978, 'symbol' => '€']);
         foreach ( $entity['gauges'] as $id => $gauge ) {
             // availableUnits
+            /*
             $free = $entity['gauges'][$id]['availableUnits'];
             $entity['gauges'][$id]['availableUnits'] = $free > $this->getMaxShownAvailableUnits()
                 ? $this->getMaxShownAvailableUnits()
                 : $free;
+            */
             
             // gauges.prices
             $entity['gauges'][$id]['prices'] = [];

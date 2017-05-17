@@ -13,25 +13,25 @@
 class ApiCustomersService extends ApiEntityService
 {
     protected static $FIELD_MAPPING = [
-        'id'            => 'id',
-        'email'         => 'contact_email',
-        'firstName'     => 'Contact.firstname',
-        'lastName'      => 'Contact.name',
-        'shortName'     => 'Contact.shortname',
-        'address'       => 'Organism.address',
-        'zip'           => 'Organism.postalcode',
-        'city'          => 'Organism.city',
-        'country'       => 'Organism.country',
-        'phoneNumber'   => 'contact_number',
-        'datesOfBirth'  => NULL,
-        'locale'        => 'Contact.culture',
-        'uid'           => 'Contact.vcard_uid',
-        'subscribedToNewsletter' => '!contact_email_no_newsletter',
-        //'password'      => 'Contact.password',
+        'id'            => ['type' => 'simple', 'value' => 'id'],
+        'email'         => ['type' => 'simple', 'value' => 'contact_email'],
+        'firstName'     => ['type' => 'simple', 'value' => 'Contact.firstname'],
+        'lastName'      => ['type' => 'simple', 'value' => 'Contact.name'],
+        'shortName'     => ['type' => 'simple', 'value' => 'Contact.shortname'],
+        'address'       => ['type' => 'simple', 'value' => 'Organism.address'],
+        'zip'           => ['type' => 'simple', 'value' => 'Organism.postalcode'],
+        'city'          => ['type' => 'simple', 'value' => 'Organism.city'],
+        'country'       => ['type' => 'simple', 'value' => 'Organism.country'],
+        'phoneNumber'   => ['type' => 'simple', 'value' => 'contact_number'],
+        'datesOfBirth'  => ['type' => null    , 'value' => null],
+        'locale'        => ['type' => 'simple', 'value' => 'Contact.culture'],
+        'uid'           => ['type' => 'simple', 'value' => 'Contact.vcard_uid'],
+        'subscribedToNewsletter' => ['type' => 'simple', 'value' => '!contact_email_no_newsletter'],
+        //'password'      => ['type' => 'simple', 'value' => 'Contact.password'],
     ];
     
     protected static $HIDDEN_FIELD_MAPPING = [
-        'password'      => 'Contact.password',
+        'password'      => ['type' => 'simple', 'value' => 'Contact.password'],
     ];
     
     /**
