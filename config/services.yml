@@ -21,10 +21,12 @@ all:
           calls:
             - ['setManifestationsService', ['@manifestations_service']]
             - ['setTranslationService', ['@translation_service']]
+            - ['setOAuthService', ['@oauth_service']]
       manifestations_service:
           class: ApiManifestationsService
           calls:
             - ['setTranslationService', ['@translation_service']]
+            - ['setOAuthService', ['@oauth_service']]
       carts_service:
           class: ApiCartsService
       cartitems_service:

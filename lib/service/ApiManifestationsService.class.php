@@ -15,28 +15,29 @@ class ApiManifestationsService extends ApiEntityService
 {
 
     protected $translationService;
+    protected $oauth;
     
     protected static $FIELD_MAPPING = [
-        'id'                => ['type' => 'simple', 'value' => 'id'],
-        'startsAt'          => ['type' => 'simple', 'value' => 'happens_at'],
-        'endsAt'            => ['type' => 'simple', 'value' => 'ends_at'],
-        'event_id'          => ['type' => 'simple', 'value' => 'Event.id'],
+        'id'                => ['type' => 'single', 'value' => 'id'],
+        'startsAt'          => ['type' => 'single', 'value' => 'happens_at'],
+        'endsAt'            => ['type' => 'single', 'value' => 'ends_at'],
+        'event_id'          => ['type' => 'single', 'value' => 'Event.id'],
         'event'             => ['type' => 'collection', 'value' => 'Event.Translation'],
         'metaEvent'         => ['type' => 'collection', 'value' => 'Event.MetaEvent.Translation'],
         'location'          => ['type' => 'sub-record', 'value' => null],
-        'location.id'       => ['type' => 'simple', 'value' => 'Location.id'],
-        'location.name'     => ['type' => 'simple', 'value' => 'Location.name'],
-        'location.address'  => ['type' => 'simple', 'value' => 'Location.address'],
-        'location.zip'      => ['type' => 'simple', 'value' => 'Location.postalcode'],
-        'location.city'     => ['type' => 'simple', 'value' => 'Location.city'],
-        'location.country'  => ['type' => 'simple', 'value' => 'Location.country'],
+        'location.id'       => ['type' => 'single', 'value' => 'Location.id'],
+        'location.name'     => ['type' => 'single', 'value' => 'Location.name'],
+        'location.address'  => ['type' => 'single', 'value' => 'Location.address'],
+        'location.zip'      => ['type' => 'single', 'value' => 'Location.postalcode'],
+        'location.city'     => ['type' => 'single', 'value' => 'Location.city'],
+        'location.country'  => ['type' => 'single', 'value' => 'Location.country'],
         //'gauges'            => ['type' => 'collection', 'value' => null],
-        'gauges.id'         => ['type' => 'collection.simple', 'value' => 'Gauges.id'],
-        'gauges.name'       => ['type' => 'collection.simple', 'value' => 'Gauges.Workspace.name'],
-        //'gauges.availableUnits' => ['type' => 'simple', 'value' => 'Gauges.free'],
-        //'gauges.prices.id' => ['type' => 'simple', 'value' => 'Gauges.Prices.id'],
-        //'gauges.prices.translations' => ['type' => 'simple', 'value' => 'Gauges.Prices.Translation'],
-        //'gauges.prices.value' => ['type' => 'simple', 'value' => 'Gauges.Prices.value'],
+        'gauges.id'         => ['type' => 'collection.single', 'value' => 'Gauges.id'],
+        'gauges.name'       => ['type' => 'collection.single', 'value' => 'Gauges.Workspace.name'],
+        //'gauges.availableUnits' => ['type' => 'single', 'value' => 'Gauges.free'],
+        //'gauges.prices.id' => ['type' => 'single', 'value' => 'Gauges.Prices.id'],
+        //'gauges.prices.translations' => ['type' => 'single', 'value' => 'Gauges.Prices.Translation'],
+        //'gauges.prices.value' => ['type' => 'single', 'value' => 'Gauges.Prices.value'],
         //'gauges.prices.currencyCode' => null,
     ];
 
@@ -133,5 +134,14 @@ class ApiManifestationsService extends ApiEntityService
     {
         $this->translationService = $i18n;
         return $this;
+    }
+    public function setOAuthService(ApiOAuthService $service)
+    {
+        $this->oauth = $service;
+    }
+
+    public function getOAuthService()
+    {
+        return $this->oauth;
     }
 }

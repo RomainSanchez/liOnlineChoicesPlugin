@@ -17,23 +17,23 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     /**
      * @var array
      * any field and sub-field have to be represented as "field" and "field.sub-field" 
-     * any collections is accessed as if it was a simple property, the engine does the rest
+     * any collections is accessed as if it was a single property, the engine does the rest
      * left side: the API representation for datas
      * right side: array containing: 'type' => the type of data expected, 'value' => the path to data in Doctrine_Records
-     * type: the type can be 'simple', 'collection', null or 'sub-record' (with value null)
+     * type: the type can be 'single', 'collection', null or 'sub-record' (with value null)
      * value: can be null if null is expected
-     * for data coming from sub-collection records, the type needs to be set as 'collection.simple' for example...
+     * for data coming from sub-collection records, the type needs to be set as 'collection.single' for example...
      */
     protected static $HIDDEN_FIELD_MAPPING = [];
 
     /**
      * @var array
      * any field and sub-field have to be represented as "field" and "field.sub-field" 
-     * any collections is accessed as if it was a simple property, the engine does the rest
+     * any collections is accessed as if it was a single property, the engine does the rest
      * left side: the API representation for datas
      * right side: array containing: 'type' => the type of data expected, 'value' => the path to data in Doctrine_Records
-     * type: the type can be 'simple', 'collection' (is useless standalone), null or 'sub-record' (with value null)
-     * for data coming from sub-collection records, the type needs to be set as 'collection.simple' for example...
+     * type: the type can be 'single', 'collection' (is useless standalone), null or 'sub-record' (with value null)
+     * for data coming from sub-collection records, the type needs to be set as 'collection.single' for example...
      */
     protected static $FIELD_MAPPING = [];
 

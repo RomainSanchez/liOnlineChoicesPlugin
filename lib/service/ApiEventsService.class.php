@@ -13,12 +13,14 @@
 class ApiEventsService extends ApiEntityService
 {
     protected $translationService;
+    protected $oauth;
+
     protected static $FIELD_MAPPING = [
-        'id'              => ['type' => 'simple', 'value' => 'id'],
+        'id'              => ['type' => 'single', 'value' => 'id'],
         'metaEvent'       => ['type' => 'sub-record', 'value' => null],
-        'metaEvent.id'    => ['type' => 'simple', 'value' => 'MetaEvent.id'],
+        'metaEvent.id'    => ['type' => 'single', 'value' => 'MetaEvent.id'],
         'metaEvent.translations' => ['type' => 'collection', 'value' => 'MetaEvent.Translation'],
-        'category'        => ['type' => 'simple', 'value' => 'EventCategory.name'],
+        'category'        => ['type' => 'single', 'value' => 'EventCategory.name'],
         'translations'    => ['type' => 'collection', 'value' => 'Translation'],
         'imageURL'        => ['type' => null, 'value' => null],
         'manifestations'  => ['type' => 'collection', 'value' => null],
@@ -91,5 +93,15 @@ class ApiEventsService extends ApiEntityService
     {
         $this->translationService = $i18n;
         return $this;
+    }
+
+    public function setOAuthService(ApiOAuthService $service)
+    {
+        $this->oauth = $service;
+    }
+
+    public function getOAuthService()
+    {
+        return $this->oauth;
     }
 }

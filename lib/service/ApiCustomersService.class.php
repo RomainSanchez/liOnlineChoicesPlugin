@@ -14,21 +14,21 @@ class ApiCustomersService extends ApiEntityService
 {
 
     protected static $FIELD_MAPPING = [
-        'id'            => ['type' => 'simple', 'value' => 'id'],
-        'email'         => ['type' => 'simple', 'value' => 'contact_email'],
-        'firstName'     => ['type' => 'simple', 'value' => 'Contact.firstname'],
-        'lastName'      => ['type' => 'simple', 'value' => 'Contact.name'],
-        'shortName'     => ['type' => 'simple', 'value' => 'Contact.shortname'],
-        'address'       => ['type' => 'simple', 'value' => 'Organism.address'],
-        'zip'           => ['type' => 'simple', 'value' => 'Organism.postalcode'],
-        'city'          => ['type' => 'simple', 'value' => 'Organism.city'],
-        'country'       => ['type' => 'simple', 'value' => 'Organism.country'],
-        'phoneNumber'   => ['type' => 'simple', 'value' => 'contact_number'],
+        'id'            => ['type' => 'single', 'value' => 'id'],
+        'email'         => ['type' => 'single', 'value' => 'contact_email'],
+        'firstName'     => ['type' => 'single', 'value' => 'Contact.firstname'],
+        'lastName'      => ['type' => 'single', 'value' => 'Contact.name'],
+        'shortName'     => ['type' => 'single', 'value' => 'Contact.shortname'],
+        'address'       => ['type' => 'single', 'value' => 'Organism.address'],
+        'zip'           => ['type' => 'single', 'value' => 'Organism.postalcode'],
+        'city'          => ['type' => 'single', 'value' => 'Organism.city'],
+        'country'       => ['type' => 'single', 'value' => 'Organism.country'],
+        'phoneNumber'   => ['type' => 'single', 'value' => 'contact_number'],
         'datesOfBirth'  => ['type' => null    , 'value' => null],
-        'locale'        => ['type' => 'simple', 'value' => 'Contact.culture'],
-        'uid'           => ['type' => 'simple', 'value' => 'Contact.vcard_uid'],
-        'subscribedToNewsletter' => ['type' => 'simple', 'value' => '!contact_email_no_newsletter'],
-        //'password'      => ['type' => 'simple', 'value' => 'Contact.password'],
+        'locale'        => ['type' => 'single', 'value' => 'Contact.culture'],
+        'uid'           => ['type' => 'single', 'value' => 'Contact.vcard_uid'],
+        'subscribedToNewsletter' => ['type' => 'single', 'value' => '!contact_email_no_newsletter'],
+        //'password'      => ['type' => 'single', 'value' => 'Contact.password'],
     ];
 
     /**
