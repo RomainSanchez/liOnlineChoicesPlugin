@@ -12,20 +12,26 @@
  */
 class ocApiOAuthActions extends jsonActions
 {
+
     public function preExecute()
     {
-        $this->getService('actions_service')->preExecute($this);
+        $this->getService('actions_service')
+            ->populateAccessControlHeaders($this->getResponse());
+
         parent::preExecute();
     }
-    
+
     public function executePreflight(sfWebRequest $request)
     {
         $response = $this->getResponse();
         $response->clearHttpHeaders();
-        $this->getService('actions_service')->preExecute($this);
+            
+        $this->getService('actions_service')
+            ->populateAccessControlHeaders($response);
+        
         return sfView::NONE;
     }
-    
+
     /**
      * @param sfWebRequest $request
      * @todo move at least the protected functions into a service
@@ -33,42 +39,38 @@ class ocApiOAuthActions extends jsonActions
     public function executeToken(sfWebRequest $request)
     {
         $oauth = $this->getService('oauth_service');
-        
+
         // authenticates the app
         try {
             $app = $oauth->findApplication(
-                $request->getParameter('client_id'),
-                $request->getParameter('client_secret')
+                $request->getParameter('client_id'), $request->getParameter('client_secret')
             );
         } catch ( liOnlineSaleException $e ) {
             OcLogger::log($e->getMessage(), $this);
             return $this->createJsonResponse([], ApiHttpStatus::UNAUTHORIZED);
         }
-        
+
         // deal with the token
-        if ( $refresh = $request->getParameter('refresh_token', false) )
-        {
+        if ( $refresh = $request->getParameter('refresh_token', false) ) {
             try {
                 $token = $oauth->refreshToken($refresh, $app);
             } catch ( liOnlineSaleException $e ) {
                 OcLogger::log($e->getMessage(), $this);
                 return $this->createJsonResponse([], ApiHttpStatus::UNAUTHORIZED);
             }
-        }
-        else
-        {
+        } else {
             $token = $oauth->createToken($app);
         }
-        
+
         // builds the result
         $result = [
-            'access_token'  => $token->token,
-            'expires_in'    => $oauth->getTokenLifetime(),
-            'token_type'    => 'bearer',
-            'scope'         => null,
+            'access_token' => $token->token,
+            'expires_in' => $oauth->getTokenLifetime(),
+            'token_type' => 'bearer',
+            'scope' => null,
             'refresh_token' => $token->refresh_token,
         ];
-        
+
         // sends the result
         return $this->createJsonResponse($result);
     }

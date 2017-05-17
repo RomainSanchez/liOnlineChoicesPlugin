@@ -14,16 +14,15 @@ all:
           class: ApiOAuthService
       customers_service:
           class: ApiCustomersService
-          arguments: ["@oauth_service"]
+          calls:
+            - ['setOAuthService', ['@oauth_service']]
       events_service:
           class: ApiEventsService
-          arguments: ["@oauth_service"]
           calls:
             - ['setManifestationsService', ['@manifestations_service']]
             - ['setTranslationService', ['@translation_service']]
       manifestations_service:
           class: ApiManifestationsService
-          arguments: ["@oauth_service"]
           calls:
             - ['setTranslationService', ['@translation_service']]
       carts_service:

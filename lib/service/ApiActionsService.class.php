@@ -12,9 +12,8 @@
  */
 class ApiActionsService
 {
-    public function preExecute(sfActions $action)
+    public function populateAccessControlHeaders(sfResponse $response)
     {
-        $response = $action->getResponse();
         $response->setHttpHeader('Access-Control-Allow-Origin', '*');
         $response->setHttpHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, OPTIONS, DELETE');
         $response->setHttpHeader('Access-Control-Allow-Headers', 'authorization, x-requested-with, content-type');

@@ -13,11 +13,7 @@
 abstract class ApiEntityService implements ApiEntityServiceInterface
 {
 
-    /**
-     * @var ocApiOAuthService
-     */
-    protected $oauth;
-
+    
     /**
      * @var array
      * any field and sub-field have to be represented as "field" and "field.sub-field" 
@@ -41,18 +37,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
      */
     protected static $FIELD_MAPPING = [];
 
-    /**
-     * 
-     * @param ApiOAuthService $oauth
-     * @throws liOnlineSaleException
-     */
-    public function __construct(ApiOAuthService $oauth)
-    {
-        $this->oauth = $oauth;
-        if ( !$oauth->isAuthenticated(sfContext::getInstance()->getRequest()) )
-            throw new liOnlineSaleException('[services] API not authenticated.');
-        sfContext::getInstance()->getUser()->signIn($oauth->getToken()->OcApplication->User, true);
-    }
+    
 
     /**
      *

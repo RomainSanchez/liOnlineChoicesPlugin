@@ -12,6 +12,7 @@
  */
 class ApiCustomersService extends ApiEntityService
 {
+
     protected static $FIELD_MAPPING = [
         'id'            => ['type' => 'simple', 'value' => 'id'],
         'email'         => ['type' => 'simple', 'value' => 'contact_email'],
@@ -29,21 +30,22 @@ class ApiCustomersService extends ApiEntityService
         'subscribedToNewsletter' => ['type' => 'simple', 'value' => '!contact_email_no_newsletter'],
         //'password'      => ['type' => 'simple', 'value' => 'Contact.password'],
     ];
-    
-    protected static $HIDDEN_FIELD_MAPPING = [
-        'password'      => ['type' => 'simple', 'value' => 'Contact.password'],
-    ];
-    
+
+    /**
+     * @var ocApiOAuthService
+     */
+    protected $oauth;
+
     /**
      * 
      * @return boolean
      */
     public function isIdentificated()
     {
-        $token = $this->oauth->getToken();
+        $token = $this->getOAuthService()->getToken();
         return $token instanceof OcToken && $token->OcTransaction[0]->oc_professional_id !== NULL;
     }
-    
+
     /**
      * 
      * @return NULL|boolean  NULL if no email nor password given, else boolean
@@ -54,26 +56,23 @@ class ApiCustomersService extends ApiEntityService
         if (!( isset($query['criteria']['password']) && $query['criteria']['password'] && isset($query['criteria']['password']['value'])
             && isset($query['criteria']['email']) && $query['criteria']['email'] && isset($query['criteria']['email']['value']) ))
             return NULL;
-        
-        if ( $pro = $this->buildQuery($query)->fetchOne() )
-        {
-            $token = $this->oauth->getToken();
-            $transaction = $token->OcTransaction->count() == 0
-                ? new OcTransaction
-                : $token->OcTransaction[0];
-            
+
+        if ( $pro = $this->buildQuery($query)->fetchOne() ) {
+            $token = $this->getOAuthService()->getToken();
+            $transaction = $token->OcTransaction->count() == 0 ? new OcTransaction : $token->OcTransaction[0];
+
             if ( !$transaction->oc_professional_id )
                 $transaction->OcProfessional = new OcProfessional;
             $transaction->OcProfessional->Professional = $pro;
-            
+
             $transaction->OcToken = $token;
-            
+
             $transaction->save();
             return true;
         }
         return false;
     }
-    
+
     /**
      * 
      * @return NULL|OcProfessional
@@ -82,9 +81,9 @@ class ApiCustomersService extends ApiEntityService
     {
         if ( !$this->isIdentificated() )
             return NULL;
-        return $this->oauth->getToken()->OcTransaction[0]->OcProfessional->Professional;
+        return $this->getOAuthService()->getToken()->OcTransaction[0]->OcProfessional->Professional;
     }
-    
+
     /**
      *
      * @return array
@@ -93,13 +92,23 @@ class ApiCustomersService extends ApiEntityService
     {
         return $this->getFormattedEntity($this->getIdentifiedProfessional());
     }
-    
+
     public function buildInitialQuery()
     {
         return Doctrine_Query::create()
-            ->from('Professional root')
-            ->leftJoin('root.Contact Contact')
-            ->leftJoin('root.Organism Organism')
+                ->from('Professional root')
+                ->leftJoin('root.Contact Contact')
+                ->leftJoin('root.Organism Organism')
         ;
+    }
+
+    public function setOAuthService(ApiOAuthService $service)
+    {
+        $this->oauth = $service;
+    }
+
+    public function getOAuthService()
+    {
+        return $this->oauth;
     }
 }
