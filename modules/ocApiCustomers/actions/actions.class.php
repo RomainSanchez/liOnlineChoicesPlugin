@@ -51,7 +51,7 @@ class ocApiCustomersActions extends apiActions
 
         $customerService = $this->getService('customers_service');
 
-        if ( false || !$customerService->identify($query) ) {
+        if ( !$customerService->identify($query) ) {
             return $this->createJsonResponse([
                     'code' => ApiHttpStatus::UNAUTHORIZED,
                     'message' => 'Verification failed',
