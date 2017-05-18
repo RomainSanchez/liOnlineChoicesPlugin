@@ -136,6 +136,9 @@ OcToken:
       onUpdate: CASCADE
       foreignAlias: OcTokens
 OcApplication:
+  inheritance:
+    extends: Dummy
+    type: concrete
   columns:
     identifier:
       type: string(255)

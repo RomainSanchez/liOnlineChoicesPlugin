@@ -75,6 +75,23 @@ class ApiCustomersService extends ApiEntityService
 
     /**
      * 
+     * @return boolean  true if the logout was possible, false if nobody is identified
+     */
+    public function logout()
+    {
+        if ( !$this->isIdentificated() ) {
+            return false;
+        }
+        
+        $transaction = $this->getOAuthService()->getToken()->OcTransaction[0];
+        $transaction->oc_professional_id = NULL;
+        $transaction->save();
+        
+        return true;
+    }
+
+    /**
+     * 
      * @return NULL|OcProfessional
      */
     public function getIdentifiedProfessional()
@@ -105,6 +122,7 @@ class ApiCustomersService extends ApiEntityService
     public function setOAuthService(ApiOAuthService $service)
     {
         $this->oauth = $service;
+        return $this;
     }
 
     public function getOAuthService()

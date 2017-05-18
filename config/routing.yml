@@ -17,6 +17,12 @@ oc_api_login:
     param: { module: ocApiCustomers, action: login }
     requirements:
         sf_method: [GET, POST]
+oc_api_logout:
+    url: /api/v2/logout
+    class: sfRequestRoute
+    param: { module: ocApiCustomers, action: logout }
+    requirements:
+        sf_method: [GET, POST]
 
 #
 # CUSTOMER

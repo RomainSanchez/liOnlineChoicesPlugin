@@ -80,6 +80,7 @@ class ApiOAuthService
         $q = Doctrine::getTable('OcApplication')->createQuery('app')
             ->andWhere('app.identifier = ?', $client_id)
             ->andWhere('app.secret     = ?', $this->encryptSecret($client_secret))
+            ->andWhere('app.expires_at IS NULL OR app.expires_at > NOW()')
         ;
 
         $app = $q->fetchOne();
