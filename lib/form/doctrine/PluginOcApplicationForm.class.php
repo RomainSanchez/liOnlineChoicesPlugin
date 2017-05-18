@@ -12,11 +12,13 @@ abstract class PluginOcApplicationForm extends BaseOcApplicationForm
 {
   public function configure()
   {
+    parent::configure();
+    
     $this->widgetSchema->getFormFormatter()->setTranslationCatalogue('li_oc');
 
     $this->widgetSchema['user_id']->setOption('add_empty', true);
-    unset($this->widgetSchema['secret'], $this->validatorSchema['secret']);
     
+    unset($this->widgetSchema['secret'], $this->validatorSchema['secret']);
     $this->widgetSchema   ['secret_new'] = new sfWidgetFormInputText(['label' => 'Secret']);
     $this->validatorSchema['secret_new'] = new sfValidatorString(['required' => false]);
   }
