@@ -12,6 +12,33 @@
  */
 class ocPropertyAccessor
 {
+    /**
+     * Updates a Doctrine_Record with data coming from an array of the API structure
+     *
+     * @param array            $entity  the source of data
+     * @param Doctrine_Record  $record  the target
+     * @param array            $equiv   the equivalence between DB & API fields
+     * @return Doctrine_Record the updated Doctrine_Record
+     */
+    public function toRecord(array $entity, Doctrine_Record $record, array $equiv)
+    {
+        foreach ( $this->reverseEquiv($equiv) as $db => $api ) {
+            $value = $this->getAPIValue($entity, $api);
+            print_r($value);
+            $this->setRecordValue($record, $db, $value);
+            
+            //$this->setRecordValue($record, $db, $this->getAPIValue($entity, $api));
+        }
+        return $record;
+    }
+    
+    /**
+     * Converts a Doctrine_Record into an array representing the API expected structure
+     *
+     * @param Doctrine_Record $record  the source of data
+     * @param array           $equiv   the equivalence between DB & API fields
+     * @return array          an array representing the API expected structure populated
+     */
     public function toAPI(Doctrine_Record $record, array $equiv)
     {
         // init
@@ -32,7 +59,7 @@ class ocPropertyAccessor
                     case null:
                         $this->setAPIValue($entity, $api, null, $type);
                         break;
-                    case 'simple':
+                    case 'single':
                         $this->setAPIValue($entity, $api, $this->getRecordValue($record, $db['value']), $type, $bool);
                         break;
                     case 'collection':
@@ -43,6 +70,33 @@ class ocPropertyAccessor
         }
         
         return $entity;
+    }
+    
+    // new
+    protected function getAPIValue(array $entity, $api)
+    {
+        $api = is_array($api) ? $api : explode('.', $api);
+        $key = array_shift($api);
+        $r = [];
+        
+        // get out of here
+        if ( !isset($entity[$key['value']]) ) {
+            return NULL;
+        }
+        if ( !is_array($entity[$key['value']]) && count($api) == 0 ) {
+            return $entity[$key['value']];
+        }
+        
+        if ( !is_array($entity[$key['value']]) ) {
+            $r = $this->getAPIValue($entity[$key['value']], $api);
+        }
+        else {
+            foreach ( $entity[$key['value']] as $k => $v ) {
+                $r[$k] = $this->getAPIValue($v, $api);
+            }
+        }
+        
+        return $r;
     }
     
     protected function setAPIValue(&$entity, $api, $value, $type = [], $bool = true)
@@ -74,6 +128,12 @@ class ocPropertyAccessor
         return $this;
     }
     
+    /**
+     * Get back a value in a Doctrine_Record related to a description of a path
+     *
+     * @param mixed|Doctrine_Record $record where to find data in
+     * @param array|string          $db     the access path
+     **/
     protected function getRecordValue($record, $db)
     {
         // init
@@ -100,6 +160,48 @@ class ocPropertyAccessor
         
         // Doctrine_Record
         return $this->getRecordValue($record->$key, $db);
+    }
+    
+    /**
+     * Set a value in a Doctrine_Record related to a description of a path
+     *
+     * @param Doctrine_Record $record where to be updated by data in $path
+     * @param mixed $db             the access path
+     * @param mixed $value
+     **/
+    // new
+    protected function setRecordValue(Doctrine_Record &$record, $db, $value)
+    {
+        // init
+        $db = is_array($db) ? $db : explode('.', $db);
+        
+        // get out of here
+        if ( !$db ) {
+            $record = $value;
+            return $this;
+        }
+        
+        $key = array_shift($db);
+        
+        // Doctrine_Collection
+        if ( $record->$key instanceof Doctrine_Collection ) {
+            foreach ( $value as $k => $v ) {
+                $this->setRecordValue($record->{$key}[$k], $db, $v);
+            }
+            return $this;
+        }
+        
+        // Doctrine_Record
+        return $this->getRecordValue($record->$key, $db);
+    }
+    
+    private function reverseEquiv(array $equiv)
+    {
+        $r = [];
+        foreach ( $equiv as $api => $db ) {
+            $r[$db['value']] = ['value' => $api, 'type' => $db['type']];
+        }
+        return $r;
     }
     
     private function isArray($data)
