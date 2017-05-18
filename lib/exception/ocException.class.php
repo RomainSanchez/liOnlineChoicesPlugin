@@ -9,8 +9,9 @@
  * Description of ocException
  *
  * @author Glenn Cavarlé <glenn.cavarle@libre-informatique.fr>
+ * @author Baptiste SIMON <baptiste.simon@libre-informatique.fr>
  */
-class ocException extends sfException
+class ocException extends liEvenementException
 {
     //put your code here
 }
