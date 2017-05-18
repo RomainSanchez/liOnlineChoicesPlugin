@@ -6,7 +6,7 @@
  */
 
 /**
- * Description of ApiManifestationService
+ * Description of ApiCartsService
  *
  * @author Glenn Cavarlé <glenn.cavarle@libre-informatique.fr>
  */
@@ -14,25 +14,58 @@ class ApiCartsService extends ApiEntityService
 {
 
     protected static $FIELD_MAPPING = [
-        'id'       => 'id',
-        'type'     => 'type',
-        'customer' => 'Professional.id',
-        'declination' => null,
-        'totalAmount' => null,
-        'unitAmount' => null,
-        'total' => null,
-        'vat' => null,
-        'units' => null,
-        'units.id' => null,
-        'units.adjustments' => null,
-        'units.adjustmentsTotal' => null,
-        'units._link[pdf]' => null,
-        'unitsTotal' => null,
-        'adjustments' => null,
-        'adjustmentsTotal' => null,
-        '_link[product]' => null,
-        '_link[order]' => null
+        'id'            => ['type' => 'simple', 'value' => 'id'],
+        'items'         => ['type' => 'todo', 'value' => 'todo'],
+        'itemsTotal'    => ['type' => 'todo', 'value' => 'todo'],
+        'total'         => ['type' => 'todo', 'value' => 'todo'],
+        'customer'      => ['type' => 'todo', 'value' => 'todo'],
+        'currencyCode'  => ['type' => 'todo', 'value' => 'todo'],
+        'localeCode'    => ['type' => 'todo', 'value' => 'todo'],
+        'checkoutState' => ['type' => 'todo', 'value' => 'todo'],
+//        'type'     => 'type',
+//        'customer' => 'Professional.id',
+//        'declination' => null,
+//        'totalAmount' => null,
+//        'unitAmount' => null,
+//        'total' => null,
+//        'vat' => null,
+//        'units' => null,
+//        'units.id' => null,
+//        'units.adjustments' => null,
+//        'units.adjustmentsTotal' => null,
+//        'units._link[pdf]' => null,
+//        'unitsTotal' => null,
+//        'adjustments' => null,
+//        'adjustmentsTotal' => null,
+//        '_link[product]' => null,
+//        '_link[order]' => null
     ];
+
+    /**
+     * @var ocApiOAuthService
+     */
+    protected $oauth;
+
+    /**
+     * @var ApiCartItemsService
+     */
+    protected $cartItemsService;
+
+    /**
+     * @param ApiOAuthService $service
+     */
+    public function setOAuthService(ApiOAuthService $service)
+    {
+        $this->oauth = $service;
+    }
+
+    /**
+     * @param ApiCartItemsService $service
+     */
+    public function setCartItemsService(ApiCartItemsService $service)
+    {
+        $this->cartItemsService = $service;
+    }
 
     /**
      *
@@ -66,6 +99,24 @@ class ApiCartsService extends ApiEntityService
     }
 
     /**
+     * @param array $entity
+     * @param Doctrine_Record $record
+     * @return array
+     */
+    protected function postFormatEntity(array $entity, Doctrine_Record $record)
+    {
+        // items
+        $query = [
+            'limit'    => 100,
+            'sorting'  => [],
+            'page'     => 1,
+        ];
+        $entity['items'] = $this->cartItemsService->findAll($record->id, $query);
+
+        return $entity;
+    }
+
+    /**
      *
      * @param int $cart_id
      * @return boolean
@@ -78,8 +129,8 @@ class ApiCartsService extends ApiEntityService
     public function buildInitialQuery()
     {
         return Doctrine_Query::create()
-            ->from('Transaction root')
-            ->leftJoin('root.Professional Professional')
+            ->from('OcTransaction root')
+//            ->leftJoin('root.Professional Professional')
         ;
     }
 }
