@@ -52,21 +52,27 @@ class ApiCustomersService extends ApiEntityService
      */
     public function identify(array $query)
     {
+        
         // prerequisites
         if (!( isset($query['criteria']['password']) && $query['criteria']['password'] && isset($query['criteria']['password']['value'])
             && isset($query['criteria']['email']) && $query['criteria']['email'] && isset($query['criteria']['email']['value']) ))
             return NULL;
 
         if ( $pro = $this->buildQuery($query)->fetchOne() ) {
+        
             $token = $this->getOAuthService()->getToken();
-            $transaction = $token->OcTransaction->count() == 0 ? new OcTransaction : $token->OcTransaction[0];
-
+            
+            if( !$token->OcTransaction){
+                 $token->OcTransaction[0] = new OcTransaction; 
+            }
+            
+            $transaction = $token->OcTransaction[0];
+            
             if ( !$transaction->oc_professional_id )
                 $transaction->OcProfessional = new OcProfessional;
+            
             $transaction->OcProfessional->Professional = $pro;
-
             $transaction->OcToken = $token;
-
             $transaction->save();
             return true;
         }

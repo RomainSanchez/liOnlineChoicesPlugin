@@ -49,8 +49,9 @@ class ocApiCustomersActions extends apiActions
             ],
         ]);
 
-        $customers = $this->getService('customers_service');
-        if ( !$customers->identify($query) ) {
+        $customerService = $this->getService('customers_service');
+
+        if ( false || !$customerService->identify($query) ) {
             return $this->createJsonResponse([
                     'code' => ApiHttpStatus::UNAUTHORIZED,
                     'message' => 'Verification failed',
@@ -61,7 +62,7 @@ class ocApiCustomersActions extends apiActions
             'code' => ApiHttpStatus::SUCCESS,
             'message' => 'Verification successful',
             'success' => [
-               'customer' => $customers->getIdentifiedCustomer(),
+               'customer' => $customerService->getIdentifiedCustomer(),
             ],
         ]);
     }
@@ -104,20 +105,18 @@ class ocApiCustomersActions extends apiActions
      */
     public function update(sfWebRequest $request)
     {
-        // data validation
+
         $data = $request->getPostParameters();
-        foreach ( ['name', 'email', 'password'] as $field )
-        {
-            if (!( isset($data[$field]) && $data[$field] ))
-            {
-                $data[$field] = ['errors' => 'Please enter your '.$field];
+        foreach ( ['name', 'email', 'password'] as $field ) {
+            if ( !( isset($data[$field]) && $data[$field] ) ) {
+                $data[$field] = ['errors' => 'Please enter your ' . $field];
                 return $this->createJsonResponse([
-                    'code' => ApiHttpStatus::BAD_REQUEST,
-                    'message' => 'Validation failed',
-                    'errors' => [
-                        'children' => $data,
-                    ],
-                ], ApiHttpStatus::BAD_REQUEST);
+                        'code' => ApiHttpStatus::BAD_REQUEST,
+                        'message' => 'Validation failed',
+                        'errors' => [
+                            'children' => $data,
+                        ],
+                        ], ApiHttpStatus::BAD_REQUEST);
             }
         }
         
@@ -129,7 +128,7 @@ class ocApiCustomersActions extends apiActions
             ], ApiHttpStatus::INTERNAL_SERVER_ERROR)
         ;
     }
-    
+
     /**
      * 
      * @param sfWebRequest $request

@@ -4,6 +4,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+require_once __DIR__ . '../../../lib/http/ApiHttpStatus.class.php';
 
 /**
  * Description of apiActions
@@ -21,7 +22,6 @@ abstract class jsonActions extends sfActions
     {
         $this->authenticate();
         $this->convertJsonToParameters();
-
         //disable layout
         $this->setLayout(false);
         //json response header
@@ -31,21 +31,26 @@ abstract class jsonActions extends sfActions
     private function authenticate()
     {
         $request = $this->getRequest();
-
+       
         // to be tested only if the module "is_secure"
-        if ( $this->getSecurityValue('is_secure', false) ) {
-
-            /* @var $oauthService ApiAuthService */
-            $oauthService = $this->getService('oauth_service');
-
-            //check oauth authentification
-            if ( !$oauthService->isAuthenticated($request) ) {
-                throw new ocAuthCredentialsException('Invalid authentication credentials');
-            }
-            //assign user
-            sfContext::getInstance()->getUser()->signIn(
-                $oauthService->getToken()->OcApplication->User, true);
-        }
+       // if ( $this->getSecurityValue('is_secure', false) ) {
+       
+       	
+       $route = $request->getRequestParameters()['_sf_route'];
+       $secure = isset($route->getOptions()['secure'])? $route->getOptions()['secure'] : true;
+       
+		    if($secure){
+		      /* @var $oauthService ApiAuthService */
+		      $oauthService = $this->getService('oauth_service');
+			
+		      //check oauth authentification
+		      if ( !$oauthService->authenticate($request) ) {
+		          throw new ocAuthCredentialsException('Invalid authentication credentials');
+		      }
+		      //assign user
+		      sfContext::getInstance()->getUser()->signIn(
+		          $oauthService->getToken()->OcApplication->User, true);
+		  }
     }
 
     private function convertJsonToParameters()
@@ -88,6 +93,17 @@ abstract class jsonActions extends sfActions
     {
         $this->getResponse()->setStatusCode($status);
         return sfView::NONE;
+    }
+
+    /**
+     * Create an error json response from a message and a status code
+     * 
+     * @param string $message
+     * @return string (sfView::NONE)
+     */
+    protected function createJsonErrorResponse($message, $status = ApiHttpStatus::SERVICE_UNAVAILABLE)
+    {
+        return $this->createJsonResponse(['code' => $status, 'message' => $message], $status);
     }
 
     /**

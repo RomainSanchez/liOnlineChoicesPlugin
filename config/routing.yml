@@ -4,7 +4,9 @@
 oc_api_cors:
     url: /api/*
     class: sfRequestRoute
-    param: { module: ocApiOAuth, action: preflight }
+    param: { module: ocApiOAuth, action: preflight}
+    options:
+        secure: false
     requirements:
         sf_method: [OPTIONS]
 
@@ -292,7 +294,9 @@ oc_api_promotions_resource:
 oc_api_oauth_token:
     url: /api/oauth/v2/token
     class: sfRequestRoute
-    param: { module: ocApiOAuth, action: token }
+    param: { module: ocApiOAuth, action: token}
+    options:
+        secure: false
     requirements:
         sf_method: [GET, POST]
 
