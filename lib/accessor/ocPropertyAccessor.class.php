@@ -24,7 +24,6 @@ class ocPropertyAccessor
                 $lastType = array_pop($type);
                 $bool = preg_match('/^!/', $db['value']) !== false;
                 $db['value'] = preg_replace('/^!/', '', $db['value']);
-                error_log($db['value']);
                 
                 switch ( $lastType ) {
                     case 'sub-record':
