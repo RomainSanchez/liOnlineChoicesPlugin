@@ -149,9 +149,7 @@ OcApplication:
     user_id:
       type: integer
       notnull: true
-    expires_at:
-        type: timestamp
-        notnull: true
+    expires_at: timestamp
   indexes:
     oc_application_identifier_secret_idx:
       fields: [identifier, secret]
