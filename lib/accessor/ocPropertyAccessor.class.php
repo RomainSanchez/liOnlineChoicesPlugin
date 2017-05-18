@@ -24,12 +24,7 @@ class ocPropertyAccessor
                 $lastType = array_pop($type);
                 $bool = preg_match('/^!/', $db['value']) !== false;
                 $db['value'] = preg_replace('/^!/', '', $db['value']);
-<<<<<<< HEAD
-                error_log($db['value']);
 
-=======
-                
->>>>>>> 89069101ac967631dd394dbe40fa21c9e61c19fe
                 switch ( $lastType ) {
                     case 'sub-record':
                         $this->setAPIValue($entity, $api, new ArrayObject, $type);
@@ -92,12 +87,8 @@ class ocPropertyAccessor
         $key = array_shift($db);
         if ( !$record->$key ) {
             return null;
-<<<<<<< HEAD
-
-=======
         }
-        
->>>>>>> 89069101ac967631dd394dbe40fa21c9e61c19fe
+
         // Doctrine_Collection
         if ( $record->$key instanceof Doctrine_Collection ) {
             $r = [];
