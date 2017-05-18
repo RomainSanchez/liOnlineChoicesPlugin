@@ -89,6 +89,19 @@ class ApiCustomersService extends ApiEntityService
         
         return true;
     }
+    
+    public function update(array $data)
+    {
+        $accessor = new ocPropertyAccessor;
+        if ( !$this->isIdentified() ) {
+            return false;
+        }
+        unset($data['id']);
+        
+        $pro = $this->getIdentifiedProfessional();
+        $accessor->toRecord($data, $pro, $this->getFieldsEquivalent());
+        return $true;
+    }
 
     /**
      * 

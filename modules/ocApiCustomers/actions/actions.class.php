@@ -104,13 +104,7 @@ class ocApiCustomersActions extends apiActions
      */
     public function update(sfWebRequest $request)
     {
-        return $this->createJsonResponse([
-            'code' => ApiHttpStatus::NOT_IMPLEMENTED,
-            'message' => 'Updating customers not implemented here',
-            'errors' => [],
-        ], ApiHttpStatus::NOT_IMPLEMENTED);
-        
-        // never goes here, function not implemented
+        // data validation
         $data = $request->getPostParameters();
         foreach ( ['name', 'email', 'password'] as $field )
         {
@@ -126,6 +120,14 @@ class ocApiCustomersActions extends apiActions
                 ], ApiHttpStatus::BAD_REQUEST);
             }
         }
+        
+        return $this->getService('customers_service')->update($data)
+            ? $this->createEmptyResponse()
+            : $this->createJsonResponse([
+                'code' => ApiHttpStatus::INTERNAL_SERVER_ERROR,
+                'message' => 'Internal Server Error',
+            ], ApiHttpStatus::INTERNAL_SERVER_ERROR)
+        ;
     }
     
     /**

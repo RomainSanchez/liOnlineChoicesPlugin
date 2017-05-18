@@ -77,6 +77,18 @@ abstract class jsonActions extends sfActions
         $this->getResponse()->setStatusCode($status);
         return $this->renderText(json_encode($data, JSON_PRETTY_PRINT) . "\n");
     }
+    
+    /**
+     * Create an empty response with a status code
+     * 
+     * @param array|ArrayAccess $data
+     * @return string (sfView::NONE)
+     */
+    protected function createEmptyResponse($status = ApiHttpStatus::NO_CONTENT)
+    {
+        $this->getResponse()->setStatusCode($status);
+        return sfView::NONE;
+    }
 
     /**
      * Retrieve a service by name
