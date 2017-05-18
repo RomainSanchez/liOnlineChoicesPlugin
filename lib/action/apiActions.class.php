@@ -18,7 +18,7 @@ abstract class apiActions extends jsonActions
     {
         $this->getService('actions_service')
             ->populateAccessControlHeaders($this->getResponse());
-        
+
         parent::preExecute();
     }
 
@@ -118,7 +118,7 @@ abstract class apiActions extends jsonActions
      * Action for a GET:/[resource]/[id] request
      * The specified id has to be retrieved from the $request
      * The id key is defined in routing.yml
-     * 
+     *
      * @param sfWebRequest $request
      * @return array (a single entity)
      */
@@ -128,9 +128,9 @@ abstract class apiActions extends jsonActions
     }
 
     /**
-     * Action for a GET:/[resource] request 
+     * Action for a GET:/[resource] request
      * Criteria and filters can be retrieved in $query
-     * 
+     *
      * @param sfWebRequest $request
      * @return array (a list of entities)
      */
@@ -179,7 +179,7 @@ abstract class apiActions extends jsonActions
 
     /**
      * Action for a POST:/[resource] request
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */
@@ -192,7 +192,7 @@ abstract class apiActions extends jsonActions
      * Action for a POST|PUT:/[resource]/id request
      * The specified id has to be retrieved from the $request
      * The id key is defined in routing.yml
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */
@@ -205,7 +205,7 @@ abstract class apiActions extends jsonActions
      * Action for a DELETE:/[resource]/id request
      * The specified id has to be retrieved from the $request
      * The id key is defined in routing.yml
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */
@@ -216,7 +216,7 @@ abstract class apiActions extends jsonActions
 
     /**
      * Check if actions are specified in routing.yml
-     * 
+     *
      * @param sfWebRequest $request
      * @return type
      */
@@ -229,7 +229,7 @@ abstract class apiActions extends jsonActions
 
     /**
      * Build the query parameters (criteria and filters) from the request
-     * 
+     *
      * @param sfWebRequest $request
      * @param array $query  optional extra data to be merged with GET parameters
      * @return array
@@ -246,7 +246,7 @@ abstract class apiActions extends jsonActions
     }
 
     /**
-     * 
+     *
      * @param array|null $params
      * @return array
      */
@@ -256,7 +256,7 @@ abstract class apiActions extends jsonActions
     }
 
     /**
-     * 
+     *
      * @param array|null $params
      * @return array
      */
@@ -266,7 +266,7 @@ abstract class apiActions extends jsonActions
     }
 
     /**
-     * 
+     *
      * @param array|null $params
      * @return array
      */
@@ -284,7 +284,7 @@ abstract class apiActions extends jsonActions
     }
 
     /**
-     * 
+     *
      * @param array|null $params
      * @return array
      */
@@ -325,5 +325,11 @@ abstract class apiActions extends jsonActions
         }
 
         return $result;
+    }
+
+    protected function createBadRequestResponse($message = ['error'])
+    {
+        $status = ApiHttpStatus::BAD_REQUEST;
+        return $this->createJsonResponse($message, $status);
     }
 }
