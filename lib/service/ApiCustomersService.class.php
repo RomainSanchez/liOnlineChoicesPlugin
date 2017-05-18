@@ -24,7 +24,7 @@ class ApiCustomersService extends ApiEntityService
         'city'          => ['type' => 'single', 'value' => 'Organism.city'],
         'country'       => ['type' => 'single', 'value' => 'Organism.country'],
         'phoneNumber'   => ['type' => 'single', 'value' => 'contact_number'],
-        'datesOfBirth'  => ['type' => null    , 'value' => null],
+        //'datesOfBirth'  => ['type' => null    , 'value' => null],
         'locale'        => ['type' => 'single', 'value' => 'Contact.culture'],
         'uid'           => ['type' => 'single', 'value' => 'Contact.vcard_uid'],
         'subscribedToNewsletter' => ['type' => 'single', 'value' => '!contact_email_no_newsletter'],
