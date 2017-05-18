@@ -21,6 +21,8 @@ abstract class PluginOcApplicationForm extends BaseOcApplicationForm
     unset($this->widgetSchema['secret'], $this->validatorSchema['secret']);
     $this->widgetSchema   ['secret_new'] = new sfWidgetFormInputText(['label' => 'Secret']);
     $this->validatorSchema['secret_new'] = new sfValidatorString(['required' => false]);
+    
+    $this->validatorSchema['expires_at']->setOption('required' , false);
   }
   
   public function doSave($con = null)
