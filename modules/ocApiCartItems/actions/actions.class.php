@@ -14,7 +14,7 @@ class ocApiCartItemsActions extends apiActions
 {
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */
@@ -31,24 +31,53 @@ class ocApiCartItemsActions extends apiActions
     }
 
     /**
-     * 
      * @param sfWebRequest $request
      * @param array $query
      * @return array
      */
     public function getAll(sfWebRequest $request, array $query)
     {
-        $cart_id = $request->getParameter('cart_id');
 
-        /* @var $cartService ApiCartsService */
-        $cartService = $this->getService('cartitems_service');
-        $result = $cartService->findAll($cart_id, $query);
+        $cart_id = $request->getParameter('cart_id');
+//        print_r($query);
+//        die($cart_id);
+
+        /** @var ApiCartItemsService $cartService */
+        $cartitemsService = $this->getService('cartitems_service');
+        $result = $this->getListWithDecorator($cartitemsService->findAll($cart_id, $query), $query);
 
         return $this->createJsonResponse($result);
     }
 
     /**
-     * 
+     * @param sfWebRequest $request
+     * @param array $query
+     * @return array
+     */
+    public function create(sfWebRequest $request)
+    {
+        $cart_id = $request->getParameter('cart_id');
+        $cartService = $this->getService('carts_service');
+        $cart = $cartService->findOneById($cart_id);
+        if (!$cart) {
+            return $this->createBadRequestResponse(['error' => 'Cart not found with id=' . $cart_id]);
+        }
+
+        /* @var $cartItemsService ApiCartItemsService */
+        $cartItemsService = $this->getService('cartitems_service');
+        try {
+            $cartItem = $cartItemsService->create($cart_id, $request->getPostParameters());
+        } catch (liOnlineSaleException $exc) {
+            return $this->createBadRequestResponse(['error' => $exc->getMessage()]);
+        }
+
+        /** @var ApiCartItemsService $cartItemsService */
+        $result = $cartItemsService->findOne($cart_id, $cartItem->id);
+        return $this->createJsonResponse($result);
+    }
+
+    /**
+     *
      * @param sfWebRequest $request
      * @return array
      */
@@ -76,7 +105,7 @@ class ocApiCartItemsActions extends apiActions
     }
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */

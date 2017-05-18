@@ -14,7 +14,7 @@ class ocApiCartsActions extends apiActions
 {
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */
@@ -24,13 +24,13 @@ class ocApiCartsActions extends apiActions
 
         /* @var $cartService ApiCartsService */
         $cartService = $this->getService('carts_service');
-        $result = $cartService->findOne($cart_id);
+        $result = $cartService->findOneById($cart_id);
 
         return $result;
     }
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @param array $query
      * @return array
@@ -39,13 +39,12 @@ class ocApiCartsActions extends apiActions
     {
         /* @var $cartService ApiCartsService */
         $cartService = $this->getService('carts_service');
-        $result = $cartService->findAll($query);
-
+        $result = $this->getListWithDecorator($cartService->findAll($query), $query);
         return $this->createJsonResponse($result);
     }
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */

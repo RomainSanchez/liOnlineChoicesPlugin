@@ -6,7 +6,7 @@
  */
 
 /**
- * Description of ApiEntityService
+ * Description of ocPropertyAccessor
  *
  * @author Baptiste SIMON <baptiste.simon@libre-informatique.fr>
  */
@@ -43,7 +43,7 @@ class ocPropertyAccessor
     {
         // init
         $entity = [];
-        
+
         // populate
         foreach ( $equiv as $api => $db ) {
             if ( is_array($db) ) {
@@ -51,7 +51,7 @@ class ocPropertyAccessor
                 $lastType = array_pop($type);
                 $bool = preg_match('/^!/', $db['value']) !== false;
                 $db['value'] = preg_replace('/^!/', '', $db['value']);
-                
+
                 switch ( $lastType ) {
                     case 'sub-record':
                         $this->setAPIValue($entity, $api, new ArrayObject, $type);
@@ -68,7 +68,7 @@ class ocPropertyAccessor
                 }
             }
         }
-        
+
         return $entity;
     }
     
@@ -104,18 +104,18 @@ class ocPropertyAccessor
         // init
         $api = is_array($api) ? $api : explode('.', $api);
         $currentType = array_pop($type);
-        
+
         // get out of here
         if ( !$api ) {
             $entity = $bool ? $value : !$value;
             return $this;
         }
-        
+
         $key = array_shift($api);
         if ( !isset($entity[$key]) ) {
             $entity[$key] = [];
         }
-        
+
         if ( $currentType == 'collection' ) {
             foreach ( $value as $k => $v ) {
                 $this->setAPIValue($entity[$key][$k], $api, $value[$k], $type);
@@ -124,7 +124,7 @@ class ocPropertyAccessor
         else {
             $this->setAPIValue($entity[$key], $api, $value, $type);
         }
-        
+
         return $this;
     }
     
@@ -138,17 +138,17 @@ class ocPropertyAccessor
     {
         // init
         $db = is_array($db) ? $db : explode('.', $db);
-        
+
         // get out of here
         if ( !$db ) {
             return $this->isDoctrine($record) ? $record->toArray() : $record;
         }
-        
+
         $key = array_shift($db);
         if ( !$record->$key ) {
             return null;
         }
-        
+
         // Doctrine_Collection
         if ( $record->$key instanceof Doctrine_Collection ) {
             $r = [];
@@ -157,7 +157,7 @@ class ocPropertyAccessor
             }
             return $r;
         }
-        
+
         // Doctrine_Record
         return $this->getRecordValue($record->$key, $db);
     }

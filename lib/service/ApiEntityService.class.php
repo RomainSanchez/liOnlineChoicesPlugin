@@ -13,10 +13,10 @@
 abstract class ApiEntityService implements ApiEntityServiceInterface
 {
 
-    
+
     /**
      * @var array
-     * any field and sub-field have to be represented as "field" and "field.sub-field" 
+     * any field and sub-field have to be represented as "field" and "field.sub-field"
      * any collections is accessed as if it was a single property, the engine does the rest
      * left side: the API representation for datas
      * right side: array containing: 'type' => the type of data expected, 'value' => the path to data in Doctrine_Records
@@ -28,7 +28,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
 
     /**
      * @var array
-     * any field and sub-field have to be represented as "field" and "field.sub-field" 
+     * any field and sub-field have to be represented as "field" and "field.sub-field"
      * any collections is accessed as if it was a single property, the engine does the rest
      * left side: the API representation for datas
      * right side: array containing: 'type' => the type of data expected, 'value' => the path to data in Doctrine_Records
@@ -37,7 +37,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
      */
     protected static $FIELD_MAPPING = [];
 
-    
+
 
     /**
      *
@@ -65,9 +65,9 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         if ($record === NULL)
             return [];
         $accessor = new ocPropertyAccessor;
-        
+
         $entity = $accessor->toAPI($record, $this->getFieldsEquivalents());
-        
+
         return $this->postFormatEntity($entity, $record);
     }
 
@@ -85,8 +85,14 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
 
     public function buildQuery(array $query)
     {
-        if (!is_array($query['criteria']))
+        if (!isset($query['criteria']))
             $query['criteria'] = [];
+        if (!isset($query['sorting']))
+            $query['sorting'] = [];
+        if (!isset($query['limit']))
+            $query['limit'] = 100;
+        if (!isset($query['page']))
+            $query['page'] = 1;
 
         $q = $this->buildInitialQuery();
 
@@ -199,7 +205,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
             throw new liOnlineSaleException('Doctrine_Collection or Doctrine_Record expected, ' . get_class($data) . ' given on line '.__LINE__.' of '.__FILE__.'.');
 
         $fct = function(Doctrine_Record $rec) {
-        
+
             $arr = [];
             foreach ( $rec->getTable()->getColumns() as $colname => $coldef )
             {
@@ -220,7 +226,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         else {
             $res = $fct($data);
         }
-        
+
         return $res;
     }
 
