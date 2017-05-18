@@ -3,11 +3,18 @@
 // this usually goes into the settings.yml file, .settings > enabled_modules > []
 
 return [
+  'modules' => [
 
-  'ocSetup',
-  'ocTimeSlot',
-  'ocApplication',
-  'ocApiOAuth',
-  'ocApiCustomers',
+    'ocSetup',
+    'ocTimeSlot',
+    'ocApplication',
+    'ocApiOAuth',
+    'ocApiCustomers',
+    'ocApiManifestations',
+    'ocApiEvents',
 
+  ],
+  'filters' => [
+    'exceptionCatcherFilter' => 'on',
+  ],
 ];
