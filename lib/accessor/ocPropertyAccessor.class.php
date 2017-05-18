@@ -19,8 +19,7 @@ class ocPropertyAccessor
         
         // populate
         foreach ( $equiv as $api => $db ) {
-            if ( is_array($db) )
-            {
+            if ( is_array($db) ) {
                 $type = explode('.', $db['type']);
                 $lastType = array_pop($type);
                 $bool = preg_match('/^!/', $db['value']) !== false;
@@ -87,8 +86,9 @@ class ocPropertyAccessor
         }
         
         $key = array_shift($db);
-        if ( !$record->$key )
+        if ( !$record->$key ) {
             return null;
+        }
         
         // Doctrine_Collection
         if ( $record->$key instanceof Doctrine_Collection ) {

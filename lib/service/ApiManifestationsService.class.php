@@ -90,8 +90,6 @@ class ApiManifestationsService extends ApiEntityService
     
     protected function postFormatEntity(array $entity, Doctrine_Record $manif)
     {
-        return $entity;
-        
         // metaEvent
         $entity['metaEvent'] = $this->translationService->reformat($entity['metaEvent']);
         $entity['event'] = $this->translationService->reformat($entity['event']);
@@ -100,12 +98,10 @@ class ApiManifestationsService extends ApiEntityService
         $currency = sfConfig::get('project_internals_currency', ['iso' => 978, 'symbol' => '€']);
         foreach ( $entity['gauges'] as $id => $gauge ) {
             // availableUnits
-            /*
             $free = $entity['gauges'][$id]['availableUnits'];
             $entity['gauges'][$id]['availableUnits'] = $free > $this->getMaxShownAvailableUnits()
                 ? $this->getMaxShownAvailableUnits()
                 : $free;
-            */
             
             // gauges.prices
             $entity['gauges'][$id]['prices'] = [];
