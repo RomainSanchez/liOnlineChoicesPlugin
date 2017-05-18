@@ -19,13 +19,13 @@ generator:
           label: Secret
           help: Let it empty if no change is required
       list:
-        display: [identifier, _user]
+        display: [identifier, _user, expires_at]
         object_actions:
           _edit: ~
           _delete: ~
       filter:
-        display: [identifier, user_id]
+        display: [identifier, user_id, expires_at]
       form:
-        display: [identifier, secret_new, _generator, user_id]
+        display: [identifier, secret_new, _generator, user_id, expires_at]
       edit:    ~
       new:     ~

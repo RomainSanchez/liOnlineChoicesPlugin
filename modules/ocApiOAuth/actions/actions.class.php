@@ -25,10 +25,10 @@ class ocApiOAuthActions extends jsonActions
     {
         $response = $this->getResponse();
         $response->clearHttpHeaders();
-            
+
         $this->getService('actions_service')
             ->populateAccessControlHeaders($response);
-        
+
         return sfView::NONE;
     }
 
@@ -40,35 +40,36 @@ class ocApiOAuthActions extends jsonActions
     {
         $oauth = $this->getService('oauth_service');
 
-        // authenticates the app
-        try {
-            $app = $oauth->findApplication(
-                $request->getParameter('client_id'), $request->getParameter('client_secret')
-            );
-        } catch ( liOnlineSaleException $e ) {
-            OcLogger::log($e->getMessage(), $this);
-            return $this->createJsonResponse([], ApiHttpStatus::UNAUTHORIZED);
+        // find the app
+        $app = $oauth->findApplication(
+            $request->getParameter('client_id'), $request->getParameter('client_secret')
+        );
+
+        //no application found -> return error response
+        if ( null === $app ) {
+            return $this->createJsonErrorResponse(
+                    'application authentification failed', ApiHttpStatus::UNAUTHORIZED);
         }
 
         // deal with the token
         if ( $refresh = $request->getParameter('refresh_token', false) ) {
-            try {
-                $token = $oauth->refreshToken($refresh, $app);
-            } catch ( liOnlineSaleException $e ) {
+            $newToken = $oauth->refreshToken($refresh, $app);
+
+            if ( null === $newToken ) {
                 OcLogger::log($e->getMessage(), $this);
-                return $this->createJsonResponse([], ApiHttpStatus::UNAUTHORIZED);
+                return $this->createJsonErrorResponse('token cannot be refreshed', ApiHttpStatus::UNAUTHORIZED);
             }
         } else {
-            $token = $oauth->createToken($app);
+            $newToken = $oauth->createToken($app);
         }
 
         // builds the result
         $result = [
-            'access_token' => $token->token,
+            'access_token' => $newToken->token,
             'expires_in' => $oauth->getTokenLifetime(),
             'token_type' => 'bearer',
             'scope' => null,
-            'refresh_token' => $token->refresh_token,
+            'refresh_token' => $newToken->refresh_token,
         ];
 
         // sends the result

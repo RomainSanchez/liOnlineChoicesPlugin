@@ -4,6 +4,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+require_once __DIR__ . '../../../lib/http/ApiHttpStatus.class.php';
 
 /**
  * Description of apiActions
@@ -19,9 +20,9 @@ abstract class jsonActions extends sfActions
      */
     public function preExecute()
     {
+        
         $this->authenticate();
         $this->convertJsonToParameters();
-
         //disable layout
         $this->setLayout(false);
         //json response header
@@ -39,7 +40,7 @@ abstract class jsonActions extends sfActions
             $oauthService = $this->getService('oauth_service');
 
             //check oauth authentification
-            if ( !$oauthService->isAuthenticated($request) ) {
+            if ( !$oauthService->authenticate($request) ) {
                 throw new ocAuthCredentialsException('Invalid authentication credentials');
             }
             //assign user
@@ -76,6 +77,17 @@ abstract class jsonActions extends sfActions
 
         $this->getResponse()->setStatusCode($status);
         return $this->renderText(json_encode($data, JSON_PRETTY_PRINT) . "\n");
+    }
+
+    /**
+     * Create an error json response from a message and a status code
+     * 
+     * @param string $message
+     * @return string (sfView::NONE)
+     */
+    protected function createJsonErrorResponse($message, $status = ApiHttpStatus::SERVICE_UNAVAILABLE)
+    {
+        return $this->createJsonResponse(['code' => $status, 'message' => $message], $status);
     }
 
     /**
