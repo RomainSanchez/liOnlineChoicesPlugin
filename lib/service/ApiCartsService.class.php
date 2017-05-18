@@ -14,9 +14,9 @@ class ApiCartsService extends ApiEntityService
 {
 
     protected static $FIELD_MAPPING = [
-        'id' => null,
-        'type' => null,
-        'quantity' => null,
+        'id'       => 'id',
+        'type'     => 'type',
+        'customer' => 'Professional.id',
         'declination' => null,
         'totalAmount' => null,
         'unitAmount' => null,
@@ -35,7 +35,7 @@ class ApiCartsService extends ApiEntityService
     ];
 
     /**
-     * 
+     *
      * @param array $query
      * @return array
      */
@@ -48,7 +48,7 @@ class ApiCartsService extends ApiEntityService
     }
 
     /**
-     * 
+     *
      * @param int $cart_id
      * @return array | null
      */
@@ -66,7 +66,7 @@ class ApiCartsService extends ApiEntityService
     }
 
     /**
-     * 
+     *
      * @param int $cart_id
      * @return boolean
      */
@@ -78,6 +78,8 @@ class ApiCartsService extends ApiEntityService
     public function buildInitialQuery()
     {
         return Doctrine_Query::create()
-                ->from('OcTransaction root');
+            ->from('Transaction root')
+            ->leftJoin('root.Professional Professional')
+        ;
     }
 }

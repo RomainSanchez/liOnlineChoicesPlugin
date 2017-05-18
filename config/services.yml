@@ -4,7 +4,7 @@ dev:
 
 all:
   parameters:
-    
+
   services:
       actions_service:
           class: ApiActionsService
@@ -27,8 +27,12 @@ all:
           calls:
             - ['setTranslationService', ['@translation_service']]
             - ['setOAuthService', ['@oauth_service']]
-      carts_service:
-          class: ApiCartsService
       cartitems_service:
           class: ApiCartItemsService
-          
+      carts_service:
+          class: ApiCartsService
+          calls:
+            - ['setOAuthService', ['@oauth_service']]
+            - ['setCartItemsService', ['@cartitems_service']]
+
+
