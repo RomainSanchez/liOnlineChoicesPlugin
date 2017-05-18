@@ -28,14 +28,14 @@ class ApiOAuthService
     {
         $headerValue = $this->getAuthorizationHeader();
         if ( !$headerValue ) {
-            throw new ocException('api key is not provided');
+            throw new ocAuthException('api key not provided');
         }
 
         $apiKey = str_replace('Bearer ', '', $headerValue);
         $this->token = $this->findRegistredTokenByApiKey($apiKey);
 
         if ( null === $this->token || !$this->token instanceof OcToken) {
-            throw new ocException('api key is not valid');
+            throw new ocAuthException('api key not valid');
         }
         return true;
     }

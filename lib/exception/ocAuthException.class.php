@@ -6,11 +6,12 @@
  */
 
 /**
- * Description of ocAuthCredentialsException
+ * Description of ocAuthException
  *
  * @author Glenn Cavarlé <glenn.cavarle@libre-informatique.fr>
  */
-class ocAuthCredentialsException extends ocAuthException
+class ocAuthException extends ocException
 {
     //put your code here
 }
+
