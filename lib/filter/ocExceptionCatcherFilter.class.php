@@ -20,10 +20,12 @@ class ocExceptionCatcherFilter
             $filterChain->execute();
             
         } catch ( ocAuthCredentialsException $e ) {
+            OcLogger::log($e->getMessage(), $this);
             $r = $this->getResponse();
             $r->setStatusCode(ApiHttpStatus::UNAUTHORIZED);
             $r->setContent(json_encode(['message' => $e->getMessage()], JSON_PRETTY_PRINT) . "\n");
         } catch ( ocException $e ) {
+            OcLogger::log($e->getMessage(), $this);
             $r = $this->getResponse();
             $r->setStatusCode(ApiHttpStatus::SERVICE_UNAVAILABLE);
             $r->setContent(json_encode(['message' => $e->getMessage()], JSON_PRETTY_PRINT) . "\n");

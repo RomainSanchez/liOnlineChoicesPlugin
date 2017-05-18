@@ -24,24 +24,19 @@ class ApiOAuthService
      * @param sfWebRequest $request
      * @return boolean
      */
-    public function isAuthenticated()
+    public function authenticate(sfWebRequest $request)
     {
-        $key = str_replace('Bearer ', '', $this->getAuthorizationHeader());
-
-        try {
-            $this->token = $this->findOneByApiKey($key);
-            return true;
-        } catch ( liOnlineSaleException $e ) {
-            return false;
+        $headerValue = $request->getHttpHeader('Authorization');
+        if ( null === $headerValue ) {
+            throw new ocException('api key is not provided');
         }
-    }
 
-    protected function getAuthorizationHeader()
-    {
-        $headers = getallheaders();
-        if ( isset($headers['Authorization']) )
-            return $headers['Authorization'];
-        return false;
+        $apiKey = str_replace('Bearer ', '', $headerValue);
+        $this->token = $this->findRegistredTokenByApiKey($apiKey);
+
+        if ( null === $this->token ) {
+            throw new ocException('api key is not valid');
+        }
     }
 
     /**
@@ -53,20 +48,33 @@ class ApiOAuthService
         return $this->token;
     }
 
-    public function findOneByApiKey($key)
+    /**
+     * 
+     * @param string $key
+     * @return OcToken | null
+     */
+    public function findRegistredTokenByApiKey($key)
     {
         $q = Doctrine::getTable('OcToken')->createQuery('ot')
             ->andWhere('ot.token = ?', $key)
             ->andWhere('expires_at > ?', date('Y-m-d H:i:s'))
         ;
+
         $token = $q->fetchOne();
 
-        if ( !$token instanceof OcToken )
-            throw new liOnlineSaleException('No token found for ' . $key);
+        if ( !$token ) {
+            return null;
+        }
 
         return $token;
     }
 
+    /**
+     * 
+     * @param string $client_id
+     * @param string $client_secret
+     * @return OcApplication | null
+     */
     public function findApplication($client_id, $client_secret)
     {
         $q = Doctrine::getTable('OcApplication')->createQuery('app')
@@ -75,21 +83,22 @@ class ApiOAuthService
         ;
 
         $app = $q->fetchOne();
-        if ( !$app instanceof OcApplication )
-            throw new liOnlineSaleException('Application not found.');
+        if ( !$app ) {
+            return null;
+        }
 
         return $app;
     }
 
     public function createToken(OcApplication $app)
     {
-        $token = new OcToken;
+        $token = new OcToken();
 
         $token->token = $this->generateToken();
         $token->refresh_token = $this->generateToken();
         $token->expires_at = $this->getExpirationTime();
         $token->oc_application_id = $app->id;
-        $token->OcTransaction[] = new OcTransaction;
+        //$token->OcTransaction[] = new OcTransaction();
         $token->save();
 
         return $token;

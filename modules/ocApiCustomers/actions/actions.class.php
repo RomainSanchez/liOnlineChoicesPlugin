@@ -94,29 +94,27 @@ class ocApiCustomersActions extends apiActions
     public function update(sfWebRequest $request)
     {
         return $this->createJsonResponse([
-            'code' => ApiHttpStatus::NOT_IMPLEMENTED,
-            'message' => 'Updating customers not implemented here',
-            'errors' => [],
-        ], ApiHttpStatus::NOT_IMPLEMENTED);
-        
+                'code' => ApiHttpStatus::NOT_IMPLEMENTED,
+                'message' => 'Updating customers not implemented here',
+                'errors' => [],
+                ], ApiHttpStatus::NOT_IMPLEMENTED);
+
         // never goes here, function not implemented
         $data = $request->getPostParameters();
-        foreach ( ['name', 'email', 'password'] as $field )
-        {
-            if (!( isset($data[$field]) && $data[$field] ))
-            {
-                $data[$field] = ['errors' => 'Please enter your '.$field];
+        foreach ( ['name', 'email', 'password'] as $field ) {
+            if ( !( isset($data[$field]) && $data[$field] ) ) {
+                $data[$field] = ['errors' => 'Please enter your ' . $field];
                 return $this->createJsonResponse([
-                    'code' => ApiHttpStatus::BAD_REQUEST,
-                    'message' => 'Validation failed',
-                    'errors' => [
-                        'children' => $data,
-                    ],
-                ], ApiHttpStatus::BAD_REQUEST);
+                        'code' => ApiHttpStatus::BAD_REQUEST,
+                        'message' => 'Validation failed',
+                        'errors' => [
+                            'children' => $data,
+                        ],
+                        ], ApiHttpStatus::BAD_REQUEST);
             }
         }
     }
-    
+
     /**
      * 
      * @param sfWebRequest $request
