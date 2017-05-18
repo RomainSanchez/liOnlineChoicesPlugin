@@ -83,7 +83,7 @@ class ApiCustomersService extends ApiEntityService
             return false;
         }
         
-        $transaction = this->getOAuthService()->getToken()->OcTransaction[0];
+        $transaction = $this->getOAuthService()->getToken()->OcTransaction[0];
         $transaction->oc_professional_id = NULL;
         $transaction->save();
         
@@ -122,6 +122,7 @@ class ApiCustomersService extends ApiEntityService
     public function setOAuthService(ApiOAuthService $service)
     {
         $this->oauth = $service;
+        return $this;
     }
 
     public function getOAuthService()
