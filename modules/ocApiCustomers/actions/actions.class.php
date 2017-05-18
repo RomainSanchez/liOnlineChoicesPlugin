@@ -13,6 +13,17 @@
 class ocApiCustomersActions extends apiActions
 {
 
+    public function executeLogout(sfWebRequest $request)
+    {
+        $customers = $this->getService('customers_service');
+        if ( $customers->logout() ) {
+            return $this->createJsonResponse([
+                'code' => ApiHttpStatus::SUCCESS,
+                'message' => 'Logout successful',
+            ]);
+        }
+    }
+    
     public function executeLogin(sfWebRequest $request)
     {
         $email = $request->getParameter('email');
@@ -28,7 +39,7 @@ class ocApiCustomersActions extends apiActions
                             'password' => !$password ? ['errors' => ['Please provide a password']] : new ArrayObject,
                         ],
                     ],
-                    ], ApiHttpStatus::BAD_REQUEST);
+                ], ApiHttpStatus::BAD_REQUEST);
         }
 
         $query = $this->buildQuery($request, [
@@ -43,15 +54,15 @@ class ocApiCustomersActions extends apiActions
             return $this->createJsonResponse([
                     'code' => ApiHttpStatus::UNAUTHORIZED,
                     'message' => 'Verification failed',
-                    ], ApiHttpStatus::UNAUTHORIZED);
+                ], ApiHttpStatus::UNAUTHORIZED);
         }
-
+        
         return $this->createJsonResponse([
-                'code' => ApiHttpStatus::SUCCESS,
-                'message' => 'Verification successful',
-                'success' => [
-                    'customer' => $customers->getIdentifiedCustomer(),
-                ],
+            'code' => ApiHttpStatus::SUCCESS,
+            'message' => 'Verification successful',
+            'success' => [
+               'customer' => $customers->getIdentifiedCustomer(),
+            ],
         ]);
     }
 
@@ -64,10 +75,10 @@ class ocApiCustomersActions extends apiActions
     public function create(sfWebRequest $request)
     {
         return $this->createJsonResponse([
-                'code' => ApiHttpStatus::NOT_IMPLEMENTED,
-                'message' => 'Creation of customers not implemented here',
-                'errors' => [],
-                ], ApiHttpStatus::NOT_IMPLEMENTED);
+            'code' => ApiHttpStatus::NOT_IMPLEMENTED,
+            'message' => 'Creation of customers not implemented here',
+            'errors' => [],
+        ], ApiHttpStatus::NOT_IMPLEMENTED);
 
         // never goes here, function not implemented
         $data = $request->getParameters();
@@ -75,12 +86,12 @@ class ocApiCustomersActions extends apiActions
             if ( !( isset($data[$field]) && $data[$field] ) ) {
                 $data[$field] = ['errors' => 'Please enter your ' . $field];
                 return $this->createJsonResponse([
-                        'code' => ApiHttpStatus::BAD_REQUEST,
-                        'message' => 'Validation failed',
-                        'errors' => [
-                            'children' => $data,
-                        ],
-                        ], ApiHttpStatus::BAD_REQUEST);
+                    'code' => ApiHttpStatus::BAD_REQUEST,
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'children' => $data,
+                    ],
+                ], ApiHttpStatus::BAD_REQUEST);
             }
         }
     }
