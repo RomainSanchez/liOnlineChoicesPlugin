@@ -14,6 +14,14 @@ class ocApiCartItemsActions extends apiActions
 {
 
     /**
+     * @return ApiEntityService
+     */
+    public function getMyService()
+    {
+        return $this->getService('cartitems_service');
+    }
+
+    /**
      *
      * @param sfWebRequest $request
      * @return array
@@ -37,8 +45,7 @@ class ocApiCartItemsActions extends apiActions
      */
     public function getAll(sfWebRequest $request, array $query)
     {
-
-        $cart_id = $request->getParameter('cart_id');
+        $cart_id = $request->getParameter('id');
 
         /** @var ApiCartItemsService $cartService */
         $cartitemsService = $this->getService('cartitems_service');
@@ -56,7 +63,7 @@ class ocApiCartItemsActions extends apiActions
     {
         /* @var $cartsService ApiCartsService */
         $cartsService = $this->getService('carts_service');
-        $cart_id = $request->getParameter('cart_id');
+        $cart_id = $request->getParameter('id');
         $cart = $cartsService->findOneById($cart_id);
         if ( 0 == count($cart) ) {
             return $this->createBadRequestResponse(['error' => 'Cart not found with id=' . $cart_id]);

@@ -49,8 +49,10 @@ class ApiCartItemsService extends ApiEntityService
      */
     public function findAll($cart_id, $query)
     {
-        $q = $this->buildQuery($query);
-        $dotrineCol = $q->execute();
+        $dotrineCol = $this->buildQuery($query)
+            ->andWhere('root.oc_transaction_id = ?', $cart_id)
+            ->execute()
+        ;
 
         return $this->getFormattedEntities($dotrineCol);
     }
