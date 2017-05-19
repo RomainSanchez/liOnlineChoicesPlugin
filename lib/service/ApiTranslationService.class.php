@@ -16,7 +16,6 @@ class ApiTranslationService
     {
         // dates in ISO format
         $done = false;
-        var_dump($originals);
         foreach ( $originals as $id => $original ) {
             if ( !is_string($original) ) {
                 continue;

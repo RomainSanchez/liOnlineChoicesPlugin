@@ -117,4 +117,14 @@ abstract class jsonActions extends sfActions
     {
         return $this->getContext()->getContainer()->get($aServiceName);
     }
+    
+    /**
+     * Retrieve the current service
+     *
+     * @return ApiEntityService
+     */
+    public function getMyService()
+    {
+        throw new ocNotImplementedException('No "getMyService" defined, and no specific get*() defined neither.');
+    }
 }

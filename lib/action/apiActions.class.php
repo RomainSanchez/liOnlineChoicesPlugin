@@ -124,7 +124,10 @@ abstract class apiActions extends jsonActions
      */
     public function getOne(sfWebRequest $request)
     {
-        return array('message' => __METHOD__);
+        $query = ['criteria' => ['id' => ['value' => $request->getParameter('id'), 'type' => 'equal']]];
+        $service  = $this->getMyService();
+        $result  = $service->findAll($query);
+        return $this->createJsonResponse($result);
     }
 
     /**
@@ -136,7 +139,9 @@ abstract class apiActions extends jsonActions
      */
     public function getAll(sfWebRequest $request, array $query)
     {
-        return array('message' => __METHOD__);
+        $service  = $this->getMyService();
+        $result  = $this->getListWithDecorator($service->findAll($query), $query);
+        return $this->createJsonResponse($result);
     }
 
     protected function getListWithDecorator(array $data, array $query)

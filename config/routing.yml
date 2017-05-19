@@ -37,30 +37,30 @@ oc_api_customers:
         sf_method: [GET, POST]
 
 oc_api_customers_resource:
-    url: /api/v2/customers/:customer_id
+    url: /api/v2/customers/:id
     class: sfRequestRoute
     param: { module: ocApiCustomers, action: resource }
     requirements:
-        customer_id: \d+
+        id: \d+
         sf_method: [GET, POST, DELETE]
 
 #
 # CUSTOMER ORDER
 #
 oc_api_customers_orders:
-    url: /api/v2/customers/:customer_id/orders
+    url: /api/v2/customers/:id/orders
     class: sfRequestRoute
     param: { module: ocApiCustomerOrders, action: index }
     requirements:
-        customer_id: \d+
+        id: \d+
         sf_method: [GET]
         
 oc_api_customers_orders_resource:
-    url: /api/v2/customers/:customer_id/orders/:order_id
+    url: /api/v2/customers/:id/orders/:order_id
     class: sfRequestRoute
     param: { module: ocApiCustomerOrders, action: resource }
     requirements:
-        customer_id: \d+
+        id: \d+
         order_id: \d+
         sf_method: [GET]
 
@@ -76,11 +76,11 @@ oc_api_manifestations:
         sf_method: [GET]
 
 oc_api_manifestations_resource:
-    url: /api/v2/manifestations/:manifestation_id
+    url: /api/v2/manifestations/:id
     class: sfRequestRoute
     param: { module: ocApiManifestations, action: resource }
     requirements:
-        manifestation_id: \d+
+        id: \d+
         sf_method: [GET]
         
 #
@@ -95,19 +95,19 @@ oc_api_orders:
         sf_method: [GET]
         
 oc_api_orders_resource:
-    url: /api/v2/orders/:order_id
+    url: /api/v2/orders/:id
     class: sfRequestRoute
     param: { module: ocApiOrders, action: resource }
     requirements:
-        order_id: \d+
+        id: \d+
         sf_method: [GET]
 
 oc_api_orders_action:
-    url: /api/v2/orders/:do_action/:order_id
+    url: /api/v2/orders/:do_action/:id
     class: sfRequestRoute
     param: { module: ocApiOrders, action: action }
     requirements:
-        order_id: \d+
+        id: \d+
         do_action: ship|cancel|complete
         sf_method: [GET]
 
@@ -122,30 +122,30 @@ oc_api_carts:
         sf_method: [GET, POST]
 
 oc_api_carts_resource:
-    url: /api/v2/carts/:cart_id
+    url: /api/v2/carts/:id
     class: sfRequestRoute
     param: { module: ocApiCarts, action: resource }
     requirements:
-        cart_id: \d+
+        id: \d+
         sf_method: [GET, POST, DELETE]
 
 #
 # CART ITEMS
 #
 oc_api_carts_items:
-    url: /api/v2/carts/:cart_id/items
+    url: /api/v2/carts/:id/items
     class: sfRequestRoute
     param: { module: ocApiCartItems, action: index }
     requirements:
-        cart_id: \d+
+        id: \d+
         sf_method: [GET, POST]
         
 oc_api_carts_items_resource:
-    url: /api/v2/carts/:cart_id/items/:item_id
+    url: /api/v2/carts/:id/items/:item_id
     class: sfRequestRoute
     param: { module: ocApiCartItems, action: resource }
     requirements:
-        cart_id: \d+
+        id: \d+
         item_id: \d+
         sf_method: [GET,PUT,DELETE]
 
@@ -204,11 +204,11 @@ oc_api_events:
         sf_method: [GET, POST]
 
 oc_api_events_resource:
-    url: /api/v2/events/:event_id
+    url: /api/v2/events/:id
     class: sfRequestRoute
     param: { module: ocApiEvents, action: resource }
     requirements:
-        event_id: \d+
+        id: \d+
         sf_method: [GET]
 
 
@@ -223,11 +223,11 @@ oc_api_payments:
         sf_method: [GET]
 
 oc_api_payments_resource:
-    url: /api/v2/payments/:payment_id
+    url: /api/v2/payments/:id
     class: sfRequestRoute
     param: { module: ocApiPayments, action: resource }
     requirements:
-        payment_id: \d+
+        id: \d+
         sf_method: [GET]
         
 #
@@ -251,11 +251,11 @@ oc_api_products:
         sf_method: [GET]
 
 oc_api_products_resource:
-    url: /api/v2/products/:product_id
+    url: /api/v2/products/:id
     class: sfRequestRoute
     param: { module: ocApiProducts, action: resource }
     requirements:
-        product_id: \d+
+        id: \d+
         sf_method: [GET]
 
 
@@ -281,11 +281,11 @@ oc_api_promotions:
         sf_method: [GET]
 
 oc_api_promotions_resource:
-    url: /api/v2/promotions/:promotion_id
+    url: /api/v2/promotions/:id
     class: sfRequestRoute
     param: { module: ocApiPromotions, action: resource }
     requirements:
-        product_id: \d+
+        id: \d+
         sf_method: [GET]
 
 #

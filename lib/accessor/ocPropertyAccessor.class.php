@@ -148,7 +148,7 @@ class ocPropertyAccessor
         }
 
         $key = array_shift($db);
-        if ( !$record->hasRelation($key) ) {
+        if ( $record instanceof Doctrine_Record && !$record->hasRelation($key) ) {
             return null;
         }
 
