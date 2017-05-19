@@ -13,4 +13,15 @@ require_once dirname(__FILE__).'/../lib/ocTimeSlotGeneratorHelper.class.php';
  */
 class ocTimeSlotActions extends autoOcTimeSlotActions
 {
+    public function executeRefresh(sfWebRequest $request)
+    {
+        $q = Doctrine::getTable('OcTimeSlot')->createQuery('ts');
+        foreach ( $q->execute as $ts ) {
+            $ts->postSave('global refresh');
+        }
+        
+        $this->getContext()->getConfiguration()->loadHelpers('I18N');
+        $this->getUser()->setFlash('notice', __('All manifestations have been refreshed on their timeslots', null, 'li_oc'));
+        $this->redirect('oc_time_slot/index');
+    }
 }

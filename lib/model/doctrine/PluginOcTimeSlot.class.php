@@ -12,5 +12,20 @@
  */
 abstract class PluginOcTimeSlot extends BaseOcTimeSlot
 {
-
+    public function postSave($event)
+    {
+        $this->OcTimeSlotManifestations->delete();
+        
+        $q = Doctrine::getTable('Manifestation')->createQuery('m', true)
+            ->andWhere('m.happens_at >= ?', $this->starts_at)
+            ->andWhere('m.happens_at <  ?', $this->ends_at);
+        foreach ( $q->execute() as $manif ) {
+            $tsm = new OcTimeSlotManifestation;
+            $tsm->Manifestation = $manif;
+            $tsm->OcTimeSlot = $this;
+            $tsm->save();
+        }
+        
+        parent::postSave($event);
+    }
 }

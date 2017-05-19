@@ -325,6 +325,12 @@ oc_time_slot:
     prefix_path:          /oc_time_slot
     column:               id
     with_wildcard_routes: true
+oc_time_slot_refresh:
+  url: /oc_time_slot/refresh/*
+  class: sfRequestRoute
+  param: { module: ocTimeSlot, action: refresh }
+  requirements:
+    sf_method: [GET]
 
 oc_application:
   class: sfDoctrineRouteCollection

@@ -110,6 +110,29 @@ OcTimeSlot:
     ends_at:
       type: timestamp
       notnull: true
+  relations:
+    Manifestations:
+      class: Manifestation
+      refClass: OcTimeSlotManifestation
+      foreignAlias: OcTimeSlots
+OcTimeSlotManifestation:
+  columns:
+    manifestation_id:
+      type: integer
+      notnull: true
+    oc_time_slot_id:
+      type: integer
+      notnull: true
+  relations:
+    Manifestation:
+      foreignAlias: OcTimeSlotManifestations
+      onDelete: CASCADE
+      onUpdate: CASCADE
+    OcTimeSlot:
+      foreignAlias: OcTimeSlotManifestations
+      onDelete: CASCADE
+      onUpdate: CASCADE
+    
 OcToken:
   inheritance:
     extends: Traceable

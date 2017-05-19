@@ -21,6 +21,12 @@ generator:
           type: date
       list:
         display: [starts_at, ends_at]
+        actions:
+            _new: ~
+            _refresh:
+                label: Refresh Manifs
+                action: refresh
+                ui-icon: refresh
         object_actions:
           _edit: ~
           _delete: ~
