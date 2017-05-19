@@ -96,7 +96,7 @@ class ApiCartsService extends ApiEntityService
         ->fetchOne();
 
         if (false === $dotrineRec) {
-            return null;
+            return new ArrayObject;
         }
 
         return $this->getFormattedEntity($dotrineRec);
