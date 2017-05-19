@@ -39,6 +39,10 @@ class ApiManifestationsService extends ApiEntityService
         //'gauges.prices.translations' => ['type' => 'single', 'value' => 'Gauges.Prices.Translation'],
         //'gauges.prices.value' => ['type' => 'single', 'value' => 'Gauges.Prices.value'],
         //'gauges.prices.currencyCode' => null,
+        //'timeSlots'         => ['type' => 'collection', 'value' => 'OcTimeSlots'],
+        'timeSlots.name'    => ['type' => 'collection.single', 'value' => 'OcTimeSlots.name'],
+        'timeSlots.startsAt'=> ['type' => 'collection.single', 'value' => 'OcTimeSlots.starts_at'],
+        'timeSlots.endsAt'  => ['type' => 'collection.single', 'value' => 'OcTimeSlots.ends_at'],
     ];
 
     /**
@@ -98,10 +102,12 @@ class ApiManifestationsService extends ApiEntityService
         $currency = sfConfig::get('project_internals_currency', ['iso' => 978, 'symbol' => '€']);
         foreach ( $entity['gauges'] as $id => $gauge ) {
             // availableUnits
+            /*
             $free = $entity['gauges'][$id]['availableUnits'];
             $entity['gauges'][$id]['availableUnits'] = $free > $this->getMaxShownAvailableUnits()
                 ? $this->getMaxShownAvailableUnits()
                 : $free;
+            */
             
             // gauges.prices
             $entity['gauges'][$id]['prices'] = [];
@@ -123,6 +129,11 @@ class ApiManifestationsService extends ApiEntityService
             }
         }
         
+        // timeSlots
+        foreach ( $entity['timeSlots'] as &$timeSlot ) {
+            $this->translationService->reformat($timeSlot);
+        }
+        
         return $entity;
     }
     
@@ -141,3 +152,4 @@ class ApiManifestationsService extends ApiEntityService
         return $this->oauth;
     }
 }
+
