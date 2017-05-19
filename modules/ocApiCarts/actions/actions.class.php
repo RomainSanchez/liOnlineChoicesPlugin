@@ -12,21 +12,12 @@
  */
 class ocApiCartsActions extends apiActions
 {
-
     /**
-     *
-     * @param sfWebRequest $request
-     * @return array
+     * @return ApiEntityService
      */
-    public function getOne(sfWebRequest $request)
+    public function getMyService()
     {
-        $cart_id = $request->getParameter('cart_id');
-
-        /* @var $cartService ApiCartsService */
-        $cartService = $this->getService('carts_service');
-        $result = $cartService->findOneById($cart_id);
-
-        return $this->createJsonResponse($result);
+        return $this->getService('carts_service');
     }
 
     /**

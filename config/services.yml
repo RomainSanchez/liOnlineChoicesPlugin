@@ -29,6 +29,8 @@ all:
             - ['setOAuthService', ['@oauth_service']]
       cartitems_service:
           class: ApiCartItemsService
+          calls:
+            - ['setOAuthService', ['@oauth_service']]
       carts_service:
           class: ApiCartsService
           calls:

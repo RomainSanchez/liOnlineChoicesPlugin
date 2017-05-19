@@ -14,6 +14,14 @@ class ocApiCartItemsActions extends apiActions
 {
 
     /**
+     * @return ApiEntityService
+     */
+    public function getMyService()
+    {
+        return $this->getService('cartitems_service');
+    }
+
+    /**
      *
      * @param sfWebRequest $request
      * @return array
@@ -37,10 +45,7 @@ class ocApiCartItemsActions extends apiActions
      */
     public function getAll(sfWebRequest $request, array $query)
     {
-
-        $cart_id = $request->getParameter('cart_id');
-//        print_r($query);
-//        die($cart_id);
+        $cart_id = $request->getParameter('id');
 
         /** @var ApiCartItemsService $cartService */
         $cartitemsService = $this->getService('cartitems_service');
@@ -56,10 +61,11 @@ class ocApiCartItemsActions extends apiActions
      */
     public function create(sfWebRequest $request)
     {
-        $cart_id = $request->getParameter('cart_id');
-        $cartService = $this->getService('carts_service');
-        $cart = $cartService->findOneById($cart_id);
-        if (!$cart) {
+        /* @var $cartsService ApiCartsService */
+        $cartsService = $this->getService('carts_service');
+        $cart_id = $request->getParameter('id');
+        $cart = $cartsService->findOneById($cart_id);
+        if ( 0 == count($cart) ) {
             return $this->createBadRequestResponse(['error' => 'Cart not found with id=' . $cart_id]);
         }
 
@@ -71,8 +77,7 @@ class ocApiCartItemsActions extends apiActions
             return $this->createBadRequestResponse(['error' => $exc->getMessage()]);
         }
 
-        /** @var ApiCartItemsService $cartItemsService */
-        $result = $cartItemsService->findOne($cart_id, $cartItem->id);
+        $result = $cartsService->findOneById($cart_id);
         return $this->createJsonResponse($result);
     }
 
