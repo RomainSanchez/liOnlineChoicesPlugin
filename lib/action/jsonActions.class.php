@@ -60,10 +60,13 @@ abstract class jsonActions extends sfActions
 
         if ( $contentType == 'application/json' && $content ) {
             $jsonParams = json_decode($content, true);
+            
+            $this->getRequest()->setParameter('application/json', $jsonParams);
             foreach ( $jsonParams as $k => $v ) {
                 $this->getRequest()->setParameter($k, $v);
             }
         }
+        
     }
 
     /**
