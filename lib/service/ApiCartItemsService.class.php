@@ -14,7 +14,7 @@ class ApiCartItemsService extends ApiEntityService
 {
 
      protected static $FIELD_MAPPING = [
-        'id' => ['type' => 'simple', 'value' => 'id'],
+        'id' => ['type' => 'single', 'value' => 'id'],
         'type' => ['type' => 'null', 'value' => 'null'],
         'quantity' => ['type' => 'null', 'value' => 'null'],
         'declination' => ['type' => 'null', 'value' => 'null'],
@@ -27,6 +27,19 @@ class ApiCartItemsService extends ApiEntityService
         'adjustments' => ['type' => 'null', 'value' => 'null'],
         'adjustmentsTotal' => ['type' => 'null', 'value' => 'null'],
      ];
+
+    /**
+     * @var ocApiOAuthService
+     */
+    protected $oauth;
+
+    /**
+     * @param ApiOAuthService $service
+     */
+    public function setOAuthService(ApiOAuthService $service)
+    {
+        $this->oauth = $service;
+    }
 
     /**
      *
@@ -44,53 +57,89 @@ class ApiCartItemsService extends ApiEntityService
 
     /**
      *
-     * @param int $cart_id
-     * @param int $item_id
+     * @param int $cartId
+     * @param int $itemId
      * @return array|null
      */
-    public function findOne($cart_id, $item_id)
+    public function findOne($cartId, $itemId)
     {
-        return [];
+        $token = $this->oauth->getToken();
+        $query = [
+            'criteria' => [
+                'id' => [
+                    'value' => $itemId,
+                    'type'  => 'equal',
+                ],
+            ]
+        ];
+        $dotrineRec = $this->buildQuery($query)
+            ->andWhere('root.oc_transaction_id = ?', $cartId)
+            ->andWhere('OcToken.token = ?', $token->token)
+            ->fetchOne()
+        ;
+
+        if (false === $dotrineRec) {
+            return new ArrayObject;
+        }
+
+        return $this->getFormattedEntity($dotrineRec);
     }
 
     /**
      *
-     * @param int $cart_id
+     * @param int $cartId
      * @param array $data
      * @return OcTicket
      * @throws liOnlineSaleException
      */
-    public function create($cart_id, $data)
+    public function create($cartId, $data)
     {
         // Check type
         if (!isset($data['type'])) {
-            throw new liOnlineSaleException('Missing "type" parameter');
+            throw new liOnlineSaleException('Missing type parameter');
         }
         $type = $data['type'];
         $allowedTypes = ['ticket', 'product', 'pass'];
         if (!in_array($type, $allowedTypes)) {
-            throw new liOnlineSaleException(sprintf('Wrong "type" parameter: %s. Expected one of: ', $type, implode(',', $allowedTypes)));
+            throw new liOnlineSaleException(sprintf('Wrong type parameter: %s. Expected one of: ', $type, implode(',', $allowedTypes)));
         }
         if ($type != 'ticket') {
             // TODO...
             throw new liOnlineSaleException('Not implemented yet for type: ' . $type);
         }
 
-        // Check price
         if (!isset($data['priceId'])) {
-            throw new liOnlineSaleException('Missing "priceId" parameter');
+            throw new liOnlineSaleException('Missing priceId parameter');
         }
-        $priceId = $data['priceId']; // TODO: check existence
+        $priceId = $data['priceId'];
 
-        $declinationId = $data['declinationId']; // TODO: check existence
+        if (!isset($data['declinationId'])) {
+            throw new liOnlineSaleException('Missing declinationId parameter');
+        }
+        $declinationId = $data['declinationId'];
+
+        if ( !$this->checkDeclinationAndPriceAccess($priceId, $declinationId) ) {
+            throw new liOnlineSaleException('Invalid value for priceId or declinationId parameter');
+        }
 
         $cartItem = new OcTicket;
-        $cartItem->oc_transaction_id = $cart_id;
+        $cartItem->oc_transaction_id = $cartId;
         $cartItem->price_id = $priceId;
         $cartItem->gauge_id = $declinationId;
         $cartItem->save();
 
         return $cartItem;
+    }
+
+    /**
+     * @param int $priceId
+     * @param int $gaugeId
+     * @return boolean
+     */
+    public function checkDeclinationAndPriceAccess($priceId, $gaugeId)
+    {
+        // TODO
+        return true;
     }
 
     /**
@@ -107,11 +156,11 @@ class ApiCartItemsService extends ApiEntityService
 
     /**
      *
-     * @param int $cart_id
-     * @param int $item_id
+     * @param int $cartId
+     * @param int $itemId
      * @return boolean
      */
-    public function deleteCartItem($cart_id, $item_id)
+    public function deleteCartItem($cartId, $itemId)
     {
         return true;
     }
@@ -119,7 +168,10 @@ class ApiCartItemsService extends ApiEntityService
     public function buildInitialQuery()
     {
         return Doctrine_Query::create()
-                ->from('OcTicket root');
+            ->from('OcTicket root')
+            ->leftJoin('root.OcTransaction OcTransaction')
+            ->leftJoin('OcTransaction.OcToken OcToken')
+        ;
     }
 
     /**
