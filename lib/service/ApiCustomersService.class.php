@@ -69,7 +69,7 @@ class ApiCustomersService extends ApiEntityService
                 ->leftJoin('t.OcProfessional p')
                 ->leftJoin('t.OcToken token')
                 ->andWhere('p.professional_id = ?', $pro->id)
-                ->orderBy('t.created_at')
+                ->orderBy('t.created_at DESC')
                 ->fetchOne();
             if ( $transaction instanceof OcTransaction ) {
                 $token->OcTransaction[0] = $transaction;
