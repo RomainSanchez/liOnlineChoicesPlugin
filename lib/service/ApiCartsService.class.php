@@ -80,20 +80,23 @@ class ApiCartsService extends ApiEntityService
 
     /**
      *
-     * @param int $cart_id
+     * @param int $id
      * @return array | null
      */
-    public function findOneById($cart_id)
+    public function findOneById($id)
     {
-        $dotrineRec = $this->buildQuery([
+        $token = $this->oauth->getToken();
+        $query = [
             'criteria' => [
                 'id' => [
-                    'value' => $cart_id,
+                    'value' => $id,
                     'type'  => 'equal',
                 ],
             ]
-        ])
-        ->fetchOne();
+        ];
+        $dotrineRec = $this->buildQuery($query)
+            ->andWhere('Token.token = ?', $token->token)
+            ->fetchOne();
 
         if (false === $dotrineRec) {
             return new ArrayObject;
