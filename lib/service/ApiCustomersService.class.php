@@ -144,13 +144,8 @@ class ApiCustomersService extends ApiEntityService
         if ( !$this->isIdentificated() ) {
             return false;
         }
-<<<<<<< HEAD
-        unset($data['id']);
-
-=======
         unset($data['id'], $data['email']);
 
->>>>>>> e8d519b68d525db1b8f74b53c370b5356f4069ac
         $pro = $this->getIdentifiedProfessional();
         $accessor->toRecord($data, $pro, $this->getFieldsEquivalents());
         print_r($pro->toArray());
