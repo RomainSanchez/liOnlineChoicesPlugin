@@ -35,7 +35,7 @@ class ApiOAuthService
         $this->token = $this->findRegisteredTokenByApiKey($apiKey);
 
         if ( null === $this->token || !$this->token instanceof OcToken) {
-            throw new ocAuthException('api key not valid');
+            throw new ocAuthException('Invalid API authentication');
         }
         return true;
     }

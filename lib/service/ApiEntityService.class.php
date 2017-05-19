@@ -86,7 +86,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     /**
      * 
      * @param array $query
-     * @return Doctrine_Query
+     * @return Doctrine_Query  prepared for direct execution
      */
     public function buildQuery(array $query)
     {
@@ -100,17 +100,36 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
             $query['page'] = 1;
 
         $q = $this->buildInitialQuery();
+        
+        $model = explode(' ', $q->getDqlPart('from')[0])[0];
+        $pager = new sfDoctrinePager($model, $query['limit']);
+        $pager->setQuery($q);
 
-        $this->buildQueryCondition($q, $query['criteria']);
-        $this->buildQuerySorting($q, $query['sorting']);
-        $this->buildQueryLimit($q, $query['limit']);
-        $this->buildQueryPagination($q, $query['page']);
+        $this->buildQueryCondition($pager, $query['criteria'])
+            ->buildQuerySorting($pager, $query['sorting'])
+            ->buildQueryPagination($pager, $query['page'])
+            ->patchPager($pager);
 
-        return $q;
+        $pager->init();
+        return $pager->getQuery();
+    }
+    
+    /**
+     * Patch a pager
+     * This is a dummy function intended to be extended by children
+     * If you want to add things to current Doctrine_Query or to the pager, overload this
+     *
+     * @param sfDoctrinePager $pager  the pager to patch
+     * @return $this
+     **/
+    protected function patchPager(sfDoctrinePager $pager)
+    {
+        return $this;
     }
 
-    protected function buildQuerySorting(Doctrine_Query $q, array $sorting = [])
+    protected function buildQuerySorting(sfDoctrinePager $pager, array $sorting = [])
     {
+        $q = $pager->getQuery();
         $orderBy = '';
         foreach ( $sorting as $field => $direction ) {
             if (!in_array($field, $this->getFieldsEquivalents()))
@@ -118,25 +137,23 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
             $orderBy .= array_search($field, $this->getFieldsEquivalents()) . ' ' . $direction . ' ';
         }
 
-        return $orderBy ? $q->orderBy($orderBy) : $q;
+        if ( $orderBy ) {
+            $q->orderBy($orderBy);
+        }
+        
+        return $this;
     }
 
-    protected function buildQueryLimit(Doctrine_Query $q, $limit = NULL)
+    protected function buildQueryPagination(sfDoctrinePager $pager, $page = 1)
     {
-        if ( $limit !== NULL )
-            $q->limit($limit);
-        return $q;
+        $pager->setPage($page);
+        return $this;
     }
 
-    protected function buildQueryPagination(Doctrine_Query $q, $page = 1)
+    protected function buildQueryCondition(sfDoctrinePager $pager, array $criterias = [])
     {
-        if ( $page !== NULL )
-            $q->offset($page - 1);
-        return $q;
-    }
-
-    protected function buildQueryCondition(Doctrine_Query $q, array $criterias = [])
-    {
+        $q = $pager->getQuery();
+        
         $fields = array_merge($this->getFieldsEquivalents(), $this->getHiddenFieldsEquivalents());
         $operands = $this->getOperandsEquivalents();
 
@@ -162,7 +179,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
             }
         }
 
-        return $q;
+        return $this;
     }
 
     public function countResults(array $query)
