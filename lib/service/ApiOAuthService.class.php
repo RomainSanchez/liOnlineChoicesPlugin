@@ -119,7 +119,7 @@ class ApiOAuthService
         $q = Doctrine::getTable('OcToken')->createQuery('ot')
             ->andWhere('ot.refresh_token = ?', $refresh)
             ->andWhere('ot.oc_application_id = ?', $app->id)
-            ->andWhere('oc.created_at > ?', date('Y-m-d H:i:s', strtotime('24 hours ago')))
+            ->andWhere('ot.created_at > ?', date('Y-m-d H:i:s', strtotime('24 hours ago')))
         ;
 
         $token = $q->fetchOne();

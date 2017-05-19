@@ -294,7 +294,7 @@ oc_api_promotions_resource:
 oc_api_oauth_token:
     url: /api/oauth/v2/token
     class: sfRequestRoute
-    param: { module: ocApiOAuth, action: token}
+    param: { module: ocApiOAuth, action: token }
     options:
         secure: false
     requirements:

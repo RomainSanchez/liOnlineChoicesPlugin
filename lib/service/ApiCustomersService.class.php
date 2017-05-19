@@ -12,6 +12,9 @@
  */
 class ApiCustomersService extends ApiEntityService
 {
+    protected static $HIDDEN_FIELD_MAPPING = [
+        'password'      => ['type' => 'single', 'value' => 'Contact.password'],
+    ];
 
     protected static $FIELD_MAPPING = [
         'id'            => ['type' => 'single', 'value' => 'id'],
@@ -24,7 +27,7 @@ class ApiCustomersService extends ApiEntityService
         'city'          => ['type' => 'single', 'value' => 'Organism.city'],
         'country'       => ['type' => 'single', 'value' => 'Organism.country'],
         'phoneNumber'   => ['type' => 'single', 'value' => 'contact_number'],
-        //'datesOfBirth'  => ['type' => null    , 'value' => null],
+        'datesOfBirth'  => ['type' => null    , 'value' => null],
         'locale'        => ['type' => 'single', 'value' => 'Contact.culture'],
         'uid'           => ['type' => 'single', 'value' => 'Contact.vcard_uid'],
         'subscribedToNewsletter' => ['type' => 'single', 'value' => '!contact_email_no_newsletter'],
@@ -61,17 +64,33 @@ class ApiCustomersService extends ApiEntityService
 
             $token = $this->getOAuthService()->getToken();
 
-            if( !$token->OcTransaction){
-                 $token->OcTransaction[0] = new OcTransaction;
+            // case of an existing transaction to refresh, because we can have only one transaction by professional
+            $transaction = Doctrine::getTable('OcTransaction')->createQuery('t')
+                ->leftJoin('t.OcProfessional p')
+                ->leftJoin('t.OcToken token')
+                ->andWhere('p.professional_id = ?', $pro->id)
+                ->orderBy('t.created_at')
+                ->fetchOne();
+            if ( $transaction instanceof OcTransaction ) {
+                $token->OcTransaction[0] = $transaction;
+                $transaction->OcToken = $token;
+            }
+            // else, create a new transaction
+            else {
+                if ( !$token->OcTransaction ) {
+                     $token->OcTransaction[0] = new OcTransaction;
+                }
+
+                $transaction = $token->OcTransaction[0];
+
+                if ( !$transaction->oc_professional_id ) {
+                    $transaction->OcProfessional = new OcProfessional;
+                }
+
+                $transaction->OcProfessional->Professional = $pro;
+                $transaction->OcToken = $token;
             }
 
-            $transaction = $token->OcTransaction[0];
-
-            if ( !$transaction->oc_professional_id )
-                $transaction->OcProfessional = new OcProfessional;
-
-            $transaction->OcProfessional->Professional = $pro;
-            $transaction->OcToken = $token;
             $transaction->save();
             return true;
         }
@@ -122,14 +141,21 @@ class ApiCustomersService extends ApiEntityService
     public function update(array $data)
     {
         $accessor = new ocPropertyAccessor;
-        if ( !$this->isIdentified() ) {
+        if ( !$this->isIdentificated() ) {
             return false;
         }
+<<<<<<< HEAD
         unset($data['id']);
 
+=======
+        unset($data['id'], $data['email']);
+
+>>>>>>> e8d519b68d525db1b8f74b53c370b5356f4069ac
         $pro = $this->getIdentifiedProfessional();
-        $accessor->toRecord($data, $pro, $this->getFieldsEquivalent());
-        return $true;
+        $accessor->toRecord($data, $pro, $this->getFieldsEquivalents());
+        print_r($pro->toArray());
+        $pro->save();
+        return true;
     }
 
     /**

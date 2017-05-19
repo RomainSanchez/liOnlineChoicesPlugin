@@ -133,9 +133,9 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
     protected function buildQueryCondition(Doctrine_Query $q, array $criterias = [])
     {
         $fields = array_merge($this->getFieldsEquivalents(), $this->getHiddenFieldsEquivalents());
-        $operands = $this->getOperandEquivalents();
+        $operands = $this->getOperandsEquivalents();
 
-        foreach ( $criterias as $criteria => $search )
+        foreach ( $criterias as $criteria => $search ) {
             if ( isset($fields[$criteria]) && isset($search['value']) ) {
                 $field = $q->getRootAlias() . '.' . $fields[$criteria]['value'].' ';
                 $compare = $operands[$search['type']];
@@ -146,14 +146,16 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
                     $args = $compare[1]($search['value']);
                     if ( is_array($args) ) {
                         $dql = [];
-                        foreach ( $args as $arg )
+                        foreach ( $args as $arg ) {
                             $dql[] = '?';
+                        }
                         $dql = implode(',', $dql);
                     }
                 }
 
                 $q->andWhere($field . ' ' . $compare[0] . ' ' . $dql, $args);
             }
+        }
 
         return $q;
     }
@@ -163,7 +165,7 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         return $this->buildQuery($query)->count();
     }
 
-    public function getOperandEquivalents()
+    public function getOperandsEquivalents()
     {
         return [
             'contain' => ['ILIKE', function($s) {
