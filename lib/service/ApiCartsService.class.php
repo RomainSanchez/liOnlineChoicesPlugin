@@ -15,13 +15,13 @@ class ApiCartsService extends ApiEntityService
 
     protected static $FIELD_MAPPING = [
         'id'            => ['type' => 'simple', 'value' => 'id'],
-        'items'         => ['type' => 'todo', 'value' => 'todo'],
-        'itemsTotal'    => ['type' => 'todo', 'value' => 'todo'],
-        'total'         => ['type' => 'todo', 'value' => 'todo'],
-        'customer'      => ['type' => 'todo', 'value' => 'todo'],
-        'currencyCode'  => ['type' => 'todo', 'value' => 'todo'],
-        'localeCode'    => ['type' => 'todo', 'value' => 'todo'],
-        'checkoutState' => ['type' => 'todo', 'value' => 'todo'],
+        'items'         => ['type' => 'null', 'value' => 'null'],
+        'itemsTotal'    => ['type' => 'null', 'value' => 'null'],
+        'total'         => ['type' => 'null', 'value' => 'null'],
+        'customer'      => ['type' => 'null', 'value' => 'null'],
+        'currencyCode'  => ['type' => 'null', 'value' => 'null'],
+        'localeCode'    => ['type' => 'null', 'value' => 'null'],
+        'checkoutState' => ['type' => 'null', 'value' => 'null'],
 //        'type'     => 'type',
 //        'customer' => 'Professional.id',
 //        'declination' => null,
@@ -74,7 +74,9 @@ class ApiCartsService extends ApiEntityService
      */
     public function findAll($query)
     {
+        $token = $this->oauth->getToken();
         $q = $this->buildQuery($query);
+        $q->andWhere('Token.token = ?', $token->token);
         $cartDotrineCol = $q->execute();
 
         return $this->getFormattedEntities($cartDotrineCol);
@@ -130,7 +132,8 @@ class ApiCartsService extends ApiEntityService
     {
         return Doctrine_Query::create()
             ->from('OcTransaction root')
-//            ->leftJoin('root.Professional Professional')
+            ->leftJoin('root.OcProfessional Professional')
+            ->leftJoin('root.OcToken Token')
         ;
     }
 }
