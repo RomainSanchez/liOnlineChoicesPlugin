@@ -34,5 +34,6 @@ all:
           calls:
             - ['setOAuthService', ['@oauth_service']]
             - ['setCartItemsService', ['@cartitems_service']]
+            - ['setCustomersService', ['@customers_service']]
 
 

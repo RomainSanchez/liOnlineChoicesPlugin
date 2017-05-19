@@ -37,7 +37,6 @@ class ApiCustomersService extends ApiEntityService
     protected $oauth;
 
     /**
-     * 
      * @return boolean
      */
     public function isIdentificated()
@@ -47,30 +46,30 @@ class ApiCustomersService extends ApiEntityService
     }
 
     /**
-     * 
+     *
      * @return NULL|boolean  NULL if no email nor password given, else boolean
      */
     public function identify(array $query)
     {
-        
+
         // prerequisites
         if (!( isset($query['criteria']['password']) && $query['criteria']['password'] && isset($query['criteria']['password']['value'])
             && isset($query['criteria']['email']) && $query['criteria']['email'] && isset($query['criteria']['email']['value']) ))
             return NULL;
 
         if ( $pro = $this->buildQuery($query)->fetchOne() ) {
-        
+
             $token = $this->getOAuthService()->getToken();
-            
+
             if( !$token->OcTransaction){
-                 $token->OcTransaction[0] = new OcTransaction; 
+                 $token->OcTransaction[0] = new OcTransaction;
             }
-            
+
             $transaction = $token->OcTransaction[0];
-            
+
             if ( !$transaction->oc_professional_id )
                 $transaction->OcProfessional = new OcProfessional;
-            
+
             $transaction->OcProfessional->Professional = $pro;
             $transaction->OcToken = $token;
             $transaction->save();
@@ -80,7 +79,31 @@ class ApiCustomersService extends ApiEntityService
     }
 
     /**
-     * 
+     *
+     * @param int $id
+     * @return array | null
+     */
+    public function findOneById($id)
+    {
+        $dotrineRec = $this->buildQuery([
+            'criteria' => [
+                'id' => [
+                    'value' => $id,
+                    'type'  => 'equal',
+                ],
+            ]
+        ])
+        ->fetchOne();
+
+        if (false === $dotrineRec) {
+            return null;
+        }
+
+        return $this->getFormattedEntity($dotrineRec);
+    }
+
+    /**
+     *
      * @return boolean  true if the logout was possible, false if nobody is identified
      */
     public function logout()
@@ -88,14 +111,14 @@ class ApiCustomersService extends ApiEntityService
         if ( !$this->isIdentificated() ) {
             return false;
         }
-        
+
         $transaction = $this->getOAuthService()->getToken()->OcTransaction[0];
         $transaction->oc_professional_id = NULL;
         $transaction->save();
-        
+
         return true;
     }
-    
+
     public function update(array $data)
     {
         $accessor = new ocPropertyAccessor;
@@ -103,14 +126,14 @@ class ApiCustomersService extends ApiEntityService
             return false;
         }
         unset($data['id']);
-        
+
         $pro = $this->getIdentifiedProfessional();
         $accessor->toRecord($data, $pro, $this->getFieldsEquivalent());
         return $true;
     }
 
     /**
-     * 
+     *
      * @return NULL|OcProfessional
      */
     public function getIdentifiedProfessional()

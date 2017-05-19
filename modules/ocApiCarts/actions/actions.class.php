@@ -26,7 +26,7 @@ class ocApiCartsActions extends apiActions
         $cartService = $this->getService('carts_service');
         $result = $cartService->findOneById($cart_id);
 
-        return $result;
+        return $this->createJsonResponse($result);
     }
 
     /**
