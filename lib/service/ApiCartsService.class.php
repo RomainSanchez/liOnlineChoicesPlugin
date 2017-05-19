@@ -71,8 +71,8 @@ class ApiCartsService extends ApiEntityService
     public function findAll($query)
     {
         $token = $this->oauth->getToken();
-        $q = $this->buildQuery($query);
-        $q->andWhere('Token.token = ?', $token->token);
+        $q = $this->buildQuery($query)
+            ->andWhere('Token.token = ?', $token->token);
         $cartDotrineCol = $q->execute();
 
         return $this->getFormattedEntities($cartDotrineCol);

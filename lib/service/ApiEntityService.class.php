@@ -83,6 +83,11 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         return $entity;
     }
 
+    /**
+     * 
+     * @param array $query
+     * @return Doctrine_Query
+     */
     public function buildQuery(array $query)
     {
         if (!isset($query['criteria']))

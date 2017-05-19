@@ -69,10 +69,11 @@ class ApiCustomersService extends ApiEntityService
                 ->leftJoin('t.OcProfessional p')
                 ->leftJoin('t.OcToken token')
                 ->andWhere('p.professional_id = ?', $pro->id)
-                ->orderBy('t.created_at')
+                ->orderBy('t.created_at DESC')
                 ->fetchOne();
             if ( $transaction instanceof OcTransaction ) {
                 $token->OcTransaction[0] = $transaction;
+                $token->save();
                 $transaction->OcToken = $token;
             }
             // else, create a new transaction
@@ -131,7 +132,9 @@ class ApiCustomersService extends ApiEntityService
             return false;
         }
 
-        $transaction = $this->getOAuthService()->getToken()->OcTransaction[0];
+        $transaction = new OcTransaction;
+        $transaction->
+        $this->getOAuthService()->getToken()->OcTransaction[0] = $transaction;
         $transaction->oc_professional_id = NULL;
         $transaction->save();
 

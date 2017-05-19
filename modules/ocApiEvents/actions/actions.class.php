@@ -12,27 +12,8 @@
  */
 class ocApiEventsActions extends apiActions
 {
-
-    /**
-     * 
-     * @param sfWebRequest $request
-     * @return array
-     */
-    public function getOne(sfWebRequest $request)
+    public function getMyService()
     {
-        return $this->jsonResponse(array('message' => __METHOD__));
-    }
-
-    /**
-     * 
-     * @param sfWebRequest $request
-     * @param array $query
-     * @return array
-     */
-    public function getAll(sfWebRequest $request, array $query)
-    {
-        $events  = $this->getService('events_service');
-        $result  = $this->getListWithDecorator($events->findAll($query), $query);
-        return $this->createJsonResponse($result);
+        return $this->getService('events_service');
     }
 }

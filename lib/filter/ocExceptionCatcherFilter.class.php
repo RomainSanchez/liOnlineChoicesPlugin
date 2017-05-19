@@ -30,6 +30,17 @@ class ocExceptionCatcherFilter
                     'message' => $e->getMessage()
                 ], JSON_PRETTY_PRINT));
         
+        } catch ( ocNotImplementedException $e ) {
+        
+            OcLogger::log($e->getMessage());
+            $r = $this->getResponse();
+            $r->setStatusCode(ApiHttpStatus::NOT_IMPLEMENTED);
+        
+            $r->setContent(json_encode([
+                    'code'=> ApiHttpStatus::NOT_IMPLEMENTED,
+                    'message' => $e->getMessage()
+                ], JSON_PRETTY_PRINT));
+        
         } catch ( ocException $e ) {
         
             OcLogger::log($e->getMessage());

@@ -28,11 +28,11 @@ class ApiOAuthService
     {
         $headerValue = $this->getAuthorizationHeader();
         if ( !$headerValue ) {
-            throw new ocAuthException('api key not provided');
+            throw new ocAuthException('API Key not provided');
         }
 
-        $apiKey = str_replace('Bearer ', '', $headerValue);
-        $this->token = $this->findRegistredTokenByApiKey($apiKey);
+        $apiKey = preg_replace('/^Bearer\s+/', '', $headerValue);
+        $this->token = $this->findRegisteredTokenByApiKey($apiKey);
 
         if ( null === $this->token || !$this->token instanceof OcToken) {
             throw new ocAuthException('api key not valid');
@@ -62,7 +62,7 @@ class ApiOAuthService
      * @param string $key
      * @return OcToken | null
      */
-    public function findRegistredTokenByApiKey($key)
+    public function findRegisteredTokenByApiKey($key)
     {
         $q = Doctrine::getTable('OcToken')->createQuery('ot')
             ->andWhere('ot.token = ?', $key)
