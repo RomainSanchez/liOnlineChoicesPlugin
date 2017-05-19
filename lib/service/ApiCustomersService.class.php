@@ -73,6 +73,7 @@ class ApiCustomersService extends ApiEntityService
                 ->fetchOne();
             if ( $transaction instanceof OcTransaction ) {
                 $token->OcTransaction[0] = $transaction;
+                $token->save();
                 $transaction->OcToken = $token;
             }
             // else, create a new transaction
