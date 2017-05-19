@@ -106,7 +106,8 @@ class ocApiCustomersActions extends apiActions
     public function update(sfWebRequest $request)
     {
 
-        $data = $request->getPostParameters();
+        $data = $request->getParameter('application/json', []);
+        /*
         foreach ( ['name', 'email', 'password'] as $field ) {
             if ( !( isset($data[$field]) && $data[$field] ) ) {
                 $data[$field] = ['errors' => 'Please enter your ' . $field];
@@ -116,9 +117,10 @@ class ocApiCustomersActions extends apiActions
                         'errors' => [
                             'children' => $data,
                         ],
-                        ], ApiHttpStatus::BAD_REQUEST);
+                    ], ApiHttpStatus::BAD_REQUEST);
             }
         }
+        */
         
         return $this->getService('customers_service')->update($data)
             ? $this->createEmptyResponse()

@@ -23,9 +23,12 @@ class ocPropertyAccessor
     public function toRecord(array $entity, Doctrine_Record $record, array $equiv)
     {
         foreach ( $this->reverseEquiv($equiv) as $db => $api ) {
-            $value = $this->getAPIValue($entity, $api);
-            print_r($value);
-            $this->setRecordValue($record, $db, $value);
+            if ( !isset($entity[$api['value']]) ) {
+                continue;
+            }
+            
+            $value = $this->getAPIValue($entity, $api['value']);
+            $this->setRecordValue($record, preg_replace('/^!/', '', $db), preg_match('/^!/', $db) == 0 ? $value : !$value);
             
             //$this->setRecordValue($record, $db, $this->getAPIValue($entity, $api));
         }
@@ -49,7 +52,7 @@ class ocPropertyAccessor
             if ( is_array($db) ) {
                 $type = explode('.', $db['type']);
                 $lastType = array_pop($type);
-                $bool = preg_match('/^!/', $db['value']) !== false;
+                $bool = preg_match('/^!/', $db['value']) == 0;
                 $db['value'] = preg_replace('/^!/', '', $db['value']);
 
                 switch ( $lastType ) {
@@ -80,18 +83,18 @@ class ocPropertyAccessor
         $r = [];
         
         // get out of here
-        if ( !isset($entity[$key['value']]) ) {
+        if ( !isset($entity[$key]) ) {
             return NULL;
         }
-        if ( !is_array($entity[$key['value']]) && count($api) == 0 ) {
-            return $entity[$key['value']];
+        if ( !is_array($entity[$key]) && count($api) == 0 ) {
+            return $entity[$key];
         }
         
-        if ( !is_array($entity[$key['value']]) ) {
-            $r = $this->getAPIValue($entity[$key['value']], $api);
+        if ( !is_array($entity[$key]) ) {
+            $r = $this->getAPIValue($entity[$key], $api);
         }
         else {
-            foreach ( $entity[$key['value']] as $k => $v ) {
+            foreach ( $entity[$key] as $k => $v ) {
                 $r[$k] = $this->getAPIValue($v, $api);
             }
         }
@@ -145,7 +148,7 @@ class ocPropertyAccessor
         }
 
         $key = array_shift($db);
-        if ( !$record->$key ) {
+        if ( !$record->hasRelation($key) ) {
             return null;
         }
 
@@ -192,7 +195,14 @@ class ocPropertyAccessor
         }
         
         // Doctrine_Record
-        return $this->getRecordValue($record->$key, $db);
+        if ( $record->$key instanceof Doctrine_Record ) {
+            return $this->setRecordValue($record->$key, $db, $value);
+        }
+        // Doctrine_Record::$property
+        else {
+            $record->$key = $value;
+            return $this;
+        }
     }
     
     private function reverseEquiv(array $equiv)

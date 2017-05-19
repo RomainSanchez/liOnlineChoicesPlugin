@@ -12,7 +12,10 @@
  */
 class ApiCustomersService extends ApiEntityService
 {
-
+    protected static $HIDDEN_FIELD_MAPPING = [
+        'password'      => ['type' => 'single', 'value' => 'Contact.password'],
+    ];
+    
     protected static $FIELD_MAPPING = [
         'id'            => ['type' => 'single', 'value' => 'id'],
         'email'         => ['type' => 'single', 'value' => 'contact_email'],
@@ -24,7 +27,7 @@ class ApiCustomersService extends ApiEntityService
         'city'          => ['type' => 'single', 'value' => 'Organism.city'],
         'country'       => ['type' => 'single', 'value' => 'Organism.country'],
         'phoneNumber'   => ['type' => 'single', 'value' => 'contact_number'],
-        //'datesOfBirth'  => ['type' => null    , 'value' => null],
+        'datesOfBirth'  => ['type' => null    , 'value' => null],
         'locale'        => ['type' => 'single', 'value' => 'Contact.culture'],
         'uid'           => ['type' => 'single', 'value' => 'Contact.vcard_uid'],
         'subscribedToNewsletter' => ['type' => 'single', 'value' => '!contact_email_no_newsletter'],
@@ -89,7 +92,7 @@ class ApiCustomersService extends ApiEntityService
             return false;
         }
         
-        $transaction = $this->getOAuthService()->getToken()->OcTransaction[0];
+        $transaction = $this->getOAuthService()->getToken()->OcTransaction;
         $transaction->oc_professional_id = NULL;
         $transaction->save();
         
@@ -99,14 +102,16 @@ class ApiCustomersService extends ApiEntityService
     public function update(array $data)
     {
         $accessor = new ocPropertyAccessor;
-        if ( !$this->isIdentified() ) {
+        if ( !$this->isIdentificated() ) {
             return false;
         }
-        unset($data['id']);
+        unset($data['id'], $data['email']);
         
         $pro = $this->getIdentifiedProfessional();
-        $accessor->toRecord($data, $pro, $this->getFieldsEquivalent());
-        return $true;
+        $accessor->toRecord($data, $pro, $this->getFieldsEquivalents());
+        print_r($pro->toArray());
+        $pro->save();
+        return true;
     }
 
     /**

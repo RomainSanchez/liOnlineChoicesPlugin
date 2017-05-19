@@ -75,5 +75,5 @@ interface ApiEntityServiceInterface
      *
      * @return array
      */
-    public function getOperandEquivalents();
+    public function getOperandsEquivalents();
 }
