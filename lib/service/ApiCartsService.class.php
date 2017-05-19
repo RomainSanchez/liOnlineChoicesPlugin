@@ -14,7 +14,7 @@ class ApiCartsService extends ApiEntityService
 {
 
     protected static $FIELD_MAPPING = [
-        'id'            => ['type' => 'simple', 'value' => 'id'],
+        'id'            => ['type' => 'single', 'value' => 'id'],
         'items'         => ['type' => 'null', 'value' => 'null'],
         'itemsTotal'    => ['type' => 'null', 'value' => 'null'],
         'total'         => ['type' => 'null', 'value' => 'null'],
@@ -22,23 +22,6 @@ class ApiCartsService extends ApiEntityService
         'currencyCode'  => ['type' => 'null', 'value' => 'null'],
         'localeCode'    => ['type' => 'null', 'value' => 'null'],
         'checkoutState' => ['type' => 'null', 'value' => 'null'],
-//        'type'     => 'type',
-//        'customer' => 'Professional.id',
-//        'declination' => null,
-//        'totalAmount' => null,
-//        'unitAmount' => null,
-//        'total' => null,
-//        'vat' => null,
-//        'units' => null,
-//        'units.id' => null,
-//        'units.adjustments' => null,
-//        'units.adjustmentsTotal' => null,
-//        'units._link[pdf]' => null,
-//        'unitsTotal' => null,
-//        'adjustments' => null,
-//        'adjustmentsTotal' => null,
-//        '_link[product]' => null,
-//        '_link[order]' => null
     ];
 
     /**
@@ -50,6 +33,11 @@ class ApiCartsService extends ApiEntityService
      * @var ApiCartItemsService
      */
     protected $cartItemsService;
+
+    /**
+     * @var ApiCustomersService
+     */
+    protected $customersService;
 
     /**
      * @param ApiOAuthService $service
@@ -65,6 +53,14 @@ class ApiCartsService extends ApiEntityService
     public function setCartItemsService(ApiCartItemsService $service)
     {
         $this->cartItemsService = $service;
+    }
+
+    /**
+     * @param ApiCustomersService $service
+     */
+    public function setCustomersService(ApiCustomersService $service)
+    {
+        $this->customersService = $service;
     }
 
     /**
@@ -84,20 +80,29 @@ class ApiCartsService extends ApiEntityService
 
     /**
      *
-     * @param int $cart_id
+     * @param int $id
      * @return array | null
      */
-    public function findOneById($cart_id)
+    public function findOneById($id)
     {
-        $cartDotrineRec = $this->buildQuery(
-                ['criteria' => ['root.id' => $cart_id]])
+        $token = $this->oauth->getToken();
+        $query = [
+            'criteria' => [
+                'id' => [
+                    'value' => $id,
+                    'type'  => 'equal',
+                ],
+            ]
+        ];
+        $dotrineRec = $this->buildQuery($query)
+            ->andWhere('Token.token = ?', $token->token)
             ->fetchOne();
 
-        if (false === $cartDotrineRec) {
-            return null;
+        if (false === $dotrineRec) {
+            return new ArrayObject;
         }
 
-        return $this->getFormattedEntity($cartDotrineRec);
+        return $this->getFormattedEntity($dotrineRec);
     }
 
     /**
@@ -107,13 +112,32 @@ class ApiCartsService extends ApiEntityService
      */
     protected function postFormatEntity(array $entity, Doctrine_Record $record)
     {
-        // items
+        // customer
+        $entity['customer'] = new ArrayObject;
+        if ($record->oc_professional_id) {
+            $proId = $record->OcProfessional->Professional->id;
+            $entity['customer'] = $this->customersService->findOneById($proId);
+        }
+
+        // cart items
         $query = [
-            'limit'    => 100,
+            'limit'    => 100, // TODO
             'sorting'  => [],
             'page'     => 1,
         ];
         $entity['items'] = $this->cartItemsService->findAll($record->id, $query);
+
+        // totals
+        $entity['itemsTotal'] = 0;
+        $entity['total'] = 0;
+        foreach ($entity['items'] as $item) {
+            $entity['itemsTotal'] += $item['totalAmount'];
+            $entity['total'] += $item['total'];
+        }
+
+        // currency
+        $currency = sfConfig::get('project_internals_currency', ['iso' => 978, 'symbol' => '€']);
+        $entity['currencyCode'] = $currency['iso'];
 
         return $entity;
     }

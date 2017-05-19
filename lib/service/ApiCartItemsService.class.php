@@ -137,14 +137,15 @@ class ApiCartItemsService extends ApiEntityService
             'position' => 'TODO',
             'translations' => 'TODO',
         ];
-        $entity['totalAmount'] = 'TODO';
-        $entity['unitAmount'] = 'TODO';
-        $entity['total'] = 'TODO';
+        $entity['unitAmount'] = 33;  // TODO
+        $entity['totalAmount'] = $entity['quantity'] * $entity['unitAmount'];
+
         $entity['vat'] = 'TODO';
         $entity['units'] = 'TODO';
         $entity['unitsTotal'] = 'TODO';
         $entity['adjustments'] = 'TODO';
-        $entity['adjustmentsTotal'] = 'TODO';
+        $entity['adjustmentsTotal'] = 2; // TODO
+        $entity['total'] = $entity['totalAmount'] + $entity['adjustmentsTotal'];
 
         return $entity;
     }
