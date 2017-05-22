@@ -107,23 +107,10 @@ class ocApiCustomersActions extends apiActions
     {
 
         $data = $request->getParameter('application/json', []);
-        /*
-        foreach ( ['name', 'email', 'password'] as $field ) {
-            if ( !( isset($data[$field]) && $data[$field] ) ) {
-                $data[$field] = ['errors' => 'Please enter your ' . $field];
-                return $this->createJsonResponse([
-                        'code' => ApiHttpStatus::BAD_REQUEST,
-                        'message' => 'Validation failed',
-                        'errors' => [
-                            'children' => $data,
-                        ],
-                    ], ApiHttpStatus::BAD_REQUEST);
-            }
-        }
-        */
+        $customers = $this->getService('customers_service');
         
-        return $this->getService('customers_service')->update($data)
-            ? $this->createEmptyResponse()
+        return $customers->update($data)
+            ? $this->createJsonResponse($customers->getIdentifiedCustomer())
             : $this->createJsonResponse([
                 'code' => ApiHttpStatus::INTERNAL_SERVER_ERROR,
                 'message' => 'Internal Server Error',
