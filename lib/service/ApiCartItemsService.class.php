@@ -27,6 +27,7 @@ class ApiCartItemsService extends ApiEntityService
         'adjustments' => ['type' => 'null', 'value' => 'null'],
         'adjustmentsTotal' => ['type' => 'null', 'value' => 'null'],
         'rank' => ['type' => 'single', 'value' => 'rank'],
+        'checkoutState' => ['type' => 'single', 'value' => 'checkout_state'],
      ];
 
     /**
