@@ -6,11 +6,11 @@
  */
 
 /**
- * Description of ApiHttpStatus
+ * Description of ApiHttpMessage
  *
  * @author Glenn Cavarlé <glenn.cavarle@libre-informatique.fr>
  */
-class ApiHttpStatus
+class ApiHttpMessage
 {
 
     const DELETE_SUCCESSFUL = "Delete successful";
