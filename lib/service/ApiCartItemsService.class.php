@@ -69,13 +69,13 @@ class ApiCartItemsService extends ApiEntityService
         $query = [
             'criteria' => [
                 'id' => [
-                    'value' => $itemId,
+                    'value' => (int)$itemId,
                     'type'  => 'equal',
                 ],
             ]
         ];
         $dotrineRec = $this->buildQuery($query)
-            ->andWhere('root.oc_transaction_id = ?', $cartId)
+            ->andWhere('root.oc_transaction_id = ?', (int)$cartId)
             ->andWhere('OcToken.token = ?', $token->token)
             ->fetchOne()
         ;
@@ -164,7 +164,19 @@ class ApiCartItemsService extends ApiEntityService
      */
     public function deleteCartItem($cartId, $itemId)
     {
-        return true;
+        // Check existence and access
+        $item = $this->findOne($cartId, $itemId);
+        if (count($item) == 0) {
+            return false;
+        }
+
+        // Delete item
+        $success = Doctrine::getTable('OcTicket')
+            ->find($itemId)
+            ->delete()
+        ;
+
+        return $success;
     }
 
     public function buildInitialQuery()

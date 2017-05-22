@@ -28,8 +28,8 @@ class ocApiCartItemsActions extends apiActions
      */
     public function getOne(sfWebRequest $request)
     {
-        $cart_id = $request->getParameter('cart_id');
-        $item_id = $request->getParameter('item_id');
+        $cart_id = $request->getParameter('id', 0);
+        $item_id = $request->getParameter('item_id', 0);
 
         /* @var $cartService ApiCartsService */
         $cartService = $this->getService('cartitems_service');
@@ -45,7 +45,7 @@ class ocApiCartItemsActions extends apiActions
      */
     public function getAll(sfWebRequest $request, array $query)
     {
-        $cart_id = $request->getParameter('id');
+        $cart_id = $request->getParameter('id', 0);
 
         /** @var ApiCartItemsService $cartService */
         $cartitemsService = $this->getService('cartitems_service');
@@ -63,7 +63,7 @@ class ocApiCartItemsActions extends apiActions
     {
         /* @var $cartsService ApiCartsService */
         $cartsService = $this->getService('carts_service');
-        $cart_id = $request->getParameter('id');
+        $cart_id = $request->getParameter('id', 0);
         $cart = $cartsService->findOneById($cart_id);
         if ( 0 == count($cart) ) {
             return $this->createBadRequestResponse(['error' => 'Cart not found with id=' . $cart_id]);
@@ -91,8 +91,8 @@ class ocApiCartItemsActions extends apiActions
         $status = ApiHttpStatus::SUCCESS;
         $message = ApiHttpMessage::UPDATE_SUCCESSFUL;
 
-        $cart_id = $request->getParameter('cart_id');
-        $item_id = $request->getParameter('item_id');
+        $cart_id = $request->getParameter('id', 0);
+        $item_id = $request->getParameter('item_id', 0);
 
         /* @var $cartService ApiCartsService */
         $cartService = $this->getService('cartitems_service');
@@ -119,12 +119,12 @@ class ocApiCartItemsActions extends apiActions
         $status = ApiHttpStatus::SUCCESS;
         $message = ApiHttpMessage::DELETE_SUCCESSFUL;
 
-        $cart_id = $request->getParameter('cart_id');
-        $item_id = $request->getParameter('item_id');
+        $cart_id = $request->getParameter('id', 0);
+        $item_id = $request->getParameter('item_id', 0);
 
-        /* @var $cartService ApiCartsService */
-        $cartService = $this->getService('cartitems_service');
-        $isSuccess = $cartService->deleteCartItem($cart_id, $item_id);
+        /* @var $cartItemsService ApiCartItemsService */
+        $cartItemsService = $this->getService('cartitems_service');
+        $isSuccess = $cartItemsService->deleteCartItem($cart_id, $item_id);
         if (!$isSuccess) {
             $status = ApiHttpStatus::BAD_REQUEST;
             $message = ApiHttpMessage::DELETE_FAILED;
