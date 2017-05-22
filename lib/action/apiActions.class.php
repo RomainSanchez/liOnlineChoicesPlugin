@@ -147,8 +147,8 @@ abstract class apiActions extends jsonActions
     protected function getListWithDecorator(array $data, array $query)
     {
         $this->getContext()->getConfiguration()->loadHelpers('Url');
-        $customers = $this->getService('customers_service');
-        $total = $data ? $customers->countResults($query) : 0;
+        $service = $this->getMyService();
+        $total = $data ? $service->countResults($query) : 0;
         $limit = $query['limit'] ? $query['limit'] : 10;
         $page = $data ? ($query['page'] ? $query['page'] : 1) : 0;
         $params = $this->getRequest()->getGetParameters();

@@ -13,6 +13,14 @@
 class ocApiCustomersActions extends apiActions
 {
 
+    /**
+     * @return ApiEntityService
+     */
+    public function getMyService()
+    {
+        return $this->getService('customers_service');
+    }
+
     public function executeLogout(sfWebRequest $request)
     {
         $customers = $this->getService('customers_service');
