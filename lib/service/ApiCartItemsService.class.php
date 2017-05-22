@@ -16,10 +16,11 @@ class ApiCartItemsService extends ApiEntityService
      protected static $FIELD_MAPPING = [
         'id' => ['type' => 'single', 'value' => 'id'],
         'type' => ['type' => 'null', 'value' => 'null'],
+        'Price' => ['type' => 'sub-record', 'value' => null],
         'quantity' => ['type' => 'null', 'value' => 'null'],
         'declination' => ['type' => 'null', 'value' => 'null'],
         'totalAmount' => ['type' => 'null', 'value' => 'null'],
-        'unitAmount' => ['type' => 'null', 'value' => 'null'],
+        'unitAmount' => ['type' => 'single', 'value' => 'Price.value'],
         'total' => ['type' => 'null', 'value' => 'null'],
         'vat' => ['type' => 'null', 'value' => 'null'],
         'units' => ['type' => 'null', 'value' => 'null'],
@@ -134,11 +135,11 @@ class ApiCartItemsService extends ApiEntityService
     }
 
     /**
-     * @param int $priceId
+     * @param int $declinationId
      * @param int $gaugeId
      * @return boolean
      */
-    public function checkDeclinationAndPriceAccess($priceId, $gaugeId)
+    public function checkDeclinationAndPriceAccess($declinationId, $gaugeId)
     {
         // TODO
         return true;
@@ -183,6 +184,7 @@ class ApiCartItemsService extends ApiEntityService
     {
         return Doctrine_Query::create()
             ->from('OcTicket root')
+            ->leftJoin('root.Price Price')
             ->leftJoin('root.OcTransaction OcTransaction')
             ->leftJoin('OcTransaction.OcToken OcToken')
         ;
@@ -203,7 +205,6 @@ class ApiCartItemsService extends ApiEntityService
             'position' => 'TODO',
             'translations' => 'TODO',
         ];
-        $entity['unitAmount'] = 33;  // TODO
         $entity['totalAmount'] = $entity['quantity'] * $entity['unitAmount'];
 
         $entity['vat'] = 'TODO';
