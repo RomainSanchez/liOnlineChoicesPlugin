@@ -243,10 +243,10 @@ abstract class apiActions extends jsonActions
     {
         $params = array_merge($query, $request->getGetParameters());
         return [
-            'page' => isset($params['page']) ? $this->buildPageQuery($params['page']) : 1,
-            'limit' => isset($params['limit']) ? $this->buildLimitQuery($params['limit']) : 10,
-            'sorting' => isset($params['sorting']) ? $this->buildSortingQuery($params['sorting']) : [],
-            'criteria' => isset($params['criteria']) ? $this->buildCriteriaQuery($params['criteria']) : [],
+            'page' => isset($params['page']) ? $this->buildPageQuery($params) : 1,
+            'limit' => isset($params['limit']) ? $this->buildLimitQuery($params) : 10,
+            'sorting' => isset($params['sorting']) ? $this->buildSortingQuery($params) : [],
+            'criteria' => isset($params['criteria']) ? $this->buildCriteriaQuery($params) : [],
         ];
     }
 
@@ -255,9 +255,9 @@ abstract class apiActions extends jsonActions
      * @param array|null $params
      * @return array
      */
-    private function buildLimitQuery($params = [])
+    private function buildLimitQuery(array $params = ['limit' => 10])
     {
-        return $params !== null && isset($params['limit']) ? $params['limit'] : 1;
+        return isset($params['limit']) ? $params['limit'] : 10;
     }
 
     /**
@@ -265,9 +265,9 @@ abstract class apiActions extends jsonActions
      * @param array|null $params
      * @return array
      */
-    private function buildPageQuery($params = [])
+    private function buildPageQuery(array $params = ['page' => 1])
     {
-        return $params !== null && isset($params['page']) && intval($params['page']) . '' === '' . $params['page'] ? $params['page'] : 1;
+        return isset($params['page']) && intval($params['page']).'' === ''.$params['page'] ? $params['page'] : 1;
     }
 
     /**
@@ -275,17 +275,18 @@ abstract class apiActions extends jsonActions
      * @param array|null $params
      * @return array
      */
-    private function buildSortingQuery($params = [])
+    private function buildSortingQuery(array $params = ['sorting' => []])
     {
-        $sortingParams = (null === $params ? [] : $params);
+        if ( !isset($params['sorting']) )
+            $params['sorting'] = [];
 
-        foreach ( $sortingParams as $key => $value ) {
+        foreach ( $params['sorting'] as $key => $value ) {
             if ( !in_array($value, ['asc', 'desc']) ) {
-                unset($sortingParams[$key]);
+                unset($params['sorting'][$key]);
             }
         }
 
-        return $sortingParams;
+        return $params['sorting'];
     }
 
     /**
@@ -293,9 +294,9 @@ abstract class apiActions extends jsonActions
      * @param array|null $params
      * @return array
      */
-    private function buildCriteriaQuery($params = [])
+    private function buildCriteriaQuery(array $params = ['criteria' => []])
     {
-        $criteriaParams = !is_array($params) ? [] : $params;
+        $criteriaParams = !isset($params['criteria']) ? [] : $params['criteria'];
         $result = [];
 
         $allowedCriteria = [];
