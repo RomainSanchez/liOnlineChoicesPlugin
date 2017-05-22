@@ -158,12 +158,15 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         $operands = $this->getOperandsEquivalents();
 
         foreach ( $criterias as $criteria => $search ) {
-            if ( isset($fields[$criteria]) && isset($search['value']) ) {
+            if ( isset($fields[$criteria]) && (isset($search['value']) || isset($search['type'])) ) {
                 $field = $q->getRootAlias() . '.' . $fields[$criteria]['value'].' ';
                 $compare = $operands[$search['type']];
+                $dql = '';
+                $args = [];
+                
                 $args = [$search['value']];
                 $dql = '?';
-
+                
                 if ( is_array($compare) ) {
                     $args = $compare[1]($search['value']);
                     if ( is_array($args) ) {
@@ -174,11 +177,11 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
                         $dql = implode(',', $dql);
                     }
                 }
-
+                
                 $q->andWhere($field . ' ' . $compare[0] . ' ' . $dql, $args);
             }
         }
-
+        
         return $this;
     }
 
