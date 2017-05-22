@@ -16,7 +16,7 @@ class ocTimeSlotActions extends autoOcTimeSlotActions
     public function executeRefresh(sfWebRequest $request)
     {
         $q = Doctrine::getTable('OcTimeSlot')->createQuery('ts');
-        foreach ( $q->execute as $ts ) {
+        foreach ( $q->execute() as $ts ) {
             $ts->postSave('global refresh');
         }
         
