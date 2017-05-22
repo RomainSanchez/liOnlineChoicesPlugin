@@ -116,7 +116,7 @@ class ocApiCartItemsActions extends apiActions
      */
     public function delete(sfWebRequest $request)
     {
-        
+
         $status = ApiHttpStatus::SUCCESS;
         $message = ApiHttpMessage::DELETE_SUCCESSFUL;
 

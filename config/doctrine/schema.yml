@@ -20,6 +20,10 @@ OcTicket:
       type: enum
       values: [none, human, algorithm]
       default: none
+    checkout_state:
+      type: enum
+      values: [new, fulfilled, cancelled]
+      default: new
   relations:
     OcTransaction:
       onDelete: CASCADE
@@ -135,7 +139,7 @@ OcTimeSlotManifestation:
       foreignAlias: OcTimeSlotManifestations
       onDelete: CASCADE
       onUpdate: CASCADE
-    
+
 OcToken:
   inheritance:
     extends: Traceable
@@ -192,7 +196,7 @@ OcSnapshot:
     Timestampable: ~
   columns:
     name: string(255)
-    day: 
+    day:
       type: timestamp
       notnull: true
     purpose:

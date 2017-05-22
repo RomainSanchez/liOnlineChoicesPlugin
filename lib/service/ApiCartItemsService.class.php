@@ -27,6 +27,7 @@ class ApiCartItemsService extends ApiEntityService
         'adjustments' => ['type' => 'null', 'value' => 'null'],
         'adjustmentsTotal' => ['type' => 'null', 'value' => 'null'],
         'rank' => ['type' => 'single', 'value' => 'rank'],
+        'checkoutState' => ['type' => 'single', 'value' => 'checkout_state'],
      ];
 
     /**
@@ -114,22 +115,30 @@ class ApiCartItemsService extends ApiEntityService
         if (!isset($data['priceId'])) {
             throw new liOnlineSaleException('Missing priceId parameter');
         }
-        $priceId = $data['priceId'];
+        $priceId = (int)$data['priceId'];
 
         if (!isset($data['declinationId'])) {
             throw new liOnlineSaleException('Missing declinationId parameter');
         }
-        $declinationId = $data['declinationId'];
+        $declinationId = (int)$data['declinationId'];
 
         if ( !$this->checkDeclinationAndPriceAccess($priceId, $declinationId) ) {
             throw new liOnlineSaleException('Invalid value for priceId or declinationId parameter');
         }
 
-        $cartItem = new OcTicket;
-        $cartItem->oc_transaction_id = $cartId;
-        $cartItem->price_id = $priceId;
-        $cartItem->gauge_id = $declinationId;
-        $cartItem->save();
+        $cartItem = $this->buildQuery([])
+            ->andWhere('root.price_id = ?', $priceId)
+            ->andWhere('root.gauge_id = ?', $declinationId)
+            ->andWhere('root.oc_transaction_id = ?', (int)$cartId)
+            ->fetchOne()
+        ;
+        if (!$cartItem) {
+            $cartItem = new OcTicket;
+            $cartItem->oc_transaction_id = $cartId;
+            $cartItem->price_id = $priceId;
+            $cartItem->gauge_id = $declinationId;
+            $cartItem->save();
+        }
 
         return $cartItem;
     }
@@ -210,7 +219,7 @@ class ApiCartItemsService extends ApiEntityService
      *
      * @param int $cartId
      * @param int $itemId
-     * @return boolean
+     * @return boolean   true if successful, false if failed
      */
     public function deleteCartItem($cartId, $itemId)
     {
@@ -220,15 +229,43 @@ class ApiCartItemsService extends ApiEntityService
             return false;
         }
 
-        // Delete item
-        $success = Doctrine::getTable('OcTicket')
-            ->find($itemId)
-            ->delete()
-        ;
+        // Update cart item
+        switch($item['type']) {
+            case 'ticket':
+                $success = $this->deleteTicketCartItem($itemId);
+                break;
+            case 'product':
+            case 'pass':
+                // TODO: delete other kind of cart items (not ticket)
+                // TODO ... $success = $this->deletePassCartItem($itemId);
+                $success = false;
+                break;
+            default:
+                $success = false;
+        }
 
         return $success;
     }
 
+
+    /**
+     * @param int $itemId
+     * @return boolean   true if successful, false if failed
+     */
+    private function deleteTicketCartItem($itemId)
+    {
+        $item = Doctrine::getTable('OcTicket')->find($itemId);
+        if (!$item) {
+            return false;
+        }
+
+        return $item->delete();
+    }
+
+
+    /**
+     * @return @return Doctrine_Query
+     */
     public function buildInitialQuery()
     {
         return Doctrine_Query::create()
