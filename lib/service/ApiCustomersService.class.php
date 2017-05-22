@@ -150,8 +150,7 @@ class ApiCustomersService extends ApiEntityService
         unset($data['id'], $data['email']);
 
         $pro = $this->getIdentifiedProfessional();
-        $accessor->toRecord($data, $pro, $this->getFieldsEquivalents());
-        print_r($pro->toArray());
+        $accessor->toRecord($data, $pro, array_merge($this->getFieldsEquivalents(), $this->getHiddenFieldsEquivalents()));
         $pro->save();
         return true;
     }
