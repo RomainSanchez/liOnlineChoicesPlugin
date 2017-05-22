@@ -104,6 +104,9 @@ OcTimeSlot:
     extends: Traceable
     type: concrete
   columns:
+    name:
+      type: string(255)
+      notnull: true
     starts_at:
       type: timestamp
       notnull: true
@@ -183,3 +186,26 @@ OcApplication:
       foreignAlias: OcApplications
       onDelete: CASCADE
       onUpdate: CASCADE
+
+OcSnapshot:
+  actAs:
+    Timestampable: ~
+  columns:
+    name: string(255)
+    day: 
+      type: timestamp
+      notnull: true
+    purpose:
+      type: enum
+      values: [temp, save, valid]
+      default: temp
+    content:
+      type: string
+      notnull: true
+    sf_guard_user_id:
+      type: integer
+      notnull: true
+  relations:
+    sfGuardUser:
+      foreignAlias: ocSnapshots
+

@@ -349,3 +349,41 @@ oc_backend:
     prefix_path:          /oc_backend
     column:               id
     with_wildcard_routes: true
+    
+oc_backend_events:
+    url: /oc_backend/events
+    class: sfRequestRoute
+    param: { module: ocBackend, action: events }
+    requirements:
+        sf_method: [GET, POST]
+        
+oc_backend_pros:
+    url: /oc_backend/pros
+    class: sfRequestRoute
+    param: { module: ocBackend, action: pros }
+    requirements:
+        sf_method: [GET, POST]
+        
+oc_backend_snapshot:
+    url: /oc_backend/snapshot
+    class: sfRequestRoute
+    param: { module: ocBackend, action: snapshot }
+    requirements:
+        sf_method: [GET, POST]
+
+oc_snapshot:
+  class: sfDoctrineRouteCollection
+  options:
+    model:                OcSnapshot
+    module:               ocSnapshot
+    prefix_path:          /oc_snapshot
+    column:               id
+    with_wildcard_routes: true
+
+oc_snapshot_validate:
+    url: /oc_snapshot/validate
+    class: sfRequestRoute
+    param: { module: ocSnapshot, action: validate }
+    requirements:
+        sf_method: [GET, POST]
+

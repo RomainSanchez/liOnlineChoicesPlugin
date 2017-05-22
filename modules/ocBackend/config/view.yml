@@ -1,0 +1,8 @@
+default:
+  javascripts: [/liOnlineChoicesPlugin/js/oc_backend]
+  stylesheets: [/liOnlineChoicesPlugin/css/oc_backend]
+
+jsonSuccess:
+  has_layout: false
+  http_metas:
+    content-type: application/json

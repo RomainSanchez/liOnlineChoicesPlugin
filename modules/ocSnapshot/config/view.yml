@@ -1,0 +1,5 @@
+default:
+  javascripts: [/liOnlineChoicesPlugin/js/oc_snapshot]
+  stylesheets: [/liOnlineChoicesPlugin/css/oc_snapshot]
+
+

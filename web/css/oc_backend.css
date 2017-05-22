@@ -1,0 +1,77 @@
+
+.plan_body { line-height: 1; }
+.sf_admin_list .plan_header th { text-align: center; padding: 10px; }
+.sf_admin_list .plan_gauges th { text-align: left; }
+.sf_admin_list table .plan_next a, .sf_admin_list table .plan_previous a { font-size: smaller; padding: 5px; }
+
+.plan_body { height: 600px; overflow-x: scroll; }
+
+.resa { background-color: orange; display: inline-block; }
+.free { background-color: green; display: inline-block; }
+.over { background-color: red; display: inline-block; }
+.text { position: absolute; text-align: center; width: 80px; }
+
+.ui-state-default.time_slot_left, .time_slot_left  { border-left: 3px solid #a6c9e2; }
+.ui-state-default.time_slot_right, .time_slot_right { border-right: 3px solid #a6c9e2; }
+
+.list_snapshots {
+  list-style: none;
+  margin-left: 50px;
+}
+
+.list_snapshots li {
+  margin: 5px;
+}
+
+.list_snapshots a:hover {
+  text-decoration: underline;
+}
+.list_snapshots a {
+  text-decoration: none;
+}
+
+.gauge, .gaugeover {
+	padding: 0;
+	margin: 0 auto;
+	border-radius: 8px;
+	overflow: hidden;
+	height: 1.2em;
+  width: 80px;
+}
+
+.gauge_content { width: 80px; margin: 0 auto; }
+.gauge { color:white; font-weight: normal; }
+.raw { display: none; }
+.gaugeover { 	background-color: orange; }
+
+.sf_admin_list table tbody tr.sf_admin_row td.cell_choices { 
+  text-align: center; 
+  cursor: pointer;
+  transition: background-color 0.5s ease;
+  height: 20px;
+}
+.sf_admin_list table tbody tr.sf_admin_row td.cell_choices:hover {
+  background-color: rgba(0, 150, 136, 0.5);
+}
+.sf_admin_list table tbody tr.sf_admin_row td.cell_choices:active {
+  background-color: #009688;
+}
+
+.odd { background-color: lightgray; }
+.human { background-color: aquamarine; }
+.algo { background-color: rgb(245, 183, 177); }
+.round {
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	vertical-align: text-bottom;
+	border-radius: 10px;
+	text-align: center;
+	color: white;
+	font-weight: bold;
+	box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 1px 5px 0 rgba(0,0,0,0.12),0 3px 1px -2px rgba(0,0,0,0.2);
+}
+.round span { position :relative; top: 4px; }
+.one { background-color: #e91e63; }
+.two { background-color: #9c27b0; }
+.three { background-color: #3f51b5; }

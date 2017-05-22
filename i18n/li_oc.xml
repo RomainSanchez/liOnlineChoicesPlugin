@@ -56,6 +56,46 @@
         <source>Authorize Applications</source>
         <target>Autorisation d'applications</target>
       </trans-unit>
+      <trans-unit>
+        <source>Save state</source>
+        <target>Enregistrer l'état</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Save</source>
+        <target>Enregistrer</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Load state</source>
+        <target>Charger un état</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Load</source>
+        <target>Charger</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Auto positioning</source>
+        <target>Placement auto</target>
+      </trans-unit>
+      <trans-unit>
+        <source>List of events</source>
+        <target>Liste des évènements</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Validate</source>
+        <target>Valider</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Cancel</source>
+        <target>Annuler</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Manage placements</source>
+        <target>Gérer les placements</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Validate placements</source>
+        <target>Valider les placements</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
