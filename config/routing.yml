@@ -54,7 +54,7 @@ oc_api_customers_orders:
     requirements:
         id: \d+
         sf_method: [GET]
-        
+
 oc_api_customers_orders_resource:
     url: /api/v2/customers/:id/orders/:order_id
     class: sfRequestRoute
@@ -66,7 +66,7 @@ oc_api_customers_orders_resource:
 
 
 #
-# MANIFESTATION 
+# MANIFESTATION
 #
 oc_api_manifestations:
     url: /api/v2/manifestations
@@ -82,9 +82,9 @@ oc_api_manifestations_resource:
     requirements:
         id: \d+
         sf_method: [GET]
-        
+
 #
-# ORDERS 
+# ORDERS
 #
 
 oc_api_orders:
@@ -93,7 +93,7 @@ oc_api_orders:
     param: { module: ocApiOrders, action: index }
     requirements:
         sf_method: [GET]
-        
+
 oc_api_orders_resource:
     url: /api/v2/orders/:id
     class: sfRequestRoute
@@ -112,7 +112,7 @@ oc_api_orders_action:
         sf_method: [GET]
 
 #
-# CARTS 
+# CARTS
 #
 oc_api_carts:
     url: /api/v2/carts
@@ -139,7 +139,7 @@ oc_api_carts_items:
     requirements:
         id: \d+
         sf_method: [GET, POST]
-        
+
 oc_api_carts_items_resource:
     url: /api/v2/carts/:id/items/:item_id
     class: sfRequestRoute
@@ -147,7 +147,7 @@ oc_api_carts_items_resource:
     requirements:
         id: \d+
         item_id: \d+
-        sf_method: [GET,PUT,DELETE]
+        sf_method: [GET,POST,DELETE]
 
 #
 # CHECKOUTS
@@ -167,7 +167,7 @@ oc_api_checkouts_addressing:
     requirements:
         cart_id: \d+
         sf_method: [POST]
-        
+
 oc_api_checkouts_payments:
     url: /api/v2/checkouts/select-payment/:cart_id
     class: sfRequestRoute
@@ -229,7 +229,7 @@ oc_api_payments_resource:
     requirements:
         id: \d+
         sf_method: [GET]
-        
+
 #
 # PRICES
 #
@@ -289,7 +289,7 @@ oc_api_promotions_resource:
         sf_method: [GET]
 
 #
-# AUTH 
+# AUTH
 #
 oc_api_oauth_token:
     url: /api/oauth/v2/token
@@ -349,21 +349,21 @@ oc_backend:
     prefix_path:          /oc_backend
     column:               id
     with_wildcard_routes: true
-    
+
 oc_backend_events:
     url: /oc_backend/events
     class: sfRequestRoute
     param: { module: ocBackend, action: events }
     requirements:
         sf_method: [GET, POST]
-        
+
 oc_backend_pros:
     url: /oc_backend/pros
     class: sfRequestRoute
     param: { module: ocBackend, action: pros }
     requirements:
         sf_method: [GET, POST]
-        
+
 oc_backend_snapshot:
     url: /oc_backend/snapshot
     class: sfRequestRoute

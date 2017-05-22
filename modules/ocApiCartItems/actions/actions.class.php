@@ -96,7 +96,7 @@ class ocApiCartItemsActions extends apiActions
 
         /* @var $cartService ApiCartsService */
         $cartService = $this->getService('cartitems_service');
-        $isSuccess = $cartService->updateCartItem($cart_id, $item_id);
+        $isSuccess = $cartService->updateCartItem($cart_id, $item_id, $request->getPostParameters());
 
         if (!$isSuccess) {
             $status = ApiHttpStatus::BAD_REQUEST;

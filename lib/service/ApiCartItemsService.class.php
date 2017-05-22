@@ -16,7 +16,6 @@ class ApiCartItemsService extends ApiEntityService
      protected static $FIELD_MAPPING = [
         'id' => ['type' => 'single', 'value' => 'id'],
         'type' => ['type' => 'null', 'value' => 'null'],
-        'Price' => ['type' => 'sub-record', 'value' => null],
         'quantity' => ['type' => 'null', 'value' => 'null'],
         'declination' => ['type' => 'null', 'value' => 'null'],
         'totalAmount' => ['type' => 'null', 'value' => 'null'],
@@ -27,6 +26,7 @@ class ApiCartItemsService extends ApiEntityService
         'unitsTotal' => ['type' => 'null', 'value' => 'null'],
         'adjustments' => ['type' => 'null', 'value' => 'null'],
         'adjustmentsTotal' => ['type' => 'null', 'value' => 'null'],
+        'rank' => ['type' => 'single', 'value' => 'rank'],
      ];
 
     /**
@@ -147,15 +147,64 @@ class ApiCartItemsService extends ApiEntityService
 
     /**
      *
-     * @param int $cart_id
-     * @param int $item_id
+     * @param int $cartId
+     * @param int $itemId
      * @param array $data
      * @return boolean
      */
-    public function updateCartItem($cart_id, $item_id, $data)
+    public function updateCartItem($cartId, $itemId, $data)
     {
+        // Check existence and access
+        $item = $this->findOne($cartId, $itemId);
+        if (count($item) == 0) {
+            return false;
+        }
+
+        // Validate data
+        if (!is_array($data)) {
+            return false;
+        }
+        if (isset($data['quantity']) && (int)$data['quantity'] <= 0) {
+            return false;
+        }
+
+        // Update cart item
+        switch($item['type']) {
+            case 'ticket':
+                $success = $this->updateTicketCartItem($itemId, $data);
+                break;
+            case 'product':
+            case 'pass':
+                // TODO: update other kind of cart items (not ticket)
+                // TODO ... $success = $this->updatePassCartItem($itemId, $data);
+                $success = true;
+                break;
+            default:
+                $success = false;
+        }
+
         return true;
     }
+
+    /**
+     * @param int $itemId
+     * @param array $data
+     * @return boolean   true if successful, false if failed
+     */
+    private function updateTicketCartItem($itemId, $data)
+    {
+        if (isset($data['rank'])) {
+            $cartItem = Doctrine::getTable('OcTicket')->find($itemId);
+            if (!$cartItem) {
+                return false;
+            }
+            $cartItem->rank = (int)$data['rank'];
+            $cartItem->save();
+        }
+        return true;
+    }
+
+
 
     /**
      *
