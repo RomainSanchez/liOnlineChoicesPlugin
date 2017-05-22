@@ -46,7 +46,7 @@ class ocPropertyAccessor
     {
         // init
         $entity = [];
-
+        
         // populate
         foreach ( $equiv as $api => $db ) {
             if ( is_array($db) ) {
@@ -148,8 +148,12 @@ class ocPropertyAccessor
         }
 
         $key = array_shift($db);
-        if ( $record instanceof Doctrine_Record && !$record->hasRelation($key) ) {
-            return null;
+        if ( $record instanceof Doctrine_Record ) {
+            try {
+                $record->get($key);
+            } catch ( Doctrine_Record_Exception $e ) {
+                return null;
+            }
         }
 
         // Doctrine_Collection
