@@ -121,11 +121,11 @@ class ocPropertyAccessor
 
         if ( $currentType == 'collection' ) {
             foreach ( $value as $k => $v ) {
-                $this->setAPIValue($entity[$key][$k], $api, $value[$k], $type);
+                $this->setAPIValue($entity[$key][$k], $api, $value[$k], $type, $bool);
             }
         }
         else {
-            $this->setAPIValue($entity[$key], $api, $value, $type);
+            $this->setAPIValue($entity[$key], $api, $value, $type, $bool);
         }
 
         return $this;
