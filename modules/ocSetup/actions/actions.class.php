@@ -31,6 +31,8 @@ class ocSetupActions extends autoOcSetupActions
     }
   }
   
+
+  
   public function executeNew(sfWebRequest $request)
   {
     $q = Doctrine::getTable('OcConfig')->createQuery('config')
