@@ -149,6 +149,22 @@ class ApiCartsService extends ApiEntityService
      */
     public function deleteCart($cart_id)
     {
+        return false;
+    }
+
+    /**
+     * @param integer $cartId
+     * @return boolean
+     */
+    public function isCartEditable($cartId)
+    {
+        $cart = $this->findOneById($cartId);
+        if ( 0 == count($cart) ) {
+            return false;
+        }
+        if ($cart['checkoutState'] != 'cart') {
+            return false;
+        }
         return true;
     }
 
