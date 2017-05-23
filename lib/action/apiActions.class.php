@@ -120,7 +120,7 @@ abstract class apiActions extends jsonActions
      * The id key is defined in routing.yml
      *
      * @param sfWebRequest $request
-     * @return array (a single entity)
+     * @return array (a single entity) (sfView::NONE)
      */
     public function getOne(sfWebRequest $request)
     {
@@ -135,7 +135,7 @@ abstract class apiActions extends jsonActions
      * Criteria and filters can be retrieved in $query
      *
      * @param sfWebRequest $request
-     * @return array (a list of entities)
+     * @return array (a list of entities) (sfView::NONE)
      */
     public function getAll(sfWebRequest $request, array $query)
     {
@@ -186,11 +186,11 @@ abstract class apiActions extends jsonActions
      * Action for a POST:/[resource] request
      *
      * @param sfWebRequest $request
-     * @return array
+     * @return string (sfView::NONE)
      */
     public function create(sfWebRequest $request)
     {
-        return array('message' => __METHOD__);
+        return $this->createJsonResponse(['message' => __METHOD__]);
     }
 
     /**
@@ -199,11 +199,11 @@ abstract class apiActions extends jsonActions
      * The id key is defined in routing.yml
      *
      * @param sfWebRequest $request
-     * @return array
+     * @return string (sfView::NONE)
      */
     public function update(sfWebRequest $request)
     {
-        return array('message' => __METHOD__);
+        return $this->createJsonResponse(['message' => __METHOD__]);
     }
 
     /**
@@ -212,11 +212,11 @@ abstract class apiActions extends jsonActions
      * The id key is defined in routing.yml
      *
      * @param sfWebRequest $request
-     * @return array
+     * @return string (sfView::NONE)
      */
     public function delete(sfWebRequest $request)
     {
-        return array('message' => __METHOD__);
+        return $this->createJsonResponse(['message' => __METHOD__]);
     }
 
     /**
