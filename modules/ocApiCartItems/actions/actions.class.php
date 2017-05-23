@@ -72,7 +72,7 @@ class ocApiCartItemsActions extends apiActions
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('cartitems_service');
         try {
-            $cartItem = $cartItemsService->create($cart_id, $request->getPostParameters());
+            $cartItem = $cartItemsService->create($cart_id, $request->getParameter('application/json'));
         } catch (liOnlineSaleException $exc) {
             return $this->createBadRequestResponse(['error' => $exc->getMessage()]);
         }
