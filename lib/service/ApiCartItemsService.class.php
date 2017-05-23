@@ -19,7 +19,7 @@ class ApiCartItemsService extends ApiEntityService
         'quantity' => ['type' => 'null', 'value' => 'null'],
         'declination' => ['type' => 'null', 'value' => 'null'],
         'totalAmount' => ['type' => 'null', 'value' => 'null'],
-        'unitAmount' => ['type' => 'single', 'value' => 'Price.value'],
+        'unitPrice' => ['type' => 'single', 'value' => 'Price.value'],
         'total' => ['type' => 'null', 'value' => 'null'],
         'vat' => ['type' => 'null', 'value' => 'null'],
         'units' => ['type' => 'null', 'value' => 'null'],
@@ -307,14 +307,24 @@ class ApiCartItemsService extends ApiEntityService
             'position' => 'TODO',
             'translations' => 'TODO',
         ];
-        $entity['totalAmount'] = $entity['quantity'] * $entity['unitAmount'];
 
-        $entity['vat'] = 'TODO';
-        $entity['units'] = 'TODO';
-        $entity['unitsTotal'] = 'TODO';
-        $entity['adjustments'] = 'TODO';
-        $entity['adjustmentsTotal'] = 2; // TODO
-        $entity['total'] = $entity['totalAmount'] + $entity['adjustmentsTotal'];
+        $entity['units'] = [];
+        for($i=1; $i<=$entity['quantity']; $i++) {
+            $entity['units'][] = [
+                'id' => 'XXX', // TODO
+                'adjustments' => [],  // TODO
+                'adjustmentsTotal' => 0, // TODO
+            ];
+        }
+
+        $entity['unitsTotal'] = $entity['quantity'] * $entity['unitPrice'];
+        foreach($entity['units'] as $unit) {
+            $entity['unitsTotal'] += $unit['adjustmentsTotal'];
+        }
+
+        $entity['adjustments'] = []; // TODO
+        $entity['adjustmentsTotal'] = 0; // TODO
+        $entity['total'] = $entity['unitsTotal'] + $entity['adjustmentsTotal'];
 
         return $entity;
     }
