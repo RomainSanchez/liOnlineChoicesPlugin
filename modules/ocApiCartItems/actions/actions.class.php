@@ -24,7 +24,7 @@ class ocApiCartItemsActions extends apiActions
     /**
      *
      * @param sfWebRequest $request
-     * @return array
+     * @return array (sfView::NONE)
      */
     public function getOne(sfWebRequest $request)
     {
@@ -41,7 +41,7 @@ class ocApiCartItemsActions extends apiActions
     /**
      * @param sfWebRequest $request
      * @param array $query
-     * @return array
+     * @return array (sfView::NONE)
      */
     public function getAll(sfWebRequest $request, array $query)
     {
@@ -57,7 +57,7 @@ class ocApiCartItemsActions extends apiActions
     /**
      * @param sfWebRequest $request
      * @param array $query
-     * @return array
+     * @return array (sfView::NONE)
      */
     public function create(sfWebRequest $request)
     {
@@ -83,7 +83,7 @@ class ocApiCartItemsActions extends apiActions
     /**
      *
      * @param sfWebRequest $request
-     * @return array
+     * @return array (sfView::NONE)
      */
     public function update(sfWebRequest $request)
     {
@@ -101,7 +101,7 @@ class ocApiCartItemsActions extends apiActions
 
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('api_cartitems_service');
-        $isSuccess = $cartItemsService->updateCartItem($cart_id, $item_id, $request->getPostParameters());
+        $isSuccess = $cartItemsService->updateCartItem($cart_id, $item_id, $request->getParameter('application/json'));
 
         if (!$isSuccess) {
             $status = ApiHttpStatus::BAD_REQUEST;
@@ -117,7 +117,7 @@ class ocApiCartItemsActions extends apiActions
     /**
      *
      * @param sfWebRequest $request
-     * @return array
+     * @return array (sfView::NONE)
      */
     public function delete(sfWebRequest $request)
     {
