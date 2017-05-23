@@ -325,7 +325,7 @@ abstract class apiActions extends jsonActions
             }
 
             $result[$criteria] = [
-                'value' => isset($option['value']) ? $options['value'] : null,
+                'value' => isset($options['value']) ? $options['value'] : null,
                 'type' => $options['type'],
             ];
         }
