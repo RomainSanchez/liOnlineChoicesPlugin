@@ -24,7 +24,7 @@ class ocApiCartsActions extends apiActions
      *
      * @param sfWebRequest $request
      * @param array $query
-     * @return array
+     * @return array (sfView::NONE)
      */
     public function getAll(sfWebRequest $request, array $query)
     {
@@ -35,9 +35,43 @@ class ocApiCartsActions extends apiActions
     }
 
     /**
+     * Action for a POST|PUT:/[resource]/id request
+     * The specified id has to be retrieved from the $request
+     * The id key is defined in routing.yml
      *
      * @param sfWebRequest $request
-     * @return array
+     * @return string (sfView::NONE)
+     */
+    public function update(sfWebRequest $request)
+    {
+        $status = ApiHttpStatus::SUCCESS;
+        $message = ApiHttpMessage::UPDATE_SUCCESSFUL;
+
+        $cart_id = $request->getParameter('id', 0);
+
+        /* @var $cartsService ApiCartsService */
+        $cartsService = $this->getService('carts_service');
+        if (!$cartsService->isCartEditable($cart_id)) {
+            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
+        }
+
+        $isSuccess = $cartsService->updateCart($cart_id, $request->getParameter('application/json'));
+
+        if (!$isSuccess) {
+            $status = ApiHttpStatus::BAD_REQUEST;
+            $message = ApiHttpMessage::UPDATE_FAILED;
+        }
+
+        return $this->createJsonResponse([
+                "code" => $status,
+                'message' => $message
+                ], $status);
+    }
+
+    /**
+     *
+     * @param sfWebRequest $request
+     * @return array (sfView::NONE)
      */
     public function delete(sfWebRequest $request)
     {

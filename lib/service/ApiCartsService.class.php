@@ -152,6 +152,37 @@ class ApiCartsService extends ApiEntityService
         return false;
     }
 
+   /**
+     *
+     * @param int $cartId
+     * @param array $data
+     * @return boolean
+     */
+    public function updateCart($cartId, $data)
+    {
+        // Check existence and access
+        $cart = $this->findOneById($cartId);
+        if (count($cart) == 0) {
+            return false;
+        }
+
+        // Validate data
+        if (!is_array($data)) {
+            return false;
+        }
+        if (isset($data['checkoutState']) && $data['checkoutState'] != 'new') {
+            return false;
+        }
+
+        if (isset($data['checkoutState'])) {
+            $cart = Doctrine::getTable('OcTransaction')->find($cartId);
+            $cart->checkout_state = $data['checkoutState'];
+            $cart->save();
+        }
+
+        return true;
+    }
+
     /**
      * @param integer $cartId
      * @return boolean
