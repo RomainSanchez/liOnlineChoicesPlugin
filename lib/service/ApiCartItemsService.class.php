@@ -208,7 +208,7 @@ class ApiCartItemsService extends ApiEntityService
                 $success = false;
         }
 
-        return true;
+        return $success;
     }
 
     /**
