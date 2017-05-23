@@ -121,8 +121,12 @@ class ApiCartItemsService extends ApiEntityService
         }
         $declinationId = (int)$data['declinationId'];
 
-        if ( !$this->checkDeclinationAndPriceAccess($priceId, $declinationId) ) {
+        if ( !$this->checkGaugeAndPriceAccess($declinationId, $priceId) ) {
             throw new liOnlineSaleException('Invalid value for priceId or declinationId parameter');
+        }
+
+        if ( !$this->checkGaugeAvailability($declinationId) ) {
+            throw new liOnlineSaleException('Gauge is full or not available');
         }
 
         $cartItem = $this->buildQuery([])
@@ -142,12 +146,25 @@ class ApiCartItemsService extends ApiEntityService
         return $cartItem;
     }
 
+
+    public function checkGaugeAvailability($gaugeId)
+    {
+        $gauge = Doctrine::getTable('gauge')->find($gaugeId);
+        if (!$gauge) {
+            return false;
+        }
+        if ($gauge->free <= 0) {
+            return false;
+        }
+        return true;
+    }
+
     /**
-     * @param int $declinationId
      * @param int $gaugeId
+     * @param int $priceId
      * @return boolean
      */
-    public function checkDeclinationAndPriceAccess($declinationId, $gaugeId)
+    public function checkGaugeAndPriceAccess($gaugeId, $priceId)
     {
         // TODO
         return true;
