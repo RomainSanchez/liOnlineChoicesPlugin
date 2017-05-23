@@ -129,11 +129,18 @@ class ApiCartsService extends ApiEntityService
 
         // totals
         $entity['itemsTotal'] = 0;
-        $entity['total'] = 0;
         foreach ($entity['items'] as $item) {
-            $entity['itemsTotal'] += $item['totalAmount'];
-            $entity['total'] += $item['total'];
+            $entity['itemsTotal'] += $item['total'];
         }
+
+        $entity['adjustments'] = [];  // TODO
+
+        $entity['adjustmentsTotal'] = 0;
+        foreach($entity['adjustments'] as $adjustment) {
+            $entity['adjustmentsTotal'] += $adjustment['amount'];
+        }
+
+        $entity['total'] = $entity['itemsTotal'] + $entity['adjustmentsTotal'];
 
         // currency
         $currency = sfConfig::get('project_internals_currency', ['iso' => 978, 'symbol' => '€']);
