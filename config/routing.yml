@@ -27,6 +27,17 @@ oc_api_logout:
         sf_method: [GET, POST]
 
 #
+# PICTURE
+#
+oc_api_picture:
+    url: /api/v2/picture/:id
+    class: sfRequestRoute
+    param: { module: ocPicture, action: display }
+    requirements:
+        id: \d+
+        sf_method: [GET]
+
+#
 # CUSTOMER
 #
 oc_api_customers:

@@ -69,7 +69,7 @@ class ApiManifestationsService extends ApiEntityService
         $manifDotrineRec = $this->buildQuery([
             'criteria' => [
                 'id' => [
-                    'value' => 'manif_id',
+                    'value' => $manif_id,
                     'type'  => 'equal',
                 ],
             ]
@@ -86,11 +86,10 @@ class ApiManifestationsService extends ApiEntityService
 
     public function buildInitialQuery()
     {
-        return Doctrine::getTable('Manifestation')->createQuery('root');
+        return $this->manifestationsService->buildQuery($this->oauth->getToken()->OcApplication->User, NULL, 'root');
     }
     
-    public function getMaxShownAvailableUnits()
-    {
+    public function getMaxShownAvailableUnits() {
         return 10;
     }
     

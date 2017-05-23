@@ -10,7 +10,7 @@
  *
  * @author Baptiste SIMON <baptiste.simon@libre-informatique.fr>
  */
-abstract class ApiEntityService implements ApiEntityServiceInterface
+abstract class ApiEntityService extends EvenementService implements ApiEntityServiceInterface
 {
 
 
@@ -103,11 +103,12 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         
         $model = explode(' ', $q->getDqlPart('from')[0])[0];
         $pager = new sfDoctrinePager($model, $query['limit']);
-        $pager->setQuery($q);
 
-        $this->buildQueryCondition($pager, $query['criteria'])
-            ->buildQuerySorting($pager, $query['sorting'])
-            ->buildQueryPagination($pager, $query['page'])
+        $this->buildQueryCondition($q, $query['criteria'])
+            ->buildQuerySorting($q, $query['sorting']);
+            
+        $pager->setQuery($q);
+        $this->buildQueryPagination($pager, $query['page'])
             ->patchPager($pager);
 
         $pager->init();
@@ -127,9 +128,8 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         return $this;
     }
 
-    protected function buildQuerySorting(sfDoctrinePager $pager, array $sorting = [])
+    protected function buildQuerySorting(Doctrine_Query $q, array $sorting = [])
     {
-        $q = $pager->getQuery();
         $orderBy = '';
         foreach ( $sorting as $field => $direction ) {
             if (!in_array($field, $this->getFieldsEquivalents()))
@@ -150,10 +150,8 @@ abstract class ApiEntityService implements ApiEntityServiceInterface
         return $this;
     }
 
-    protected function buildQueryCondition(sfDoctrinePager $pager, array $criterias = [])
+    protected function buildQueryCondition(Doctrine_Query $q, array $criterias = [])
     {
-        $q = $pager->getQuery();
-        
         $fields = array_merge($this->getFieldsEquivalents(), $this->getHiddenFieldsEquivalents());
         $operands = $this->getOperandsEquivalents();
 

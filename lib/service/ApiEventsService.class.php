@@ -31,11 +31,6 @@ class ApiEventsService extends ApiEntityService
      */
     protected $manifestationsService;
     
-    public function setManifestationsService(ApiManifestationsService $manifestations)
-    {
-        $this->manifestationsService = $manifestations;
-    }
-    
     /**
      * 
      * @return array
@@ -64,8 +59,8 @@ class ApiEventsService extends ApiEntityService
             ->reformat($entity['metaEvent']['translations']);
         
         // imageURL
-        sfContext::getInstance()->getConfiguration()->loadHelpers(array('CrossAppLink'));
-        $entity['imageURL'] = cross_app_url_for('pub', 'picture/display?id='.$entity['id']);
+        sfContext::getInstance()->getConfiguration()->loadHelpers(array('Url'));
+        $entity['imageURL'] = url_for('@oc_api_picture?id='.$entity['id']);
         
         // manifestations
         $query = [
@@ -89,6 +84,11 @@ class ApiEventsService extends ApiEntityService
         return $entity;
     }
 
+    public function setApiManifestationsService(ApiManifestationsService $manifestations)
+    {
+        $this->manifestationsService = $manifestations;
+    }
+    
     public function setTranslationService(ApiTranslationService $i18n)
     {
         $this->translationService = $i18n;

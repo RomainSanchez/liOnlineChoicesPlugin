@@ -11,7 +11,7 @@
  * @author Glenn Cavarlé <glenn.cavarle@libre-informatique.fr>
  * @author Baptiste SIMON <baptiste.simon@libre-informatique.fr>
  */
-class ApiOAuthService
+class ApiOAuthService extends EvenementService
 {
 
     /**
@@ -87,6 +87,7 @@ class ApiOAuthService
     public function findApplication($client_id, $client_secret)
     {
         $q = Doctrine::getTable('OcApplication')->createQuery('app')
+            ->leftJoin('app.User u')
             ->andWhere('app.identifier = ?', $client_id)
             ->andWhere('app.secret     = ?', $this->encryptSecret($client_secret))
             ->andWhere('app.expires_at IS NULL OR app.expires_at > NOW()')

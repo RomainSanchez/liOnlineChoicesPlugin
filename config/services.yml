@@ -19,7 +19,7 @@ all:
       api_events_service:
           class: ApiEventsService
           calls:
-            - ['setManifestationsService', ['@api_manifestations_service']]
+            - ['setApiManifestationsService', ['@api_manifestations_service']]
             - ['setTranslationService', ['@api_translation_service']]
             - ['setOAuthService', ['@api_oauth_service']]
       api_manifestations_service:
@@ -27,7 +27,7 @@ all:
           calls:
             - ['setTranslationService', ['@api_translation_service']]
             - ['setOAuthService', ['@api_oauth_service']]
-            - ['setManifestationsService', ['@api_manifestations_service']]
+            - ['setManifestationsService', ['@manifestations_service']] # from project
       api_cartitems_service:
           class: ApiCartItemsService
           calls:
