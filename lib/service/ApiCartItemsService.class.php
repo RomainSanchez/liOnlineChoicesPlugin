@@ -92,7 +92,7 @@ class ApiCartItemsService extends ApiEntityService
      *
      * @param int $cartId
      * @param array $data
-     * @return OcTicket
+     * @return array
      * @throws liOnlineSaleException
      */
     public function create($cartId, $data)
@@ -143,7 +143,7 @@ class ApiCartItemsService extends ApiEntityService
             $cartItem->save();
         }
 
-        return $cartItem;
+        return $this->getFormattedEntity($cartItem);
     }
 
 
