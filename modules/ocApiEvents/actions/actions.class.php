@@ -14,6 +14,6 @@ class ocApiEventsActions extends apiActions
 {
     public function getMyService()
     {
-        return $this->getService('events_service');
+        return $this->getService('api_events_service');
     }
 }

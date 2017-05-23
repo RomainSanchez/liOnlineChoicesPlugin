@@ -41,7 +41,7 @@ abstract class jsonActions extends sfActions
        
 		    if($secure){
 		      /* @var $oauthService ApiAuthService */
-		      $oauthService = $this->getService('oauth_service');
+		      $oauthService = $this->getService('api_oauth_service');
 			
 		      //check oauth authentification
 		      if ( !$oauthService->authenticate($request) ) {

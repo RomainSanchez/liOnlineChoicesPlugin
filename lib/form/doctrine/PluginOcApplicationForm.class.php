@@ -27,7 +27,7 @@ abstract class PluginOcApplicationForm extends BaseOcApplicationForm
   
   public function doSave($con = null)
   {
-    $oauth = sfContext::getInstance()->getContainer()->get('oauth_service');
+    $oauth = sfContext::getInstance()->getContainer()->get('api_oauth_service');
     
     if ( $this->values['secret_new'] || $this->object->isNew() )
       $this->values['secret'] = $oauth->encryptSecret($this->values['secret_new']);

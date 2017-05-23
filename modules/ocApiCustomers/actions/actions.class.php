@@ -18,12 +18,12 @@ class ocApiCustomersActions extends apiActions
      */
     public function getMyService()
     {
-        return $this->getService('customers_service');
+        return $this->getService('api_customers_service');
     }
 
     public function executeLogout(sfWebRequest $request)
     {
-        $customers = $this->getService('customers_service');
+        $customers = $this->getService('api_customers_service');
         if ( $customers->logout() ) {
             return $this->createJsonResponse([
                 'code' => ApiHttpStatus::SUCCESS,
@@ -57,7 +57,7 @@ class ocApiCustomersActions extends apiActions
             ],
         ]);
 
-        $customerService = $this->getService('customers_service');
+        $customerService = $this->getService('api_customers_service');
 
         if ( !$customerService->identify($query) ) {
             return $this->createJsonResponse([
@@ -115,7 +115,7 @@ class ocApiCustomersActions extends apiActions
     {
 
         $data = $request->getParameter('application/json', []);
-        $customers = $this->getService('customers_service');
+        $customers = $this->getService('api_customers_service');
         
         return $customers->update($data)
             ? $this->createJsonResponse($customers->getIdentifiedCustomer())
@@ -133,7 +133,7 @@ class ocApiCustomersActions extends apiActions
      */
     public function getOne(sfWebRequest $request)
     {
-        $customers = $this->getService('customers_service');
+        $customers = $this->getService('api_customers_service');
 
         $pro = $customers->getIdentifiedProfessional();
         $result = !$pro instanceof Professional ? new ArrayObject : $customers->getFormattedEntity($pro);
@@ -148,7 +148,7 @@ class ocApiCustomersActions extends apiActions
      */
     public function getAll(sfWebRequest $request, array $query)
     {
-        $customers = $this->getService('customers_service');
+        $customers = $this->getService('api_customers_service');
 
         if ( $customers->isIdentificated() && !$query['criteria'] ) {
             $customer = $customers->getIdentifiedCustomer();

@@ -15,7 +15,7 @@ class ocApiOAuthActions extends jsonActions
 
     public function preExecute()
     {
-        $this->getService('actions_service')
+        $this->getService('api_actions_service')
             ->populateAccessControlHeaders($this->getResponse());
 
         parent::preExecute();
@@ -26,7 +26,7 @@ class ocApiOAuthActions extends jsonActions
         $response = $this->getResponse();
         $response->clearHttpHeaders();
 
-        $this->getService('actions_service')
+        $this->getService('api_actions_service')
             ->populateAccessControlHeaders($response);
 
         return sfView::NONE;
@@ -38,7 +38,7 @@ class ocApiOAuthActions extends jsonActions
      */
     public function executeToken(sfWebRequest $request)
     {
-        $oauth = $this->getService('oauth_service');
+        $oauth = $this->getService('api_oauth_service');
 
         // find the app
         $app = $oauth->findApplication(

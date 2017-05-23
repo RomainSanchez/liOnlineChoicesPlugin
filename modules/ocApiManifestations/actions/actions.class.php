@@ -14,6 +14,6 @@ class ocApiManifestationsActions extends apiActions
 {
     public function getMyService()
     {
-        return $this->getService('manifestations_service');
+        return $this->getService('api_manifestations_service');
     }
 }

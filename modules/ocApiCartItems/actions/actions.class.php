@@ -18,7 +18,7 @@ class ocApiCartItemsActions extends apiActions
      */
     public function getMyService()
     {
-        return $this->getService('cartitems_service');
+        return $this->getService('api_cartitems_service');
     }
 
     /**
@@ -32,7 +32,7 @@ class ocApiCartItemsActions extends apiActions
         $item_id = $request->getParameter('item_id', 0);
 
         /* @var $cartService ApiCartsService */
-        $cartService = $this->getService('cartitems_service');
+        $cartService = $this->getService('api_cartitems_service');
         $result = $cartService->findOne($cart_id, $item_id);
 
         return $this->createJsonResponse($result);
@@ -48,7 +48,7 @@ class ocApiCartItemsActions extends apiActions
         $cart_id = $request->getParameter('id', 0);
 
         /** @var ApiCartItemsService $cartService */
-        $cartitemsService = $this->getService('cartitems_service');
+        $cartitemsService = $this->getService('api_cartitems_service');
         $result = $this->getListWithDecorator($cartitemsService->findAll($cart_id, $query), $query);
 
         return $this->createJsonResponse($result);
@@ -64,13 +64,13 @@ class ocApiCartItemsActions extends apiActions
         $cart_id = $request->getParameter('id', 0);
 
         /* @var $cartsService ApiCartsService */
-        $cartsService = $this->getService('carts_service');
+        $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
             return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
         }
 
         /* @var $cartItemsService ApiCartItemsService */
-        $cartItemsService = $this->getService('cartitems_service');
+        $cartItemsService = $this->getService('api_cartitems_service');
         try {
             $cartItem = $cartItemsService->create($cart_id, $request->getParameter('application/json'));
         } catch (liOnlineSaleException $exc) {
@@ -94,13 +94,13 @@ class ocApiCartItemsActions extends apiActions
         $item_id = $request->getParameter('item_id', 0);
 
         /* @var $cartsService ApiCartsService */
-        $cartsService = $this->getService('carts_service');
+        $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
             return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
         }
 
         /* @var $cartItemsService ApiCartItemsService */
-        $cartItemsService = $this->getService('cartitems_service');
+        $cartItemsService = $this->getService('api_cartitems_service');
         $isSuccess = $cartItemsService->updateCartItem($cart_id, $item_id, $request->getPostParameters());
 
         if (!$isSuccess) {
@@ -129,13 +129,13 @@ class ocApiCartItemsActions extends apiActions
         $item_id = $request->getParameter('item_id', 0);
 
         /* @var $cartsService ApiCartsService */
-        $cartsService = $this->getService('carts_service');
+        $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
             return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
         }
 
         /* @var $cartItemsService ApiCartItemsService */
-        $cartItemsService = $this->getService('cartitems_service');
+        $cartItemsService = $this->getService('api_cartitems_service');
         $isSuccess = $cartItemsService->deleteCartItem($cart_id, $item_id);
         if (!$isSuccess) {
             $status = ApiHttpStatus::BAD_REQUEST;

@@ -17,7 +17,7 @@ class ocApiCartsActions extends apiActions
      */
     public function getMyService()
     {
-        return $this->getService('carts_service');
+        return $this->getService('api_carts_service');
     }
 
     /**
@@ -29,7 +29,7 @@ class ocApiCartsActions extends apiActions
     public function getAll(sfWebRequest $request, array $query)
     {
         /* @var $cartService ApiCartsService */
-        $cartService = $this->getService('carts_service');
+        $cartService = $this->getService('api_carts_service');
         $result = $this->getListWithDecorator($cartService->findAll($query), $query);
         return $this->createJsonResponse($result);
     }
@@ -50,7 +50,7 @@ class ocApiCartsActions extends apiActions
         $cart_id = $request->getParameter('id', 0);
 
         /* @var $cartsService ApiCartsService */
-        $cartsService = $this->getService('carts_service');
+        $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
             return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
         }
@@ -81,7 +81,7 @@ class ocApiCartsActions extends apiActions
         $cart_id = $request->getParameter('cart_id');
 
         /* @var $cartService ApiCartsService */
-        $cartService = $this->getService('carts_service');
+        $cartService = $this->getService('api_carts_service');
         $isSuccess = $cartService->deleteCart($cart_id);
 
         if (!$isSuccess) {

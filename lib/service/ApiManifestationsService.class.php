@@ -15,6 +15,7 @@ class ApiManifestationsService extends ApiEntityService
 {
 
     protected $translationService;
+    protected $manifestationsService;
     protected $oauth;
     
     protected static $FIELD_MAPPING = [
@@ -146,6 +147,11 @@ class ApiManifestationsService extends ApiEntityService
     public function setOAuthService(ApiOAuthService $service)
     {
         $this->oauth = $service;
+    }
+
+    public function setManifestationsService(ManifestationsService $service)
+    {
+        $this->manifestationsService = $service;
     }
 
     public function getOAuthService()

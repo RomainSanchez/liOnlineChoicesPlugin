@@ -6,36 +6,37 @@ all:
   parameters:
 
   services:
-      actions_service:
+      api_actions_service:
           class: ApiActionsService
-      translation_service:
+      api_translation_service:
           class: ApiTranslationService
-      oauth_service:
+      api_oauth_service:
           class: ApiOAuthService
-      customers_service:
+      api_customers_service:
           class: ApiCustomersService
           calls:
-            - ['setOAuthService', ['@oauth_service']]
-      events_service:
+            - ['setOAuthService', ['@api_oauth_service']]
+      api_events_service:
           class: ApiEventsService
           calls:
-            - ['setManifestationsService', ['@manifestations_service']]
-            - ['setTranslationService', ['@translation_service']]
-            - ['setOAuthService', ['@oauth_service']]
-      manifestations_service:
+            - ['setManifestationsService', ['@api_manifestations_service']]
+            - ['setTranslationService', ['@api_translation_service']]
+            - ['setOAuthService', ['@api_oauth_service']]
+      api_manifestations_service:
           class: ApiManifestationsService
           calls:
-            - ['setTranslationService', ['@translation_service']]
-            - ['setOAuthService', ['@oauth_service']]
-      cartitems_service:
+            - ['setTranslationService', ['@api_translation_service']]
+            - ['setOAuthService', ['@api_oauth_service']]
+            - ['setManifestationsService', ['@api_manifestations_service']]
+      api_cartitems_service:
           class: ApiCartItemsService
           calls:
-            - ['setOAuthService', ['@oauth_service']]
-      carts_service:
+            - ['setOAuthService', ['@api_oauth_service']]
+      api_carts_service:
           class: ApiCartsService
           calls:
-            - ['setOAuthService', ['@oauth_service']]
-            - ['setCartItemsService', ['@cartitems_service']]
-            - ['setCustomersService', ['@customers_service']]
+            - ['setOAuthService', ['@api_oauth_service']]
+            - ['setCartItemsService', ['@api_cartitems_service']]
+            - ['setCustomersService', ['@api_customers_service']]
 
 
