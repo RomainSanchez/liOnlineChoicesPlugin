@@ -43,8 +43,8 @@ OcTransaction:
     oc_token_id: integer
     checkout_state:
       type: enum
-      values: [new, fulfilled, cancelled]
-      default: new
+      values: [cart, new, fulfilled, cancelled]
+      default: cart
   relations:
     OcProfessional:
       onDelete: SET NULL
