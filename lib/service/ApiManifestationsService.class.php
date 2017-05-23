@@ -95,8 +95,8 @@ class ApiManifestationsService extends ApiEntityService
                 ->orWhere('FALSE)')
             ->andWhere('(FALSE')
                 ->orWhere('pgp.member_card_linked = FALSE')
-                ->orWhere('pgp.id IN (SELECT mcp1.price_id FROM MemberCardPrice mcp1 LEFT JOIN mcp1.MemberCard mc1 LEFT JOIN mc1.Contact cc1 LEFT JOIN cc1.Professionals pro1 WHERE pro1.id = ?)', 505)
                 ->orWhere('pmp.member_card_linked = FALSE')
+                ->orWhere('pgp.id IN (SELECT mcp1.price_id FROM MemberCardPrice mcp1 LEFT JOIN mcp1.MemberCard mc1 LEFT JOIN mc1.Contact cc1 LEFT JOIN cc1.Professionals pro1 WHERE pro1.id = ?)', 505)
                 ->orWhere('pmp.id IN (SELECT mcp2.price_id FROM MemberCardPrice mcp2 LEFT JOIN mcp2.MemberCard mc2 LEFT JOIN mc2.Contact cc2 LEFT JOIN cc2.Professionals pro2 WHERE pro2.id = ?)', 505)
                 ->orWhere('FALSE)')
         ;
