@@ -26,15 +26,15 @@ class ocPropertyAccessor
             if ( !isset($entity[$api['value']]) ) {
                 continue;
             }
-            
+
             $value = $this->getAPIValue($entity, $api['value']);
             $this->setRecordValue($record, preg_replace('/^!/', '', $db), preg_match('/^!/', $db) == 0 ? $value : !$value);
-            
+
             //$this->setRecordValue($record, $db, $this->getAPIValue($entity, $api));
         }
         return $record;
     }
-    
+
     /**
      * Converts a Doctrine_Record into an array representing the API expected structure
      *
@@ -46,14 +46,16 @@ class ocPropertyAccessor
     {
         // init
         $entity = [];
-        
+
         // populate
         foreach ( $equiv as $api => $db ) {
             if ( is_array($db) ) {
                 $type = explode('.', $db['type']);
                 $lastType = array_pop($type);
                 $bool = preg_match('/^!/', $db['value']) == 0;
-                $db['value'] = preg_replace('/^!/', '', $db['value']);
+                if ($db['value'] !== null) {
+                    $db['value'] = preg_replace('/^!/', '', $db['value']);
+                }
 
                 switch ( $lastType ) {
                     case 'sub-record':
@@ -74,14 +76,14 @@ class ocPropertyAccessor
 
         return $entity;
     }
-    
+
     // new
     protected function getAPIValue(array $entity, $api)
     {
         $api = is_array($api) ? $api : explode('.', $api);
         $key = array_shift($api);
         $r = [];
-        
+
         // get out of here
         if ( !isset($entity[$key]) ) {
             return NULL;
@@ -89,7 +91,7 @@ class ocPropertyAccessor
         if ( !is_array($entity[$key]) && count($api) == 0 ) {
             return $entity[$key];
         }
-        
+
         if ( !is_array($entity[$key]) ) {
             $r = $this->getAPIValue($entity[$key], $api);
         }
@@ -98,10 +100,10 @@ class ocPropertyAccessor
                 $r[$k] = $this->getAPIValue($v, $api);
             }
         }
-        
+
         return $r;
     }
-    
+
     protected function setAPIValue(&$entity, $api, $value, $type = [], $bool = true)
     {
         // init
@@ -130,7 +132,7 @@ class ocPropertyAccessor
 
         return $this;
     }
-    
+
     /**
      * Get back a value in a Doctrine_Record related to a description of a path
      *
@@ -168,7 +170,7 @@ class ocPropertyAccessor
         // Doctrine_Record
         return $this->getRecordValue($record->$key, $db);
     }
-    
+
     /**
      * Set a value in a Doctrine_Record related to a description of a path
      *
@@ -181,15 +183,15 @@ class ocPropertyAccessor
     {
         // init
         $db = is_array($db) ? $db : explode('.', $db);
-        
+
         // get out of here
         if ( !$db ) {
             $record = $value;
             return $this;
         }
-        
+
         $key = array_shift($db);
-        
+
         // Doctrine_Collection
         if ( $record->$key instanceof Doctrine_Collection ) {
             foreach ( $value as $k => $v ) {
@@ -197,7 +199,7 @@ class ocPropertyAccessor
             }
             return $this;
         }
-        
+
         // Doctrine_Record
         if ( $record->$key instanceof Doctrine_Record ) {
             return $this->setRecordValue($record->$key, $db, $value);
@@ -208,7 +210,7 @@ class ocPropertyAccessor
             return $this;
         }
     }
-    
+
     private function reverseEquiv(array $equiv)
     {
         $r = [];
@@ -217,7 +219,7 @@ class ocPropertyAccessor
         }
         return $r;
     }
-    
+
     private function isArray($data)
     {
         return $data instanceof ArrayAccess || is_array($data);
