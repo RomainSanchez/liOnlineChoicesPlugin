@@ -77,8 +77,7 @@ class ocApiCartItemsActions extends apiActions
             return $this->createBadRequestResponse(['error' => $exc->getMessage()]);
         }
 
-        $result = $cartsService->findOneById($cart_id);
-        return $this->createJsonResponse($result);
+        return $this->createJsonResponse($cartItem);
     }
 
     /**
