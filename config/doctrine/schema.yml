@@ -20,10 +20,6 @@ OcTicket:
       type: enum
       values: [none, human, algorithm]
       default: none
-    checkout_state:
-      type: enum
-      values: [new, fulfilled, cancelled]
-      default: new
   relations:
     OcTransaction:
       onDelete: CASCADE
@@ -45,6 +41,10 @@ OcTransaction:
     oc_professional_id: integer
     transaction_id: integer
     oc_token_id: integer
+    checkout_state:
+      type: enum
+      values: [new, fulfilled, cancelled]
+      default: new
   relations:
     OcProfessional:
       onDelete: SET NULL

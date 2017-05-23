@@ -21,7 +21,7 @@ class ApiCartsService extends ApiEntityService
         'customer'      => ['type' => 'null', 'value' => 'null'],
         'currencyCode'  => ['type' => 'null', 'value' => 'null'],
         'localeCode'    => ['type' => 'null', 'value' => 'null'],
-        'checkoutState' => ['type' => 'null', 'value' => 'null'],
+        'checkoutState' => ['type' => 'single', 'value' => 'checkout_state'],
     ];
 
     /**
