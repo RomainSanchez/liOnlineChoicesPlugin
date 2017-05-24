@@ -20,7 +20,7 @@ generator:
         ends_after:
           type: date
       list:
-        display: [starts_at, ends_at]
+        display: [name, starts_at, ends_at]
         actions:
             _new: ~
             _refresh:
@@ -31,8 +31,8 @@ generator:
           _edit: ~
           _delete: ~
       filter:
-        display: [starts_before, ends_after]
+        display: [name, starts_before, ends_after]
       form:
-        display: [starts_at, ends_at]
+        display: [name, starts_at, ends_at]
       edit: ~
       new: ~
