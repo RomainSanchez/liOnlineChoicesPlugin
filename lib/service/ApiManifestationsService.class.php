@@ -22,9 +22,14 @@ class ApiManifestationsService extends ApiEntityService
         'id'                => ['type' => 'single', 'value' => 'id'],
         'startsAt'          => ['type' => 'single', 'value' => 'happens_at'],
         'endsAt'            => ['type' => 'single', 'value' => 'ends_at'],
-        'event_id'          => ['type' => 'single', 'value' => 'Event.id'],
-        'event'             => ['type' => 'collection', 'value' => 'Event.Translation'],
-        'metaEvent'         => ['type' => 'collection', 'value' => 'Event.MetaEvent.Translation'],
+        'event.id'              => ['type' => 'single', 'value' => 'Event.id'],
+        'event.metaEvent'       => ['type' => 'sub-record', 'value' => null],
+        'event.metaEvent.id'    => ['type' => 'single', 'value' => 'Event.MetaEvent.id'],
+        'event.metaEvent.translations' => ['type' => 'collection', 'value' => 'Event.MetaEvent.Translation'],
+        'event.category'        => ['type' => 'single', 'value' => 'Event.EventCategory.name'],
+        'event.translations'    => ['type' => 'collection', 'value' => 'Event.Translation'],
+        'event.imageId'         => ['type' => 'single', 'value' => 'Event.picture_id'],
+        'event.imageURL'        => ['type' => null, 'value' => null],
         'location'          => ['type' => 'sub-record', 'value' => null],
         'location.id'       => ['type' => 'single', 'value' => 'Location.id'],
         'location.name'     => ['type' => 'single', 'value' => 'Location.name'],
@@ -101,10 +106,11 @@ class ApiManifestationsService extends ApiEntityService
 
     protected function postFormatEntity(array $entity, Doctrine_Record $manif)
     {
-        // timestamps
-        $this->translationService->reformat($entity);
-        $this->translationService->reformat($entity['metaEvent']);
-        $this->translationService->reformat($entity['event']);
+        // translations & timestamps
+        $this->translationService
+            ->reformat($entity['event']['translations'])
+            ->reformat($entity['event']['metaEvent']['translations'])
+            ->reformat($entity);
         foreach ( $entity['timeSlots'] as &$timeSlot ) {
             $this->translationService->reformat($timeSlot);
         }
@@ -139,6 +145,12 @@ class ApiManifestationsService extends ApiEntityService
                 }
                 $entity['gauges'][$id]['prices'][] = $price;
             }
+        }
+
+        // imageURL
+        if ( $entity['event']['imageId'] ) {
+            sfContext::getInstance()->getConfiguration()->loadHelpers(array('Url'));
+            $entity['event']['imageURL'] = url_for('@oc_api_picture?id='.$entity['event']['imageId']);
         }
 
         return $entity;
