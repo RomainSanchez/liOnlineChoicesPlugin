@@ -14,19 +14,20 @@ class ApiCartItemsService extends ApiEntityService
 {
 
      protected static $FIELD_MAPPING = [
-        'id' => ['type' => 'single', 'value' => 'id'],
-        'type' => ['type' => 'null', 'value' => 'null'],
-        'quantity' => ['type' => 'null', 'value' => 'null'],
-        'declination' => ['type' => 'null', 'value' => 'null'],
-        'totalAmount' => ['type' => 'null', 'value' => 'null'],
-        'unitPrice' => ['type' => 'single', 'value' => 'Price.value'],
-        'total' => ['type' => 'null', 'value' => 'null'],
-        'vat' => ['type' => 'null', 'value' => 'null'],
-        'units' => ['type' => 'null', 'value' => 'null'],
-        'unitsTotal' => ['type' => 'null', 'value' => 'null'],
-        'adjustments' => ['type' => 'null', 'value' => 'null'],
+        'id'               => ['type' => 'single', 'value' => 'id'],
+        'type'             => ['type' => 'null', 'value' => 'null'],
+        'quantity'         => ['type' => 'null', 'value' => 'null'],
+        'declination'      => ['type' => 'null', 'value' => 'null'],
+        'totalAmount'      => ['type' => 'null', 'value' => 'null'],
+        'unitPrice'        => ['type' => 'single', 'value' => 'Price.value'],
+        'total'            => ['type' => 'null', 'value' => 'null'],
+        'vat'              => ['type' => 'null', 'value' => 'null'],
+        'units'            => ['type' => 'null', 'value' => 'null'],
+        'unitsTotal'       => ['type' => 'null', 'value' => 'null'],
+        'adjustments'      => ['type' => 'null', 'value' => 'null'],
         'adjustmentsTotal' => ['type' => 'null', 'value' => 'null'],
-        'rank' => ['type' => 'single', 'value' => 'rank'],
+        'rank'             => ['type' => 'single', 'value' => 'rank'],
+        'state'            => ['type' => 'single', 'value' => 'accepted'],
      ];
 
     /**
