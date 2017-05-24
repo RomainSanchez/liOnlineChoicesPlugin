@@ -35,11 +35,24 @@ class ApiCartItemsService extends ApiEntityService
     protected $oauth;
 
     /**
+     * @var ApiManifestationsService
+     */
+    protected $manifestationsService;
+
+    /**
      * @param ApiOAuthService $service
      */
     public function setOAuthService(ApiOAuthService $service)
     {
         $this->oauth = $service;
+    }
+
+    /**
+     * @param ApiManifestationsService $service
+     */
+    public function setManifestationsService(ApiManifestationsService $service)
+    {
+        $this->manifestationsService = $service;
     }
 
     /**
@@ -166,8 +179,16 @@ class ApiCartItemsService extends ApiEntityService
      */
     public function checkGaugeAndPriceAccess($gaugeId, $priceId)
     {
-        // TODO
-        return true;
+        $count = $this->manifestationsService->buildQuery([])
+            ->andWhere('g.id = ?', $gaugeId)
+            ->andWhere('(FALSE')
+            ->orWhere('pmp.id = ?', $priceId)
+            ->orWhere('pgp.id = ?', $priceId)
+            ->orWhere('FALSE)')
+            ->count()
+        ;
+
+        return $count > 0;
     }
 
     /**

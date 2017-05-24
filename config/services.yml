@@ -32,6 +32,7 @@ all:
           class: ApiCartItemsService
           calls:
             - ['setOAuthService', ['@api_oauth_service']]
+            - ['setManifestationsService', ['@api_manifestations_service']]
       api_carts_service:
           class: ApiCartsService
           calls:
