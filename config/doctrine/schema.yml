@@ -58,7 +58,7 @@ OcTransaction:
       onDelete: SET NULL
       onUpdate: SET NULL
       foreignAlias: OcTransaction
-      type: one
+      foreignType: one
 OcProfessional:
   inheritance:
     extends: Traceable
