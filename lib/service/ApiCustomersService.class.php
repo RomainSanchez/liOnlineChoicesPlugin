@@ -133,7 +133,6 @@ class ApiCustomersService extends ApiEntityService
         }
 
         $transaction = new OcTransaction;
-        $transaction->
         $this->getOAuthService()->getToken()->OcTransaction[0] = $transaction;
         $transaction->oc_professional_id = NULL;
         $transaction->save();
