@@ -1,6 +1,6 @@
 # config/services.yml
 dev:
-  parameters:
+    parameters:
 
 all:
     parameters:
@@ -41,3 +41,5 @@ all:
                 - ['setCustomersService', ['@api_customers_service']]
         oc_configuration_service:
             class: OcConfigurationService
+        oc_decision_helper:
+            class: ocDecisionHelper
