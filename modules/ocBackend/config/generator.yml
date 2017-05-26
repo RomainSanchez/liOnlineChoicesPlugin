@@ -10,7 +10,8 @@ generator:
     route_prefix:          oc_backend
     with_doctrine_route:   true
     actions_base_class:    sfActions
-
+    i18n_catalogue:        li_oc
+    
     config:
       actions: ~
       fields:  ~
