@@ -62,6 +62,7 @@ class ocApiCartItemsActions extends apiActions
     public function create(sfWebRequest $request)
     {
         $cart_id = $request->getParameter('id', 0);
+        $declination_id = $request->getParameter('declinationId', 0);
 
         /* @var $cartsService ApiCartsService */
         $cartsService = $this->getService('api_carts_service');
@@ -71,6 +72,9 @@ class ocApiCartItemsActions extends apiActions
 
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('api_cartitems_service');
+        if (!$cartItemsService->isCartItemCreatable($cart_id, $declination_id)) {
+            return $this->createBadRequestResponse(['error' => "Time slot frozen"]);
+        }
         try {
             $cartItem = $cartItemsService->create($cart_id, $request->getParameter('application/json'));
         } catch (liOnlineSaleException $exc) {
@@ -101,6 +105,9 @@ class ocApiCartItemsActions extends apiActions
 
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('api_cartitems_service');
+        if (!$cartItemsService->isCartItemEditable($cart_id, $item_id)) {
+            return $this->createBadRequestResponse(['error' => "Cart item not found or not editable (id=$item_id)"]);
+        }
         $isSuccess = $cartItemsService->updateCartItem($cart_id, $item_id, $request->getParameter('application/json'));
 
         if (!$isSuccess) {
@@ -136,6 +143,9 @@ class ocApiCartItemsActions extends apiActions
 
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('api_cartitems_service');
+        if (!$cartItemsService->isCartItemEditable($cart_id, $item_id)) {
+            return $this->createBadRequestResponse(['error' => "Cart item not found or not editable (id=$item_id)"]);
+        }
         $isSuccess = $cartItemsService->deleteCartItem($cart_id, $item_id);
         if (!$isSuccess) {
             $status = ApiHttpStatus::BAD_REQUEST;

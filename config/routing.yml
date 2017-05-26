@@ -277,9 +277,9 @@ oc_api_carts_items_resource_delete:
 # CHECKOUTS
 #
 oc_api_checkouts:
-    url: /api/v2/checkouts/:cart_id
+    url: /api/v2/checkouts/:id
     class: sfRequestRoute
-    param: { module: ocApiCheckouts, action: resource }
+    param: { module: ocApiCarts, action: resource }
     options:
         credentials: tck-onlinechoices-api-checkout
     requirements:
@@ -319,7 +319,7 @@ oc_api_checkouts_payments_select:
 oc_api_checkouts_complete:
     url: /api/v2/checkouts/complete/:cart_id
     class: sfRequestRoute
-    param: { module: ocApiCheckouts, action: complete }
+    param: { module: ocApiCarts, action: complete }
     options:
         credentials: tck-onlinechoices-api-checkouts-complete
     requirements:

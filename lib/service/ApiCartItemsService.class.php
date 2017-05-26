@@ -203,15 +203,8 @@ class ApiCartItemsService extends ApiEntityService
     {
         // Check existence and access
         $item = $this->findOne($cartId, $itemId);
-        if (count($item) == 0) {
-            return false;
-        }
 
-        // Validate data
-        if (!is_array($data)) {
-            return false;
-        }
-        if (isset($data['quantity']) && (int)$data['quantity'] <= 0) {
+        if (count($item) == 0) {
             return false;
         }
 
@@ -224,7 +217,7 @@ class ApiCartItemsService extends ApiEntityService
             case 'pass':
                 // TODO: update other kind of cart items (not ticket)
                 // TODO ... $success = $this->updatePassCartItem($itemId, $data);
-                $success = true;
+                $success = false;
                 break;
             default:
                 $success = false;
@@ -240,14 +233,31 @@ class ApiCartItemsService extends ApiEntityService
      */
     private function updateTicketCartItem($itemId, $data)
     {
+        // Validate data
+        if (!is_array($data)) {
+            return false;
+        }
+
+        $cartItem = Doctrine::getTable('OcTicket')->find($itemId);
+        if (!$cartItem) {
+            return false;
+        }
+
         if (isset($data['rank'])) {
-            $cartItem = Doctrine::getTable('OcTicket')->find($itemId);
-            if (!$cartItem) {
+            if ( (int)$data['rank'] <= 0 ) {
                 return false;
             }
             $cartItem->rank = (int)$data['rank'];
-            $cartItem->save();
         }
+
+        if (isset($data['quantity'])) {
+            if ( (int)$data['quantity'] <= 0 ) {
+                return false;
+            }
+            //$cartItem->quantity = 1;  // It is always 1 for ticket
+        }
+
+        $cartItem->save();
         return true;
     }
 
@@ -298,6 +308,89 @@ class ApiCartItemsService extends ApiEntityService
         }
 
         return $item->delete();
+    }
+
+
+    /**
+     * @param int $cartId
+     * @param int $itemId
+     * @return boolean
+     */
+    public function isCartItemEditable($cartId, $itemId)
+    {
+        // Check existence and access
+        $item = $this->findOne($cartId, $itemId);
+        if (count($item) == 0) {
+            return false;
+        }
+
+        // Find time slot used by the cart item
+        $timeSlotId = $this->getTimeSlotId($item['declination']['id']);
+        if (!$timeSlotId) {
+            return false;
+        }
+
+        return !$this->isTimeSlotFrozen($cartId, $timeSlotId);
+    }
+
+    /**
+     * @param int $cartId
+     * @param int $declinationId
+     * @return boolean
+     */
+    public function isCartItemCreatable($cartId, $declinationId)
+    {
+
+        // Find time slot
+        $timeSlotId = $this->getTimeSlotId($declinationId);
+        if (!$timeSlotId) {
+            return false;
+        }
+
+        return !$this->isTimeSlotFrozen($cartId, $timeSlotId);
+    }
+
+    /**
+     * @param int $cartId
+     * @param int $timeSlotId
+     * @return boolean
+     */
+    protected function isTimeSlotFrozen($cartId, $timeSlotId)
+    {
+        // Find out if there are some cart items with accepted <> "none" for the same cart and time slot
+        $q = Doctrine::getTable('ocTicket')->createQuery('tic', true)
+            ->leftJoin('tic.Gauge gau')
+            ->leftJoin('gau.Manifestation man')
+            ->leftJoin('man.OcTimeSlotManifestations tsm')
+            ->andWhere('tic.accepted <> ?', 'none')
+            ->andWhere('tic.oc_transaction_id = ?', $cartId)
+            ->andWhere('tsm.oc_time_slot_id = ?', $timeSlotId)
+        ;
+        $items = $q->count();
+
+        return $items > 0;
+    }
+
+
+    /**
+     * @param int $declinationId
+     * @return int | false if not found
+     */
+    protected function getTimeSlotId($declinationId)
+    {
+        $q = Doctrine::getTable('ocTimeSlot')->createQuery('ts')
+            ->select('ts.id')
+            ->leftJoin('ts.OcTimeSlotManifestations tsm')
+            ->leftJoin('tsm.Manifestation man')
+            ->leftJoin('man.Gauges gau')
+            ->andWhere('gau.id = ?', $declinationId)
+        ;
+        $timeSlot = $q->fetchArray();
+        
+        if (!$timeSlot) {
+            return false;
+        }
+        return $timeSlot[0]['id'];
     }
 
 
