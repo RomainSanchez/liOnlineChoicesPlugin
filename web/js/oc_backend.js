@@ -3,7 +3,8 @@ if ( liOC === undefined )
 
 // init
 $(document).ready(function(){
-
+  
+  // the content
   liOC.loadHeaders($('.plan_day').attr('data-day'));
   
   $('.validate').click(function() {
@@ -42,6 +43,25 @@ $(document).ready(function(){
 });
 
 
+liOC.fixTableScroll = function() {
+  var table = $('.sf_admin_list table');
+  var thead = table.find('thead');
+  thead.find('td, th').each(function(){
+    $(this).width($(this).width());
+  });
+  var clone = $('<table></table>').append(thead.clone()).addClass('thead-clone');
+  clone.width(table.width());
+  thead.find('td, th').width('auto');
+  
+  $(window).scroll(function(e){
+    if ( $(thead).position().top-$(window).scrollTop()-$('#menu').position().top-$('#menu').height() < 0 ) {
+        clone.insertBefore(table);
+    }
+    console.error('pouet');
+  });
+}
+
+
 liOC.header_cell = '<th class="sf_admin_text sf_admin_list_th_id ui-state-default ui-th-column"></th>';
 liOC.link_day = '<a href="#" class="fg-button ui-widget ui-state-default ui-corner-all"></a>';
 liOC.choices = ['none', 'one', 'two', 'three'];
@@ -73,6 +93,7 @@ liOC.loadSnapshot = function(url) {
       $('.plan_body').html('');
       liOC.addPros(data);
       liOC.refreshGauges();
+      liOC.fixTableScroll();
       $('#transition .close').click();
     },
     error: function(data){
@@ -281,6 +302,7 @@ liOC.loadPros = function(length, date) {
     method: 'get',
     success: function(data){
       liOC.addPros(data);
+      liOC.fixTableScroll();
     },
     error: function(data){
       console.log(data);

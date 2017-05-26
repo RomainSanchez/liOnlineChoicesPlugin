@@ -73,3 +73,8 @@
 .one { background-color: #e91e63; }
 .two { background-color: #9c27b0; }
 .three { background-color: #3f51b5; }
+
+
+
+/* fixed thead */
+.thead-clone { position: fixed; top: 50px; }
