@@ -167,25 +167,17 @@ class ocBackendActions extends autoOcBackendActions
       ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
       ->leftJoin('m.Event e')
       
+      // filters tickets to keep only tickets linked to the current workspace
+      ->leftJoin('g.Workspace ws')
+      ->leftJoin('ws.OcConfigs oc WITH oc.sf_guard_user_id = ?', $this->getUser()->getId())
+      ->andWhere('g.id IS NULL OR oc.id IS NOT NULL')
+      
       // checks which contacts can be accessed by the user in the current context
       ->leftJoin('p.Groups grp')
       ->leftJoin('grp.Users gu')
       ->andWhere('? AND gu.id IS NULL OR gu.id = ?', [$this->getUser()->hasCredential('pr-group-common') || $this->getUser()->isSuperAdmin(), $this->getUser()->getId()])
       ->leftJoin('grp.OcConfigs conf')
       ->andWhere('conf.sf_guard_user_id = ?', $this->getUser()->getId())
-      
-      // checks whether or not the user can access the targetted workspaces & meta events
-      ->andWhereIn('e.meta_event_id', array_keys($this->getUser()->getMetaEventsCredentials()))
-      ->andWhereIn('g.workspace_id', array_keys($this->getUser()->getWorkspacesCredentials()))
-      
-      // checks whether or not the user can access at least one price in this context
-      ->leftJoin('g.Workspace ws')
-      ->leftJoin('ws.Prices pr')
-      ->leftJoin('pr.Users pu')
-      ->leftJoin('pr.PriceManifestations pm WITH pm.manifestation_id = m.id')
-      ->leftJoin('pr.PriceGauges pg WITH pg.gauge_id = g.id')
-      ->andWhere('pu.id = ?', $this->getUser()->getId())
-      ->andWhere('pg.id IS NOT NULL OR pm.id IS NOT NULL')
       
       ->orderBy('op.rank, c.name, c.firstname')
     ;
