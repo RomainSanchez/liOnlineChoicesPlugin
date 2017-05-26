@@ -196,6 +196,7 @@ class ocBackendActions extends autoOcBackendActions
       $pro = array();
       
       $pro['id'] = $ocPro['id'];
+      $pro['rank'] = $ocPro['rank'];
       $pro['name'] = $ocPro['Professional']['Contact']['firstname'].' '.$ocPro['Professional']['Contact']['name'];
       $pro['manifestations'] = array();
       
