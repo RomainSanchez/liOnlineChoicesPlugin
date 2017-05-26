@@ -39,5 +39,7 @@ all:
             - ['setOAuthService', ['@api_oauth_service']]
             - ['setCartItemsService', ['@api_cartitems_service']]
             - ['setCustomersService', ['@api_customers_service']]
+      oc_decision_helper:
+          class: ocDecisionHelper
 
 
