@@ -77,4 +77,4 @@
 
 
 /* fixed thead */
-.thead-clone { position: fixed; top: 50px; }
+.thead-clone { position: fixed; top: 50px; z-index: 10; }

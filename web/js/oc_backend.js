@@ -8,7 +8,7 @@ $(document).ready(function(){
   liOC.loadHeaders($('.plan_day').attr('data-day'));
   
   $('.validate').click(function() {
-    liOC.validate();
+    validate();
   });
   
   $('.save_popup').click(function() {
@@ -45,6 +45,15 @@ $(document).ready(function(){
 
 liOC.fixTableScroll = function() {
   var table = $('.sf_admin_list table');
+  
+  // horizontal
+  $('<table></table>')
+    .apppend('<thead><thead>')
+    .apppend('<tbody><tbody>')
+  ;
+  // TODO
+  
+  // vertical
   var thead = table.find('thead');
   thead.find('td, th').each(function(){
     $(this).width($(this).width());
@@ -54,9 +63,14 @@ liOC.fixTableScroll = function() {
   thead.find('td, th').width('auto');
   
   $(window).scroll(function(e){
-    if ( $(thead).position().top-$(window).scrollTop()-$('#menu').position().top-$('#menu').height() < 0 ) {
+    if ( thead.position().top-$(window).scrollTop()-$('#menu').position().top-$('#menu').height() < 0 ) {
         clone.insertBefore(table);
     }
+    else {
+        clone.remove();
+    }
+    
+    clone.css('margin-left', -$(window).scrollLeft());
     console.error('pouet');
   });
 }
@@ -110,14 +124,9 @@ liOC.saveSnapshot = function(type = 'save') {
     contact.id = $(this).find('td:first-child').attr('data-id');
     contact.name = $(this).find('td:first-child').text();
     contact.manifestations = [];
-
     $(this).find('td').filter('.none, .algo, .human').each(function() {
       var manifestation = new Object();
       manifestation.id = $('.plan_events th').eq($(this).index()-1).attr('data-id');
-      manifestation.time_slot_id = $('.plan_hours th').eq($(this).index()-1).attr('data-grp-id');
-      var current = $('.plan_gauges th').eq($(this).index()).find('.gauge').attr('data-part');
-      var max = $('.plan_gauges th').eq($(this).index()).find('.gauge').attr('data-max');
-      manifestation.gauge_free = max - current;
       manifestation.rank = $(this).text();
       var accepted = $(this).attr('class').match(/none|algo|human/g);
       if ( accepted.length > 0 )
@@ -218,7 +227,6 @@ liOC.loadHours = function(data) {
       $('<span></span>').appendTo(header_events).text(event.name);
       
       var header_gauges = $(liOC.header_cell)
-        .attr('data-id', event.gauge.id)
         .appendTo('.plan_gauges'); 
       $('.raw').clone()
         .removeClass('raw')
@@ -242,7 +250,7 @@ liOC.addPros = function(data) {
       row_pro.addClass('odd');
     }
     
-    $('<td nowrap></td>')
+    $('<th nowrap></th>')
       .attr('data-id', pro.id)
       .appendTo(row_pro).text(pro.name);
 
