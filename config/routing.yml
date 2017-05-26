@@ -164,9 +164,9 @@ oc_api_carts_items_resource:
 # CHECKOUTS
 #
 oc_api_checkouts:
-    url: /api/v2/checkouts/:cart_id
+    url: /api/v2/checkouts/:id
     class: sfRequestRoute
-    param: { module: ocApiCheckouts, action: resource }
+    param: { module: ocApiCarts, action: resource }
     requirements:
         cart_id: \d+
         sf_method: [GET]
