@@ -238,7 +238,7 @@ class ocPropertyAccessor
     }
     private function raiseException($message, $line = 'unknown', $file = __FILE__)
     {
-        throw new liEvenementException(str_replace(['%%line%%', '%%file%%'], [$line, $file], $message));
+        throw new ocException(str_replace(['%%line%%', '%%file%%'], [$line, $file], $message));
     }
 }
 

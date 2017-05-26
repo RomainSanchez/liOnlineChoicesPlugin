@@ -125,7 +125,7 @@ class ApiOAuthService extends EvenementService
 
         $token = $q->fetchOne();
         if ( !$token instanceof OcToken ) {
-            throw new liOnlineSaleException('Refresh token not found.');
+            throw new ocAuthException('Refresh token not found.');
         }
         $token->token = $this->generateToken();
         $token->refresh_token = $this->generateToken();

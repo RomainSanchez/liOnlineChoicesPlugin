@@ -227,7 +227,7 @@ abstract class ApiEntityService extends EvenementService implements ApiEntitySer
     private function getDoctrineFlatData($data)
     {
         if (!$data instanceof Doctrine_Collection && !$data instanceof Doctrine_Record)
-            throw new liOnlineSaleException('Doctrine_Collection or Doctrine_Record expected, ' . get_class($data) . ' given on line '.__LINE__.' of '.__FILE__.'.');
+            throw new ocException('Doctrine_Collection or Doctrine_Record expected, ' . get_class($data) . ' given on line '.__LINE__.' of '.__FILE__.'.');
 
         $fct = function(Doctrine_Record $rec) {
 

@@ -51,6 +51,16 @@ class ocExceptionCatcherFilter
                     'code'=> ApiHttpStatus::SERVICE_UNAVAILABLE ,
                     'message' => $e->getMessage()
                 ], JSON_PRETTY_PRINT));
+        } catch ( Exception $e ) {
+        
+            OcLogger::log($e->getMessage());
+            $r = $this->getResponse();
+            $r->setStatusCode(ApiHttpStatus::INTERNAL_SERVER_ERROR);
+        
+            $r->setContent(json_encode([
+                    'code'=> ApiHttpStatus::INTERNAL_SERVER_ERROR ,
+                    'message' => $e->getMessage()
+                ], JSON_PRETTY_PRINT));
         }
     }
 
