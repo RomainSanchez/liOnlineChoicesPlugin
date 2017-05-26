@@ -17,12 +17,16 @@ oc_api_login:
     url: /api/v2/login
     class: sfRequestRoute
     param: { module: ocApiCustomers, action: login }
+    options:
+        credentials: tck-onlinechoices-api-login
     requirements:
         sf_method: [GET, POST]
 oc_api_logout:
     url: /api/v2/logout
     class: sfRequestRoute
     param: { module: ocApiCustomers, action: logout }
+    options:
+        credentials: tck-onlinechoices-api-logout
     requirements:
         sf_method: [GET, POST]
 
@@ -33,6 +37,8 @@ oc_api_picture:
     url: /api/v2/picture/:id
     class: sfRequestRoute
     param: { module: ocPicture, action: display }
+    options:
+        credentials: tck-onlinechoices-api-picture
     requirements:
         id: \d+
         sf_method: [GET]
@@ -40,20 +46,50 @@ oc_api_picture:
 #
 # CUSTOMER
 #
-oc_api_customers:
+oc_api_customers_list:
     url: /api/v2/customers
     class: sfRequestRoute
     param: { module: ocApiCustomers, action: index }
+    options:
+        credentials: tck-onlinechoices-api-customers
     requirements:
-        sf_method: [GET, POST]
+        sf_method: [GET]
+oc_api_customers_create:
+    url: /api/v2/customers
+    class: sfRequestRoute
+    param: { module: ocApiCustomers, action: index }
+    options:
+        credentials: tck-onlinechoices-api-customers-new
+    requirements:
+        sf_method: [POST]
 
 oc_api_customers_resource:
     url: /api/v2/customers/:id
     class: sfRequestRoute
     param: { module: ocApiCustomers, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-customers-show
     requirements:
         id: \d+
-        sf_method: [GET, POST, DELETE]
+        sf_method: [GET]
+oc_api_customers_resource_edit:
+    url: /api/v2/customers/:id
+    class: sfRequestRoute
+    param: { module: ocApiCustomers, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-customers-edit
+    requirements:
+        id: \d+
+        sf_method: [POST]
+oc_api_customers_resource_delete:
+    url: /api/v2/customers/:id
+    class: sfRequestRoute
+    param: { module: ocApiCustomers, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-customers-del
+    requirements:
+        id: \d+
+        sf_method: [DELETE]
 
 #
 # CUSTOMER ORDER
@@ -62,6 +98,8 @@ oc_api_customers_orders:
     url: /api/v2/customers/:id/orders
     class: sfRequestRoute
     param: { module: ocApiCustomerOrders, action: index }
+    options:
+        credentials: tck-onlinechoices-api-orders
     requirements:
         id: \d+
         sf_method: [GET]
@@ -70,6 +108,8 @@ oc_api_customers_orders_resource:
     url: /api/v2/customers/:id/orders/:order_id
     class: sfRequestRoute
     param: { module: ocApiCustomerOrders, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-orders-show
     requirements:
         id: \d+
         order_id: \d+
@@ -83,6 +123,8 @@ oc_api_manifestations:
     url: /api/v2/manifestations
     class: sfRequestRoute
     param: { module: ocApiManifestations, action: index }
+    options:
+        credentials: tck-onlinechoices-api-manifestations
     requirements:
         sf_method: [GET]
 
@@ -90,6 +132,8 @@ oc_api_manifestations_resource:
     url: /api/v2/manifestations/:id
     class: sfRequestRoute
     param: { module: ocApiManifestations, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-manifestations-show
     requirements:
         id: \d+
         sf_method: [GET]
@@ -102,6 +146,8 @@ oc_api_orders:
     url: /api/v2/orders
     class: sfRequestRoute
     param: { module: ocApiOrders, action: index }
+    options:
+        credentials: tck-onlinechoices-api-orders
     requirements:
         sf_method: [GET]
 
@@ -109,6 +155,8 @@ oc_api_orders_resource:
     url: /api/v2/orders/:id
     class: sfRequestRoute
     param: { module: ocApiOrders, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-orders-show
     requirements:
         id: \d+
         sf_method: [GET]
@@ -117,6 +165,8 @@ oc_api_orders_action:
     url: /api/v2/orders/:do_action/:id
     class: sfRequestRoute
     param: { module: ocApiOrders, action: action }
+    options:
+        credentials: tck-onlinechoices-api-orders-action
     requirements:
         id: \d+
         do_action: ship|cancel|complete
@@ -125,40 +175,103 @@ oc_api_orders_action:
 #
 # CARTS
 #
-oc_api_carts:
+oc_api_carts_list:
     url: /api/v2/carts
     class: sfRequestRoute
     param: { module: ocApiCarts, action: index }
+    options:
+        credentials: tck-onlinechoices-api-carts
     requirements:
-        sf_method: [GET, POST]
+        sf_method: [GET]
+oc_api_carts_create:
+    url: /api/v2/carts
+    class: sfRequestRoute
+    param: { module: ocApiCarts, action: index }
+    options:
+        credentials: tck-onlinechoices-api-carts-create
+    requirements:
+        sf_method: [POST]
 
 oc_api_carts_resource:
     url: /api/v2/carts/:id
     class: sfRequestRoute
     param: { module: ocApiCarts, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-carts-show
     requirements:
         id: \d+
-        sf_method: [GET, POST, DELETE]
+        sf_method: [GET]
+oc_api_carts_resource_edit:
+    url: /api/v2/carts/:id
+    class: sfRequestRoute
+    param: { module: ocApiCarts, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-carts-edit
+    requirements:
+        id: \d+
+        sf_method: [POST]
+oc_api_carts_resource_delete:
+    url: /api/v2/carts/:id
+    class: sfRequestRoute
+    param: { module: ocApiCarts, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-carts-delete
+    requirements:
+        id: \d+
+        sf_method: [DELETE]
 
 #
 # CART ITEMS
 #
-oc_api_carts_items:
+oc_api_carts_items_list:
     url: /api/v2/carts/:id/items
     class: sfRequestRoute
     param: { module: ocApiCartItems, action: index }
+    options:
+        credentials: tck-onlinechoices-api-cart-items
     requirements:
         id: \d+
-        sf_method: [GET, POST]
+        sf_method: [GET]
+oc_api_carts_items_create:
+    url: /api/v2/carts/:id/items
+    class: sfRequestRoute
+    param: { module: ocApiCartItems, action: index }
+    options:
+        credentials: tck-onlinechoices-api-cart-items-create
+    requirements:
+        id: \d+
+        sf_method: [POST]
 
 oc_api_carts_items_resource:
     url: /api/v2/carts/:id/items/:item_id
     class: sfRequestRoute
     param: { module: ocApiCartItems, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-cart-items-show
     requirements:
         id: \d+
         item_id: \d+
-        sf_method: [GET,POST,DELETE]
+        sf_method: [GET]
+oc_api_carts_items_resource_edit:
+    url: /api/v2/carts/:id/items/:item_id
+    class: sfRequestRoute
+    param: { module: ocApiCartItems, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-cart-items-edit
+    requirements:
+        id: \d+
+        item_id: \d+
+        sf_method: [POST]
+oc_api_carts_items_resource_delete:
+    url: /api/v2/carts/:id/items/:item_id
+    class: sfRequestRoute
+    param: { module: ocApiCartItems, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-cart-items-delete
+    requirements:
+        id: \d+
+        item_id: \d+
+        sf_method: [DELETE]
 
 #
 # CHECKOUTS
@@ -167,6 +280,8 @@ oc_api_checkouts:
     url: /api/v2/checkouts/:id
     class: sfRequestRoute
     param: { module: ocApiCarts, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-checkout
     requirements:
         cart_id: \d+
         sf_method: [GET]
@@ -175,6 +290,8 @@ oc_api_checkouts_addressing:
     url: /api/v2/checkouts/addressing/:cart_id
     class: sfRequestRoute
     param: { module: ocApiCheckouts, action: addressing }
+    options:
+        credentials: tck-onlinechoices-api-checkouts-addressing
     requirements:
         cart_id: \d+
         sf_method: [POST]
@@ -183,6 +300,8 @@ oc_api_checkouts_payments:
     url: /api/v2/checkouts/select-payment/:cart_id
     class: sfRequestRoute
     param: { module: ocApiCheckouts, action: payments }
+    options:
+        credentials: tck-onlinechoices-api-checkouts-payment
     requirements:
         cart_id: \d+
         sf_method: [GET]
@@ -191,6 +310,8 @@ oc_api_checkouts_payments_select:
     url: /api/v2/checkouts/select-payment/:cart_id
     class: sfRequestRoute
     param: { module: ocApiCheckouts, action: selectPayments }
+    options:
+        credentials: tck-onlinechoices-api-checkouts-payment-create
     requirements:
         cart_id: \d+
         sf_method: [POST]
@@ -199,6 +320,8 @@ oc_api_checkouts_complete:
     url: /api/v2/checkouts/complete/:cart_id
     class: sfRequestRoute
     param: { module: ocApiCarts, action: complete }
+    options:
+        credentials: tck-onlinechoices-api-checkouts-complete
     requirements:
         cart_id: \d+
         sf_method: [POST]
@@ -211,6 +334,8 @@ oc_api_events:
     url: /api/v2/events
     class: sfRequestRoute
     param: { module: ocApiEvents, action: index }
+    options:
+        credentials: tck-onlinechoices-api-events
     requirements:
         sf_method: [GET, POST]
 
@@ -218,6 +343,8 @@ oc_api_events_resource:
     url: /api/v2/events/:id
     class: sfRequestRoute
     param: { module: ocApiEvents, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-events-show
     requirements:
         id: \d+
         sf_method: [GET]
@@ -230,6 +357,8 @@ oc_api_payments:
     url: /api/v2/payments
     class: sfRequestRoute
     param: { module: ocApiPayments, action: index }
+    options:
+        credentials: tck-onlinechoices-api-payments
     requirements:
         sf_method: [GET]
 
@@ -237,6 +366,8 @@ oc_api_payments_resource:
     url: /api/v2/payments/:id
     class: sfRequestRoute
     param: { module: ocApiPayments, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-payments-show
     requirements:
         id: \d+
         sf_method: [GET]
@@ -248,6 +379,8 @@ oc_api_prices:
     url: /api/v2/prices
     class: sfRequestRoute
     param: { module: ocApiPrices, action: index }
+    options:
+        credentials: tck-onlinechoices-api-prices
     requirements:
         sf_method: [GET]
 
@@ -258,6 +391,8 @@ oc_api_products:
     url: /api/v2/products
     class: sfRequestRoute
     param: { module: ocApiProducts, action: index }
+    options:
+        credentials: tck-onlinechoices-api-products
     requirements:
         sf_method: [GET]
 
@@ -265,6 +400,8 @@ oc_api_products_resource:
     url: /api/v2/products/:id
     class: sfRequestRoute
     param: { module: ocApiProducts, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-products-show
     requirements:
         id: \d+
         sf_method: [GET]
@@ -277,17 +414,21 @@ oc_api_product_categories:
     url: /api/v2/productcategories
     class: sfRequestRoute
     param: { module: ocApiProductCategories, action: index }
+    options:
+        credentials: tck-onlinechoices-api-product-categories
     requirements:
         sf_method: [GET]
 
 
 #
-# PRODUCTS
+# PROMOTIONS
 #
 oc_api_promotions:
     url: /api/v2/promotions
     class: sfRequestRoute
     param: { module: ocApiPromotions, action: index }
+    options:
+        credentials: tck-onlinechoices-api-promotions
     requirements:
         sf_method: [GET]
 
@@ -295,6 +436,8 @@ oc_api_promotions_resource:
     url: /api/v2/promotions/:id
     class: sfRequestRoute
     param: { module: ocApiPromotions, action: resource }
+    options:
+        credentials: tck-onlinechoices-api-promotions-show
     requirements:
         id: \d+
         sf_method: [GET]
@@ -375,11 +518,18 @@ oc_backend_pros:
     requirements:
         sf_method: [GET, POST]
 
-oc_backend_snapshot:
-    url: /oc_backend/snapshot
+oc_backend_save_snapshot:
+    url: /oc_backend/snapshot/save
     class: sfRequestRoute
-    param: { module: ocBackend, action: snapshot }
+    param: { module: ocBackend, action: saveSnapshot }
     requirements:
+        sf_method: [GET, POST]
+oc_backend_load_snapshot:
+    url: /oc_backend/snapshot/load/:id
+    class: sfRequestRoute
+    param: { module: ocBackend, action: loadSnapshot }
+    requirements:
+        id: \d+
         sf_method: [GET, POST]
 
 oc_snapshot:

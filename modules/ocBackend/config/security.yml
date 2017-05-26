@@ -1,0 +1,16 @@
+all:
+  is_secure: true
+
+index:
+  credentials: [tck-onlinechoices-data]
+pros:
+  credentials: [tck-onlinechoices-data]
+events:
+  credentials: [tck-onlinechoices-data]
+saveSnapshot:
+  credentials: [tck-onlinechoices-data-snapshot]
+loadSnapshot:
+  credentials: [tck-onlinechoices-data]
+
+autoPositioning:
+  credentials: [tck-onlinechoices-data-auto]

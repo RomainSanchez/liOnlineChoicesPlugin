@@ -14,8 +14,18 @@ sfGuardGroup:
     description: 'Ability to modify the state of online choices'
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
+  sfGuardGroup_4:
+    name: tck-onlinechoices-api
+    description: 'Ability to deal with online choices as an API provider'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
 
 sfGuardPermission:
+  sfGuardPermission_0:
+    name: tck-onlinechoices
+    description: 'Permission to access the plugin'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
   sfGuardPermission_1:
     name: tck-onlinechoices-app
     description: 'Permission to list authorized apps for online choices'
@@ -62,8 +72,8 @@ sfGuardPermission:
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardPermission_10:
-    name: tck-onlinechoices-data-accept
-    description: 'Permission to accept online choices'
+    name: tck-onlinechoices-data-mod
+    description: 'Permission to modify the state of online choices'
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardPermission_11:
@@ -81,8 +91,203 @@ sfGuardPermission:
     description: 'Permission to create and use snapshots with online choices'
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_14:
+    name: tck-onlinechoices-api-login
+    description: 'Permission to login as a customer'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_15:
+    name: tck-onlinechoices-api-logout
+    description: 'Permission to logout as a customer'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_16:
+    name: tck-onlinechoices-api-picture
+    description: 'Permission to get a picture'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_17:
+    name: tck-onlinechoices-api-customers
+    description: 'Permission to get the list of customers'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_18:
+    name: tck-onlinechoices-api-customers-show
+    description: 'Permission to get identified customers'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_19:
+    name: tck-onlinechoices-api-customers-edit
+    description: 'Permission to modify customers'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_20:
+    name: tck-onlinechoices-api-customers-new
+    description: 'Permission to create customers'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_21:
+    name: tck-onlinechoices-api-customers-del
+    description: 'Permission to delete customers'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_24:
+    name: tck-onlinechoices-api-manifestations
+    description: 'Permission to get the list of manifestations'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_25:
+    name: tck-onlinechoices-api-manifestations-show
+    description: 'Permission to get a given manifestation'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_26:
+    name: tck-onlinechoices-api-orders
+    description: 'Permission to get the list of orders'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_27:
+    name: tck-onlinechoices-api-orders-show
+    description: 'Permission to get a given order'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_28:
+    name: tck-onlinechoices-api-orders-action
+    description: 'Permission to modify the state of an order'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_29:
+    name: tck-onlinechoices-api-carts
+    description: 'Permission to get the list of carts'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_30:
+    name: tck-onlinechoices-api-carts-create
+    description: 'Permission to create a new cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_31:
+    name: tck-onlinechoices-api-carts-show
+    description: 'Permission to get a given cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_32:
+    name: tck-onlinechoices-api-carts-edit
+    description: 'Permission to modify a cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_33:
+    name: tck-onlinechoices-api-carts-delete
+    description: 'Permission to delete a cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_34:
+    name: tck-onlinechoices-api-cart-items
+    description: 'Permission to get the list of items from a given cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_35:
+    name: tck-onlinechoices-api-cart-items-create
+    description: 'Permission to create an item in a given cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_36:
+    name: tck-onlinechoices-api-cart-items-show
+    description: 'Permission to get a given item from a given cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_37:
+    name: tck-onlinechoices-api-cart-items-edit
+    description: 'Permission to modify an item from a given cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_38:
+    name: tck-onlinechoices-api-cart-items-delete
+    description: 'Permission to delete an item from a given cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_39:
+    name: tck-onlinechoices-api-checkouts
+    description: 'Permission to get the checkouts of a cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_40:
+    name: tck-onlinechoices-api-checkouts-addressing
+    description: 'Permission to give an address for a cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_41:
+    name: tck-onlinechoices-api-checkouts-payments
+    description: 'Permission to get the list of payments of a cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_42:
+    name: tck-onlinechoices-api-checkouts-payments-create
+    description: 'Permission to add a payment on a cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_43:
+    name: tck-onlinechoices-api-checkouts-complete
+    description: 'Permission to finish a checkout of a cart'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_44:
+    name: tck-onlinechoices-api-events
+    description: 'Permission to get the list of events'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_45:
+    name: tck-onlinechoices-api-events-show
+    description: 'Permission to get the details of a given event'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_47:
+    name: tck-onlinechoices-api-payments
+    description: 'Permission to get the list of payments'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_48:
+    name: tck-onlinechoices-api-payments-show
+    description: 'Permission to get the details of a payment'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_49:
+    name: tck-onlinechoices-api-prices
+    description: 'Permission to get the list of prices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_50:
+    name: tck-onlinechoices-api-products
+    description: 'Permission to get the list of products'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_51:
+    name: tck-onlinechoices-api-products-show
+    description: 'Permission to get the details of a product'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_52:
+    name: tck-onlinechoices-api-product-categories
+    description: 'Permission to get the list of product categories'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_53:
+    name: tck-onlinechoices-api-promotions
+    description: 'Permission to get the list of promotions'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_54:
+    name: tck-onlinechoices-api-promotions-show
+    description: 'Permission to get the details of a promotion'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
 
 sfGuardGroupPermission:
+  sfGuardGroupPermission_1_0:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_0
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
   sfGuardGroupPermission_1_1:
     Group: sfGuardGroup_1
     Permission: sfGuardPermission_1
@@ -123,9 +328,19 @@ sfGuardGroupPermission:
     Permission: sfGuardPermission_8
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_2_0:
+    Group: sfGuardGroup_2
+    Permission: sfGuardPermission_0
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
   sfGuardGroupPermission_2_9:
     Group: sfGuardGroup_2
     Permission: sfGuardPermission_9
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_0:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_0
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardGroupPermission_3_9:
@@ -156,5 +371,105 @@ sfGuardGroupPermission:
   sfGuardGroupPermission_3_13:
     Group: sfGuardGroup_3
     Permission: sfGuardPermission_13
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_14:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_14
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_15:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_15
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_16:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_16
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_17:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_17
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_18:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_18
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_19:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_19
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_24:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_24
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_25:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_25
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_29:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_29
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_30:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_30
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_31:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_31
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_34:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_34
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_35:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_35
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_36:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_36
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_37:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_37
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_38:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_38
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_39:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_39
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_43:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_43
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_44:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_44
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_4_45:
+    Group: sfGuardGroup_4
+    Permission: sfGuardPermission_45
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'

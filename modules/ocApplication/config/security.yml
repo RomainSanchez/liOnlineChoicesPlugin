@@ -1,4 +1,13 @@
 all:
   is_secure: true
 
-# TODO credentials
+index:
+  credentials: [tck-onlinechoices-app]
+edit:
+  credentials: [tck-onlinechoices-app-edit]
+new:
+  credentials: [tck-onlinechoices-app-new]
+delete:
+  credentials: [tck-onlinechoices-app-del]
+batchDelete:
+  credentials: [tck-onlinechoices-app-del]
