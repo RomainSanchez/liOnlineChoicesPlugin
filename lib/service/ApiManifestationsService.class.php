@@ -92,8 +92,8 @@ class ApiManifestationsService extends ApiEntityService
     public function buildInitialQuery()
     {
         $q = $this->manifestationsService->buildQuery($this->oauth->getToken()->OcApplication->User, NULL, 'root');
-        $q = $this->manifestationsService->completeQueryWithContact($q, $this->oauth->getToken()->OcTransaction[0]->oc_professional_id
-            ? $this->oauth->getToken()->OcTransaction[0]->OcProfessional->Professional->contact_id
+        $q = $this->manifestationsService->completeQueryWithContact($q, $this->oauth->getToken()->OcTransaction->oc_professional_id
+            ? $this->oauth->getToken()->OcTransaction->OcProfessional->Professional->contact_id
             : NULL
         );
         return $q;

@@ -109,7 +109,7 @@ class ApiOAuthService extends EvenementService
         $token->refresh_token = $this->generateToken();
         $token->expires_at = $this->getExpirationTime();
         $token->oc_application_id = $app->id;
-        $token->OcTransaction[] = new OcTransaction();
+        $token->OcTransaction = new OcTransaction;
         $token->save();
 
         return $token;
