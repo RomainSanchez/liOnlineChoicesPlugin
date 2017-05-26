@@ -30,8 +30,13 @@ class ocApiCustomersActions extends apiActions
                 'message' => 'Logout successful',
             ]);
         }
+        return $this->createJsonResponse([
+            'code' => ApiHttpStatus::BAD_REQUEST,
+            'message' => 'Logout failed',
+        ]);
+
     }
-    
+
     public function executeLogin(sfWebRequest $request)
     {
         $email = $request->getParameter('email');
@@ -65,7 +70,7 @@ class ocApiCustomersActions extends apiActions
                     'message' => 'Verification failed',
                 ], ApiHttpStatus::UNAUTHORIZED);
         }
-        
+
         return $this->createJsonResponse([
             'code' => ApiHttpStatus::SUCCESS,
             'message' => 'Verification successful',
@@ -76,7 +81,7 @@ class ocApiCustomersActions extends apiActions
     }
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      * @TODO everything... maybe reusing the match-maker array
@@ -106,7 +111,7 @@ class ocApiCustomersActions extends apiActions
     }
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      * @TODO everything... maybe reusing the match-maker array
@@ -116,7 +121,7 @@ class ocApiCustomersActions extends apiActions
 
         $data = $request->getParameter('application/json', []);
         $customers = $this->getService('api_customers_service');
-        
+
         return $customers->update($data)
             ? $this->createJsonResponse($customers->getIdentifiedCustomer())
             : $this->createJsonResponse([
@@ -127,7 +132,7 @@ class ocApiCustomersActions extends apiActions
     }
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @return array
      */
@@ -141,7 +146,7 @@ class ocApiCustomersActions extends apiActions
     }
 
     /**
-     * 
+     *
      * @param sfWebRequest $request
      * @param array $query
      * @return array
