@@ -31,26 +31,51 @@ abstract class jsonActions extends sfActions
     private function authenticate()
     {
         $request = $this->getRequest();
-       
-        // to be tested only if the module "is_secure"
-       // if ( $this->getSecurityValue('is_secure', false) ) {
-       
-       	
-       $route = $request->getRequestParameters()['_sf_route'];
-       $secure = isset($route->getOptions()['secure'])? $route->getOptions()['secure'] : true;
-       
-		    if($secure){
-		      /* @var $oauthService ApiAuthService */
-		      $oauthService = $this->getService('api_oauth_service');
+        
+        $route = $request->getRequestParameters()['_sf_route'];
+        $security = $route->getOptions();
+        $secure = isset($security['secure']) ? $security['secure'] : true;
+        
+        if ( $secure ) {
+		    /* @var $oauthService ApiAuthService */
+		    $oauthService = $this->getService('api_oauth_service');
+		    /* @var $sf_user sfBasicSecurityUser */
+		    $sf_user = sfContext::getInstance()->getUser();
 			
-		      //check oauth authentification
-		      if ( !$oauthService->authenticate($request) ) {
-		          throw new ocAuthCredentialsException('Invalid authentication credentials');
-		      }
-		      //assign user
-		      sfContext::getInstance()->getUser()->signIn(
-		          $oauthService->getToken()->OcApplication->User, true);
-		  }
+			// check oauth authentification
+		    if ( !$oauthService->authenticate($request) ) {
+		        throw new ocAuthCredentialsException('[OAuth] Invalid authentication credentials');
+		    }
+		    // assign user
+		    $sf_user->signIn($oauthService->getToken()->OcApplication->User, true);
+		    
+		    // check credentials
+		    if ( isset($security['credentials']) && !$sf_user->isSuperAdmin() ) {
+		        $credentials = !is_array($security['credentials']) ? [$security['credentials']] : $security['credentials'];
+    		    
+    		    $hasCredentials = true;
+    		    foreach ( $credentials as $credential ) {
+    		        if ( is_array($credential) ) {
+    		            // OR case
+    		            $tmp = false;
+    		            foreach ( $credential as $orcred ) {
+    		                $tmp = $tmp || $sf_user->hasCredential($orcred);
+    		            }
+    		            $hasCredentials = $hasCredentials || $tmp;
+    		        }
+    		        else {
+    		            // AND case
+        		        $hasCredentials = $hasCredentials && $sf_user->hasCredential($credential);
+        		    }
+    		    }
+    		    
+    		    // unauthorized
+    		    if ( !$hasCredentials ) {
+    		        OcLogger::log('[Permissions] Invalid authentication credentials. Expected: '.json_encode($credentials,true).', having: '.json_encode($sf_user->getCredentials()).'.', $this);
+		            throw new ocAuthCredentialsException('[Permissions] Invalid authentication credentials');
+		        }
+	    	}
+		}
     }
 
     private function convertJsonToParameters()

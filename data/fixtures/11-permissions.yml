@@ -15,7 +15,7 @@ sfGuardGroup:
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardGroup_4:
-    name: tck-onlinechoices-app
+    name: tck-onlinechoices-api
     description: 'Ability to deal with online choices as an API provider'
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
