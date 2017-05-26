@@ -1,0 +1,160 @@
+sfGuardGroup:
+  sfGuardGroup_1:
+    name: tck-onlinechoices-setup
+    description: 'Ability to setup online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroup_2:
+    name: tck-onlinechoices
+    description: 'Ability to display the state of online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroup_3:
+    name: tck-onlinechoices-mod
+    description: 'Ability to modify the state of online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+
+sfGuardPermission:
+  sfGuardPermission_1:
+    name: tck-onlinechoices-app
+    description: 'Permission to list authorized apps for online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_2:
+    name: tck-onlinechoices-app-edit
+    description: 'Permission to modify authorized apps for online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_3:
+    name: tck-onlinechoices-app-del
+    description: 'Permission to delete authorized apps for online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_4:
+    name: tck-onlinechoices-app-new
+    description: 'Permission to add authorized apps for online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_5:
+    name: tck-onlinechoices-ts
+    description: 'Permission to list timeslots of the online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_6:
+    name: tck-onlinechoices-ts-edit
+    description: 'Permission to modify timeslots of the online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_7:
+    name: tck-onlinechoices-ts-del
+    description: 'Permission to delete timeslots of the online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_8:
+    name: tck-onlinechoices-ts-new
+    description: 'Permission to create timeslots of the online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_9:
+    name: tck-onlinechoices-data
+    description: 'Permission to access online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_10:
+    name: tck-onlinechoices-data-accept
+    description: 'Permission to accept online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_11:
+    name: tck-onlinechoices-data-transpose
+    description: 'Permission to transpose online choices into the ticketting process'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_12:
+    name: tck-onlinechoices-data-auto
+    description: 'Permission to use automatic algorithms to accept online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_13:
+    name: tck-onlinechoices-data-snapshot
+    description: 'Permission to create and use snapshots with online choices'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+
+sfGuardGroupPermission:
+  sfGuardGroupPermission_1_1:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_1
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_1_2:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_2
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_1_3:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_3
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_1_4:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_4
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_1_5:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_5
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_1_6:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_6
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_1_7:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_7
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_1_8:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_8
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_2_9:
+    Group: sfGuardGroup_2
+    Permission: sfGuardPermission_9
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_9:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_9
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_10:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_10
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_10:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_10
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_11:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_11
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_13:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_13
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_13:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_13
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'

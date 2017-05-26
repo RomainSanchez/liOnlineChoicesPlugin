@@ -1,8 +1,13 @@
 <?php
 return array(
+  'plugins' => array(
 
-  // add extra plugins here, one by line
-  'liOnlineChoicesPlugin',
-  'sfDependencyInjectionPlugin',
-
+      // add extra plugins here, one by line
+      'liOnlineChoicesPlugin',
+      'sfDependencyInjectionPlugin',
+  ),
+  
+  'filters' => array(
+    'exceptionCatcherFilter' => 'on',
+  ),
 );
