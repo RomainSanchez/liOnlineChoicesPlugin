@@ -104,7 +104,7 @@ abstract class jsonActions extends sfActions
     {
         // type check
         if ( !is_array($data) && !$data instanceof ArrayAccess ) {
-            throw new liEvenementException('Argument 1 passed to jsonActions::createJsonResponse() must implement interface ArrayAccess or be an array, ' . (is_object($data) ? get_class($data) : gettype($data)) . ' given.');
+            throw new ocException('Argument 1 passed to jsonActions::createJsonResponse() must implement interface ArrayAccess or be an array, ' . (is_object($data) ? get_class($data) : gettype($data)) . ' given.');
         }
 
         $this->getResponse()->setStatusCode($status);

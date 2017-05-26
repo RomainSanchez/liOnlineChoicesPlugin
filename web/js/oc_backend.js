@@ -1,35 +1,78 @@
+if ( liOC === undefined )
+    var liOC = {};
 
-var header_cell = '<th class="sf_admin_text sf_admin_list_th_id ui-state-default ui-th-column"></th>';
-var link_day = '<a href="#" class="fg-button ui-widget ui-state-default ui-corner-all"></a>';
-var choices = ['none', 'one', 'two', 'three'];
+// init
+$(document).ready(function(){
 
-function gaugeChange(cell, value) {
+  liOC.loadHeaders($('.plan_day').attr('data-day'));
+  
+  $('.validate').click(function() {
+    validate();
+  });
+  
+  $('.save_popup').click(function() {
+    $('.snapshot_save').show();
+  });
+  
+  $('.load_popup').click(function() {
+    $('.snapshot_load').show();
+  });
+  
+  $('.snapshot').click(function(event) {
+    event.preventDefault();
+    $('#transition').fadeIn('medium');
+    liOC.loadSnapshot($(this).attr('href'));
+    $('.popup_close').click();
+  })
+
+  $('.popup_close').click(function() {
+    $('.snapshot_load').hide();
+  });
+  
+  $('.save_snapshot_popup').click(function() {
+    $('#transition').fadeIn('medium');
+    $('.popup_close').click();
+    liOC.saveSnapshot();
+  });
+  
+  $('.popup_close').click(function() {
+    $('.snapshot_save').hide();
+  });
+  
+});
+
+
+liOC.header_cell = '<th class="sf_admin_text sf_admin_list_th_id ui-state-default ui-th-column"></th>';
+liOC.link_day = '<a href="#" class="fg-button ui-widget ui-state-default ui-corner-all"></a>';
+liOC.choices = ['none', 'one', 'two', 'three'];
+
+liOC.gaugeChange = function(cell, value) {
   var gauge = $('.plan_gauges th').eq(cell.index()).find('.gauge');
   var part = parseInt(gauge.attr('data-part')) + value;
   gauge.attr('data-part', part);
 }
 
-function gaugeInc(cell) {
-  gaugeChange(cell, 1);
+liOC.gaugeInc = function(cell) {
+  liOC.gaugeChange(cell, 1);
 }
 
-function gaugeDec(cell) {
-  gaugeChange(cell, -1);
+liOC.gaugeDec = function(cell) {
+  liOC.gaugeChange(cell, -1);
 }
 
-function validate() {
-  saveSnapshot('valid');
+liOC.validate = function() {
+  liOC.saveSnapshot('valid');
 }
 
-function loadSnapshot(url) {
+liOC.loadSnapshot = function(url) {
   $.ajax({
     url: url,
     data: {},
     method: 'get',
     success: function(data){      
       $('.plan_body').html('');
-      addPros(data);
-      refreshGauges();
+      liOC.addPros(data);
+      liOC.refreshGauges();
       $('#transition .close').click();
     },
     error: function(data){
@@ -38,7 +81,7 @@ function loadSnapshot(url) {
   });
 }
 
-function saveSnapshot(type = 'save') {
+liOC.saveSnapshot = function(type = 'save') {
   var snapshot = [];
   
   $('.plan_body tr').each(function() {
@@ -73,7 +116,7 @@ function saveSnapshot(type = 'save') {
   });
 }
 
-function refreshGauges() {
+liOC.refreshGauges = function() {
   
   $('.plan_gauges th').each(function() {
     var gauge = $(this).find('div > .gauge');
@@ -95,12 +138,12 @@ function refreshGauges() {
   });
 }
 
-function loadDay(data, length) {
-  var header_gauges = $(header_cell)
+liOC.loadDay = function(data, length) {
+  var header_gauges = $(liOC.header_cell)
     .attr('rowspan', 3)
     .appendTo('.plan_day');
     
-  var header_day = $(header_cell)
+  var header_day = $(liOC.header_cell)
     .attr('colspan', length)
     .attr('data-date', data.current.date)
     .appendTo('.plan_day');
@@ -109,13 +152,13 @@ function loadDay(data, length) {
   var next = $('<div class="plan_next floatright"></div>').appendTo(header_day);
 
   if ( data.previous.day ) {
-    $(link_day)
+    $(liOC.link_day)
       .text(data.previous.day)
       .appendTo(previous)
       .attr('href', '?date='+data.previous.date);
   }
   if ( data.next.day ) {
-    $(link_day)
+    $(liOC.link_day)
       .text(data.next.day)
       .appendTo(next)
       .attr('href', '?date='+data.next.date);
@@ -124,16 +167,16 @@ function loadDay(data, length) {
   $('<span></span>').appendTo(header_day).text(data.current.day);
 }
 
-function loadHours(data) {
+liOC.loadHours = function(data) {
 
-  var header_gauges = $(header_cell)
+  var header_gauges = $(liOC.header_cell)
     .appendTo('.plan_gauges'); 
   $('<span></span>').appendTo(header_gauges).text('Participants');
 
   var i = 0;
 
   $.each(data, function(key, manifestation) {
-    var header_hours = $(header_cell)
+    var header_hours = $(liOC.header_cell)
       .attr('colspan', manifestation.events.length)
       .attr('data-grp-id', manifestation.time_id)
       .attr('data-min', i)
@@ -142,13 +185,13 @@ function loadHours(data) {
     
     $.each(manifestation.events, function(key, event) {
       i++;
-      var header_events = $(header_cell)
+      var header_events = $(liOC.header_cell)
         .attr('data-id', event.id)
         .attr('data-grp-id', manifestation.time_id)
         .appendTo('.plan_events'); 
       $('<span></span>').appendTo(header_events).text(event.name);
       
-      var header_gauges = $(header_cell)
+      var header_gauges = $(liOC.header_cell)
         .appendTo('.plan_gauges'); 
       $('.raw').clone()
         .removeClass('raw')
@@ -162,7 +205,7 @@ function loadHours(data) {
   });
 }
 
-function addPros(data) {
+liOC.addPros = function(data) {
   $('.plan_gauges th .gauge').attr('data-part', 0);
   
   $.each(data, function(i, pro) {
@@ -189,13 +232,13 @@ function addPros(data) {
           
           if ( previous_selected.length > 0 ) {
             previous_selected.removeClass('none algo human');
-            gaugeDec(previous_selected);
+            liOC.gaugeDec(previous_selected);
           }
           
           $(this).removeClass('none algo human');
           $(this).addClass('human');
-          gaugeInc($(this));
-          refreshGauges();
+          liOC.gaugeInc($(this));
+          liOC.refreshGauges();
         });
       var m_id = $(this).attr('data-id');
       var g_id = $(this).index() + 1;
@@ -212,7 +255,7 @@ function addPros(data) {
           if ( manif.rank > 0 ) {
             $('<span></span>').text(manif.rank).appendTo(
               $('<div class="round"></div>')
-                .addClass(choices[manif.rank])
+                .addClass(liOC.choices[manif.rank])
                 .appendTo(manif_cell)
             );
           }
@@ -231,13 +274,13 @@ function addPros(data) {
   });
 }
 
-function loadPros(length, date) {
+liOC.loadPros = function(length, date) {
   $.ajax({
     url: $('.plan_body').attr('data-url') + (date !== undefined ? '?date=' + date : ''),
     data: {},
     method: 'get',
     success: function(data){
-      addPros(data);
+      liOC.addPros(data);
     },
     error: function(data){
       console.log(data);
@@ -245,7 +288,7 @@ function loadPros(length, date) {
   });
 }
 
-function loadHeaders(date) {
+liOC.loadHeaders = function(date) {
   $.ajax({
     url: $('.plan_header').attr('data-url') + (date !== undefined ? '?date=' + date : ''),
     data: {},
@@ -253,52 +296,13 @@ function loadHeaders(date) {
     success: function(data){      
       $('.plan_body').html('');
       $('.plan_header tr').html('');
-      loadDay(data, data.length);
-      loadHours(data.manifestations);
-      loadPros(data.length, date);
-      refreshGauges();
+      liOC.loadDay(data, data.length);
+      liOC.loadHours(data.manifestations);
+      liOC.loadPros(data.length, date);
+      liOC.refreshGauges();
     },
     error: function(data){
       console.log(data);
     }
   });
 }
-
-$(document).ready(function(){
-
-  loadHeaders($('.plan_day').attr('data-day'));
-  
-  $('.validate').click(function() {
-    validate();
-  });
-  
-  $('.save_popup').click(function() {
-    $('.snapshot_save').show();
-  });
-  
-  $('.load_popup').click(function() {
-    $('.snapshot_load').show();
-  });
-  
-  $('.snapshot').click(function(event) {
-    event.preventDefault();
-    $('#transition').fadeIn('medium');
-    loadSnapshot($(this).attr('href'));
-    $('.popup_close').click();
-  })
-
-  $('.popup_close').click(function() {
-    $('.snapshot_load').hide();
-  });
-  
-  $('.save_snapshot_popup').click(function() {
-    $('#transition').fadeIn('medium');
-    $('.popup_close').click();
-    saveSnapshot();
-  });
-  
-  $('.popup_close').click(function() {
-    $('.snapshot_save').hide();
-  });
-  
-});

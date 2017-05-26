@@ -107,40 +107,40 @@ class ApiCartItemsService extends ApiEntityService
      * @param int $cartId
      * @param array $data
      * @return array
-     * @throws liOnlineSaleException
+     * @throws ocException
      */
     public function create($cartId, $data)
     {
         // Check type
         if (!isset($data['type'])) {
-            throw new liOnlineSaleException('Missing type parameter');
+            throw new ocException('Missing type parameter');
         }
         $type = $data['type'];
         $allowedTypes = ['ticket', 'product', 'pass'];
         if (!in_array($type, $allowedTypes)) {
-            throw new liOnlineSaleException(sprintf('Wrong type parameter: %s. Expected one of: ', $type, implode(',', $allowedTypes)));
+            throw new ocNotImplementedException(sprintf('Wrong type parameter: %s. Expected one of: ', $type, implode(',', $allowedTypes)));
         }
         if ($type != 'ticket') {
             // TODO...
-            throw new liOnlineSaleException('Not implemented yet for type: ' . $type);
+            throw new ocNotImplementedException('Not implemented yet for type: ' . $type);
         }
 
         if (!isset($data['priceId'])) {
-            throw new liOnlineSaleException('Missing priceId parameter');
+            throw new ocException('Missing priceId parameter');
         }
         $priceId = (int)$data['priceId'];
 
         if (!isset($data['declinationId'])) {
-            throw new liOnlineSaleException('Missing declinationId parameter');
+            throw new ocException('Missing declinationId parameter');
         }
         $declinationId = (int)$data['declinationId'];
 
         if ( !$this->checkGaugeAndPriceAccess($declinationId, $priceId) ) {
-            throw new liOnlineSaleException('Invalid value for priceId or declinationId parameter');
+            throw new ocException('Invalid value for priceId or declinationId parameter');
         }
 
         if ( !$this->checkGaugeAvailability($declinationId) ) {
-            throw new liOnlineSaleException('Gauge is full or not available');
+            throw new ocException('Gauge is full or not available in your context');
         }
 
         $cartItem = $this->buildQuery([])

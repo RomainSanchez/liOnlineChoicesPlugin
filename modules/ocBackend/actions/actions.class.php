@@ -14,9 +14,23 @@ require_once dirname(__FILE__).'/../lib/ocBackendGeneratorHelper.class.php';
 class ocBackendActions extends autoOcBackendActions
 {
 
+  protected $setup = [];
+  
+  public function preExecute()
+  {
+    try {
+        $this->setup = $this->getContext()->getContainer()
+            ->get('oc_configuration_service')
+            ->getConfigurationFor($this->getUser());
+    } catch ( ocConfigurationException $e ) {
+        $this->getRequest()->setParameter('back_to', 'ocBackend/index');
+        $this->forward('ocSetup','index');
+    }
+  }
+
   public function executeIndex(sfWebRequest $request)
   {
-    parent::executeIndex($request);
+    //parent::executeIndex($request);
 
     $this->form = new OcSnapshotForm();
     $this->_csrf_token = $this->form->getCSRFToken();
@@ -38,7 +52,6 @@ class ocBackendActions extends autoOcBackendActions
       ->andWhere('date(s.day) = ?', $this->day)
       ->orderBy('s.created_at DESC')
       ->execute();
-
   }
   
   public function executeAutoPositioning(sfWebRequest $request)
@@ -142,27 +155,40 @@ class ocBackendActions extends autoOcBackendActions
     if ( !$date )
       $date = $dates[0]['m_start'];
 
-    $ocProfessionals = Doctrine_Query::create()
-      ->select('op.id, p.id, t.id, c.firstname, c.name, g.id, m.id, k.rank, k.accepted')
+    $q = Doctrine_Query::create()
+      ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, g.id, m.id, tck.rank, tck.accepted')
       ->from('OcProfessional op')
       ->leftJoin('op.Professional p')
+      
       ->leftJoin('p.Contact c')
       ->leftJoin('op.OcTransactions t')
-      ->leftJoin('t.OcTickets k')
-      ->leftJoin('k.Gauge g')
+      ->leftJoin('t.OcTickets tck')
+      ->leftJoin('tck.Gauge g')
       ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
       ->leftJoin('m.Event e')
-      ->leftJoin('e.MetaEvent me')
-      ->leftJoin('me.MetaEventUser meu')
-      ->andWhere('meu.sf_guard_user_id = ?', $this->getUser()->getId())
-      ->orderBy('c.name, c.firstname')
-      ->fetchArray();
+      
+      // filters tickets to keep only tickets linked to the current workspace
+      ->leftJoin('g.Workspace ws')
+      ->leftJoin('ws.OcConfigs oc WITH oc.sf_guard_user_id = ?', $this->getUser()->getId())
+      ->andWhere('g.id IS NULL OR oc.id IS NOT NULL')
+      
+      // checks which contacts can be accessed by the user in the current context
+      ->leftJoin('p.Groups grp')
+      ->leftJoin('grp.Users gu')
+      ->andWhere('? AND gu.id IS NULL OR gu.id = ?', [$this->getUser()->hasCredential('pr-group-common') || $this->getUser()->isSuperAdmin(), $this->getUser()->getId()])
+      ->leftJoin('grp.OcConfigs conf')
+      ->andWhere('conf.sf_guard_user_id = ?', $this->getUser()->getId())
+      
+      ->orderBy('op.rank, c.name, c.firstname')
+    ;
+    $ocProfessionals = $q->fetchArray();
 
     foreach ($ocProfessionals as $ocPro)
     {
       $pro = array();
-            
+      
       $pro['id'] = $ocPro['id'];
+      $pro['rank'] = $ocPro['rank'];
       $pro['name'] = $ocPro['Professional']['Contact']['firstname'].' '.$ocPro['Professional']['Contact']['name'];
       $pro['manifestations'] = array();
       

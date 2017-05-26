@@ -15,6 +15,16 @@ class ocExceptionCatcherFilter
 
     public function execute($filterChain)
     {
+        // use this filter only if the context expects "JSON" answers
+        if ( sfContext::hasInstance() ) {
+            if ( $aEntry = sfContext::getInstance()->getActionStack()->getLastEntry() ) {
+                if ( ! $aEntry->getActionInstance() instanceof jsonActions ) {
+                    $filterChain->execute();
+                    return;
+                }
+            }
+        }
+        
         try {
            
             $filterChain->execute();
@@ -49,6 +59,16 @@ class ocExceptionCatcherFilter
         
             $r->setContent(json_encode([
                     'code'=> ApiHttpStatus::SERVICE_UNAVAILABLE ,
+                    'message' => $e->getMessage()
+                ], JSON_PRETTY_PRINT));
+        } catch ( Exception $e ) {
+        
+            OcLogger::log($e->getMessage());
+            $r = $this->getResponse();
+            $r->setStatusCode(ApiHttpStatus::INTERNAL_SERVER_ERROR);
+        
+            $r->setContent(json_encode([
+                    'code'=> ApiHttpStatus::INTERNAL_SERVER_ERROR ,
                     'message' => $e->getMessage()
                 ], JSON_PRETTY_PRINT));
         }
