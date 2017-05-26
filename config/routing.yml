@@ -198,7 +198,7 @@ oc_api_checkouts_payments_select:
 oc_api_checkouts_complete:
     url: /api/v2/checkouts/complete/:cart_id
     class: sfRequestRoute
-    param: { module: ocApiCheckouts, action: complete }
+    param: { module: ocApiCarts, action: complete }
     requirements:
         cart_id: \d+
         sf_method: [POST]

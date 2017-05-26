@@ -35,6 +35,37 @@ class ocApiCartsActions extends apiActions
     }
 
     /**
+     * Action for checkout cart complete
+     * @param sfWebRequest $request
+     * @return string (sfView::NONE)
+     */
+    public function executeComplete(sfWebRequest $request)
+    {
+        $status = ApiHttpStatus::NO_CONTENT;
+        $message = ApiHttpMessage::UPDATE_SUCCESSFUL;
+
+        $cart_id = $request->getParameter('cart_id', 0);
+
+        /* @var $cartsService ApiCartsService */
+        $cartsService = $this->getService('api_carts_service');
+        if (!$cartsService->isCartEditable($cart_id)) {
+            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
+        }
+
+        $isSuccess = $cartsService->updateCart($cart_id, ['checkoutState' => 'new']);
+
+        if (!$isSuccess) {
+            $status = ApiHttpStatus::BAD_REQUEST;
+            $message = ApiHttpMessage::UPDATE_FAILED;
+        }
+
+        return $this->createJsonResponse([
+                "code" => $status,
+                'message' => $message
+                ], $status);
+    }
+
+    /**
      * Action for a POST|PUT:/[resource]/id request
      * The specified id has to be retrieved from the $request
      * The id key is defined in routing.yml
@@ -44,23 +75,8 @@ class ocApiCartsActions extends apiActions
      */
     public function update(sfWebRequest $request)
     {
-        $status = ApiHttpStatus::SUCCESS;
-        $message = ApiHttpMessage::UPDATE_SUCCESSFUL;
-
-        $cart_id = $request->getParameter('id', 0);
-
-        /* @var $cartsService ApiCartsService */
-        $cartsService = $this->getService('api_carts_service');
-        if (!$cartsService->isCartEditable($cart_id)) {
-            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
-        }
-
-        $isSuccess = $cartsService->updateCart($cart_id, $request->getParameter('application/json'));
-
-        if (!$isSuccess) {
-            $status = ApiHttpStatus::BAD_REQUEST;
-            $message = ApiHttpMessage::UPDATE_FAILED;
-        }
+        $status = ApiHttpStatus::BAD_REQUEST;
+        $message = "Update failed. If you want to complete a checkout: POST /api/v2/checkouts/complete/{cart_id}";
 
         return $this->createJsonResponse([
                 "code" => $status,
