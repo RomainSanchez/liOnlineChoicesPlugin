@@ -18,7 +18,13 @@ class ocSetupActions extends autoOcSetupActions
     $q = Doctrine::getTable('OcConfig')->createQuery('config')
       ->andWhere('config.sf_guard_user_id = ?', $this->getUser()->getId())
     ;
-    $q->count() == 0 ? $this->redirect('ocSetup/new') : $this->redirect('ocSetup/edit?id='.$q->fetchOne()->id);
+    if ( $q->count() == 0 ) {
+        $this->forward('ocSetup', 'new');
+    }
+    else {
+        $request->setParameter('id', $q->fetchOne()->id);
+        $this->forward('ocSetup', 'edit');
+    }
   }
   
   public function executeEdit(sfWebRequest $request)
@@ -39,7 +45,10 @@ class ocSetupActions extends autoOcSetupActions
       ->andWhere('config.sf_guard_user_id = ?', $this->getUser()->getId())
     ;
     if ( $q->count() > 0 )
-      $this->redirect('ocSetup/edit?id='.$q->fetchOne()->id);
+    {
+      $request->setParameter('id', $q->fetchOne()->id);
+      $this->forward('ocSetup','edit');
+    }
     parent::executeNew($request);
   }
 }

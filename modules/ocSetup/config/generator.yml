@@ -17,7 +17,10 @@ generator:
       fields:  ~
       list:    ~
       filter:  ~
-      form:    ~
-      edit:    ~
+      form:
+        actions:
+            _save: ~
+      edit:
+        title: "Your configuration"
       new:
-        title: Your configuration
+        title: "Your configuration"

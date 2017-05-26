@@ -18,7 +18,13 @@ abstract class PluginOcConfigForm extends BaseOcConfigForm
     $this->widgetSchema['sf_guard_user_id'] = new sfWidgetFormInputHidden;
     $this->widgetSchema['automatic']        = new sfWidgetFormInputHidden;
     $this->widgetSchema['version']          = new sfWidgetFormInputHidden;
-    $this->widgetSchema['group_id']     ->setOption('add_empty', true);
-    $this->widgetSchema['workspace_id'] ->setOption('add_empty', true);
+    $this->widgetSchema['group_id']
+        ->setOption('add_empty', true)
+    //    ->setOption('expanded', true)
+    ;
+    $this->widgetSchema['workspace_id']
+        ->setOption('add_empty', true)
+    //    ->setOption('expanded', true)
+    ;
   }
 }

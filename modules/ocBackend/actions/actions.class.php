@@ -14,9 +14,23 @@ require_once dirname(__FILE__).'/../lib/ocBackendGeneratorHelper.class.php';
 class ocBackendActions extends autoOcBackendActions
 {
 
+  protected $setup = [];
+  
+  public function preExecute()
+  {
+    try {
+        $this->setup = $this->getContext()->getContainer()
+            ->get('oc_configuration_service')
+            ->getConfigurationFor($this->getUser());
+    } catch ( ocConfigurationException $e ) {
+        $this->getRequest()->setParameter('back_to', 'ocBackend/index');
+        $this->forward('ocSetup','index');
+    }
+  }
+
   public function executeIndex(sfWebRequest $request)
   {
-    parent::executeIndex($request);
+    //parent::executeIndex($request);
 
     $this->form = new OcSnapshotForm();
     $this->_csrf_token = $this->form->getCSRFToken();
@@ -38,7 +52,6 @@ class ocBackendActions extends autoOcBackendActions
       ->andWhere('date(s.day) = ?', $this->day)
       ->orderBy('s.created_at DESC')
       ->execute();
-
   }
   
   public function executeAutoPositioning(sfWebRequest $request)

@@ -15,6 +15,16 @@ class ocExceptionCatcherFilter
 
     public function execute($filterChain)
     {
+        // use this filter only if the context expects "JSON" answers
+        if ( sfContext::hasInstance() ) {
+            if ( $aEntry = sfContext::getInstance()->getActionStack()->getLastEntry() ) {
+                if ( ! $aEntry->getActionInstance() instanceof jsonActions ) {
+                    $filterChain->execute();
+                    return;
+                }
+            }
+        }
+        
         try {
            
             $filterChain->execute();
