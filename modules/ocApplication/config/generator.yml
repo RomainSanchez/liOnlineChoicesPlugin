@@ -13,16 +13,24 @@ generator:
     i18n_catalogue:        li_oc
 
     config:
-      actions: ~
+      actions:
       fields:
         secret_new:
           label: Secret
           help: Let it empty if no change is required
       list:
         display: [identifier, _user, expires_at]
+        actions:
+          _new:
+            credentials: [tck-onlinechoices-app-new]
         object_actions:
-          _edit: ~
-          _delete: ~
+          _edit:
+            credentials: [tck-onlinechoices-app-edit]
+          _delete:
+            credentials: [tck-onlinechoices-app-del]
+        batch_actions:
+          _delete:
+            credentials: [tck-onlinechoices-app-del]
       filter:
         display: [identifier, user_id, expires_at]
       form:

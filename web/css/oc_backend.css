@@ -15,20 +15,18 @@
 .ui-state-default.time_slot_right, .time_slot_right { border-right: 3px solid #a6c9e2; }
 
 .list_snapshots {
-  list-style: none;
   margin-left: 50px;
 }
-
 .list_snapshots li {
   margin: 5px;
 }
-
 .list_snapshots a:hover {
   text-decoration: underline;
 }
 .list_snapshots a {
   text-decoration: none;
 }
+.list_snapshots .details { font-size: 75%; }
 
 .gauge, .gaugeover {
 	padding: 0;

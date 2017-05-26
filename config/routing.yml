@@ -518,11 +518,18 @@ oc_backend_pros:
     requirements:
         sf_method: [GET, POST]
 
-oc_backend_snapshot:
-    url: /oc_backend/snapshot
+oc_backend_save_snapshot:
+    url: /oc_backend/snapshot/save
     class: sfRequestRoute
-    param: { module: ocBackend, action: snapshot }
+    param: { module: ocBackend, action: saveSnapshot }
     requirements:
+        sf_method: [GET, POST]
+oc_backend_load_snapshot:
+    url: /oc_backend/snapshot/load/:id
+    class: sfRequestRoute
+    param: { module: ocBackend, action: loadSnapshot }
+    requirements:
+        id: \d+
         sf_method: [GET, POST]
 
 oc_snapshot:

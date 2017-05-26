@@ -40,8 +40,13 @@ class ocBackendActions extends autoOcBackendActions
       ->execute();
 
   }
+  
+  public function executeAutoPositioning(sfWebRequest $request)
+  {
+    // TODO
+  }
 
-  protected function isDebug($debug) 
+  protected function isDebug($debug)
   {
     if ( $debug )
     {
@@ -69,22 +74,24 @@ class ocBackendActions extends autoOcBackendActions
     return $dates;
   }
 
-  protected function loadSnapshot($id)
+  public function executeLoadSnapshot(sfWebRequest $request)
   {
-    $ocs = Doctrine::getTable('ocSnapshot')->findOneById($id);
+    $ocs = Doctrine::getTable('ocSnapshot')->findOneById(intval($request->getParameter('id')));
 
     if ( $ocs && $ocs->sf_guard_user_id == $this->getUser()->getId())
     {
       $this->json = unserialize($ocs->content);
     }
-    else 
+    else
     {
       $this->json = array();
       $this->json['error'] = 'Error';
     }
+    
+    $this->setTemplate('json');
+    $this->isDebug($request->hasParameter('debug'));
   }
-  
-  protected function saveSnapshot($request)
+  public function executeSaveSnapshot(sfWebRequest $request)
   {
     $this->json = array();
     $this->json['error'] = 'Error';
@@ -114,19 +121,6 @@ class ocBackendActions extends autoOcBackendActions
     else 
     {
       $this->json['message'] = json_last_error_msg();
-    }
-  }
-
-  public function executeSnapshot(sfWebRequest $request)
-  {
-    switch($request->getParameter('type'))
-    {
-      case 'load':
-        $this->loadSnapshot(intval($request->getParameter('id')));
-      break;
-      case 'save':
-        $this->saveSnapshot($request);
-      break;
     }
     
     $this->setTemplate('json');
@@ -191,7 +185,7 @@ class ocBackendActions extends autoOcBackendActions
 
   public function executeEvents(sfWebRequest $request)
   {
-    $this->getContext()->getConfiguration()->loadHelpers('Date');
+    $this->getContext()->getConfiguration()->loadHelpers(['Date', 'Array']);
     
     $this->json = array();
     $current = $previous = $next = null;

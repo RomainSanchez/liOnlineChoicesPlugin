@@ -1,5 +1,11 @@
 all:
   is_secure: true
 
-# TODO credentials
-
+index:
+  credentials: [tck-onlinechoices-ts]
+edit:
+  credentials: [tck-onlinechoices-ts-edit]
+del:
+  credentials: [tck-onlinechoices-ts-del]
+new:
+  credentials: [tck-onlinechoices-ts-new]

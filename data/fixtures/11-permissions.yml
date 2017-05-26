@@ -21,6 +21,11 @@ sfGuardGroup:
     updated_at: '2017-05-26 08:59:00'
 
 sfGuardPermission:
+  sfGuardPermission_0:
+    name: tck-onlinechoices
+    description: 'Permission to access the plugin'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
   sfGuardPermission_1:
     name: tck-onlinechoices-app
     description: 'Permission to list authorized apps for online choices'
@@ -67,8 +72,8 @@ sfGuardPermission:
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardPermission_10:
-    name: tck-onlinechoices-data-accept
-    description: 'Permission to accept online choices'
+    name: tck-onlinechoices-data-mod
+    description: 'Permission to modify the state of online choices'
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardPermission_11:
@@ -278,6 +283,11 @@ sfGuardPermission:
     updated_at: '2017-05-26 08:59:00'
 
 sfGuardGroupPermission:
+  sfGuardGroupPermission_1_0:
+    Group: sfGuardGroup_1
+    Permission: sfGuardPermission_0
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
   sfGuardGroupPermission_1_1:
     Group: sfGuardGroup_1
     Permission: sfGuardPermission_1
@@ -318,9 +328,19 @@ sfGuardGroupPermission:
     Permission: sfGuardPermission_8
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_2_0:
+    Group: sfGuardGroup_2
+    Permission: sfGuardPermission_0
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
   sfGuardGroupPermission_2_9:
     Group: sfGuardGroup_2
     Permission: sfGuardPermission_9
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_0:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_0
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardGroupPermission_3_9:
