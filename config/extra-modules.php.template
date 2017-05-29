@@ -10,6 +10,7 @@ return [
     'ocApplication',
     'ocBackend',
     'ocPicture',
+    'ocSnapshot',
     'ocApiOAuth',
     'ocApiCustomers',
     'ocApiManifestations',
