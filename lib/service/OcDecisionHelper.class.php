@@ -21,17 +21,18 @@ class OcDecisionHelper
     /**
      * @var array
      */
-    private $manifestations;
-
-    /**
-     * @var array
-     */
     private $participants;
 
     /**
      * @var array
      */
     private $states;
+
+    /**
+     * @var integer
+     */
+    private $maxRank = 0;
+
 
 
     /**
@@ -42,26 +43,126 @@ class OcDecisionHelper
     public function init($data)
     {
         $this->timeSlots = [];
-        $this->manifestations = [];
         $this->participants = [];
-        foreach($data as $k => $participant) {
+        $this->maxRank = 0;
+        foreach($data as $participant) {
             $this->addParticipant($participant);
         }
-
         $this->states = [];
     }
 
-    public function process()
+    /**
+     * @param int $maxIterations
+     * @return array
+     */
+    public function process($maxIterations = 7)
     {
+        $iter = count($this->states) + 1;
+        if ($iter > $maxIterations) {
+            return $iter > 1 ? $this->states[$iter-2] : null;
+        }
         $state = [
-            'number' => count($this->states) + 2,
+            'iteration' => $iter,
             'participants' => [],
-            'RRT' =>  0,
+            'RRTotal' =>  0,
             'PRRT' =>  0,
             'points' =>  0,
         ];
 
+        // initialize participants
+        $participants = [];
+        foreach($this->participants as $id => $p) {
+            $participants[$id] = [
+                'id' => $id,
+                'rr' => $iter > 1 ? $this->states[$iter-2]['participants'][$id]['rr'] : 0,
+                'timeSlots' => $p['timeSlots'],
+                'points' => 0,
+            ];
+        }
 
+        // sort participants by previous relative rank then by initial rank
+        if ($iter > 1) {
+            uasort($participants, function($a, $b) {
+                if($a['rr'] == $b['rr']) {
+                    return $this->participants[$a['id']]['rank'] < $this->participants[$b['id']]['rank'] ? -1 : 1;
+                }
+                return $a['rr'] < $b['rr'] ? -1 : 1;
+            });
+        }
+
+        // initialize gauges
+        $gauges = [];
+        foreach ($this->getAllManifestations() as $mid => $manifestation) {
+            $gauges[$mid] = $manifestation['gauge_free'];
+        }
+
+        // Do the job...
+        for ($rank = 1; $rank <= $this->maxRank; $rank++) {
+            foreach ($this->getAllManifestations() as $mid => $manifestation) {
+                $tsid = $manifestation['time_slot_id'];
+                foreach($participants as $pid => $p) {
+                    if (!isset($p['timeSlots'][$tsid][$mid])) {
+                        continue;
+                    }
+                    if ($gauges[$mid] == 0 && is_array($p['timeSlots'][$tsid])) {
+                        unset($participants[$pid]['timeSlots'][$tsid][$mid]);
+                        continue;
+                    }
+                    if ($p['timeSlots'][$tsid][$mid] != $rank) {
+                        continue;
+                    }
+                    $participants[$pid]['timeSlots'][$tsid] = $mid;
+                    $participants[$pid]['points'] += $this->getPoints($rank);
+                    $gauges[$mid]--;
+                }
+            }
+        }
+
+        // compute state total points
+        $points = 0;
+        foreach($participants as $pid => $p) {
+            $points += $p['points'];
+        }
+        if ($iter > 1 && $this->states[$iter-2]['points'] >= $points) {
+            return $this->states[$iter-2];
+        }
+
+        // compute new relative ranks
+        foreach($participants as $pid => $p) {
+            $prrt = 0; // previous relative ranks total
+            foreach($this->states as $state) {
+                $prrt += $state['participants'][$pid]['rr'];
+            }
+            $ir = $this->participants[$pid]['rank'];  // initial rank
+            $nbTimeSlots = count($p['timeSlots']);
+            $avgPoints = $nbTimeSlots ? $p['points'] / $nbTimeSlots : 0;
+            $participants[$pid]['rr'] = round( ($prrt + $ir + $avgPoints / 1.62) / $iter );
+        }
+
+        $this->states[] = [
+            'iteration' => $iter,
+            'points' => $points,
+            'participants' => $participants,
+        ];
+        return $this->process($maxIterations);
+    }
+
+    /**
+     * @param int $choiceRank
+     * @return int
+     */
+    private function getPoints($choiceRank)
+    {
+        if ($choiceRank > 6) return 0;
+        $points = [
+            '1' => 10,
+            '2' => 6,
+            '3' => 4,
+            '4' => 3,
+            '5' => 2,
+            '6' => 1,
+        ];
+        return $points[$choiceRank];
     }
 
     /**
@@ -79,12 +180,7 @@ class OcDecisionHelper
      */
     protected function getParticipant($participant_id)
     {
-        foreach ($this->participants as $p) {
-            if ($participant_id == $p['id']) {
-                return $p;
-            }
-        }
-        return false;
+        return isset($this->participants[$participant_id]) ? $this->participants[$participant_id] : false;
     }
 
     /**
@@ -101,26 +197,29 @@ class OcDecisionHelper
      */
     protected function addParticipant($participant)
     {
-        foreach ($this->participants as $p) {
-            if ($participant['id'] == $p['id']) {
-                return $this;
-            }
+        $id = $participant['id'];
+        if ($this->getParticipant($id)) {
+            return $this;
         }
 
-        $manifestations = [];
+        $timeSlots = [];
         foreach($participant['manifestations'] as $manifestation) {
             $this->addManifestation($manifestation);
-            $manifestations[] = [
-                'id' => $manifestation['id'],
-                'rank' => $manifestation['rank'],
-            ];
+
+            $tsid = $manifestation['time_slot_id'];
+            $mid = $manifestation['id'];
+            if (!isset($timeSlots[$tsid])) {
+                $timeSlots[$tsid] = [];
+            }
+
+            $timeSlots[$tsid][$mid] = $manifestation['rank'];
+            $this->maxRank = max($this->maxRank, $manifestation['rank']);
         }
 
-        $this->participants[] = [
-            'id' => $participant['id'],  // TODO: validate participant
+        $this->participants[$id] = [
             'name' => isset($participant['name']) ? $participant['name'] : '',
             'rank' => count($this->participants) + 1,
-            'manifestations' => $manifestations,
+            'timeSlots' => $timeSlots,
         ];
 
         return $this;
@@ -132,7 +231,12 @@ class OcDecisionHelper
      */
     protected function getManifestation($manifestation_id)
     {
-        return isset($this->manifestations[$manifestation_id]) ? $this->manifestations[$manifestation_id] : false;
+        foreach ($this->timeSlots as $ts) {
+            if (isset($ts['manifestations'][$manifestation_id])) {
+                return $ts['manifestations'][$manifestation_id];
+            }
+        }
+        return false;
     }
 
     /**
@@ -140,7 +244,13 @@ class OcDecisionHelper
      */
     public function getAllManifestations()
     {
-        return $this->manifestations;
+        $manifestations = [];
+        foreach ($this->timeSlots as $ts) {
+            foreach($ts['manifestations'] as $mid => $manif) {
+                $manifestations[$mid] = $manif;
+            }
+        }
+        return $manifestations;
     }
 
     /**
@@ -154,11 +264,12 @@ class OcDecisionHelper
             return $this;
         }
 
-        $this->addTimeSlot(['id' => $manifestation['time_slot_id']]);
+        $tsid = $manifestation['time_slot_id'];
+        $this->addTimeSlot(['id' => $tsid]);
 
-        $this->manifestations[$id] = [
+        $this->timeSlots[$tsid]['manifestations'][$id] = [
             'name' => isset($manifestation['name']) ? $manifestation['name'] : '',
-            'time_slot_id' => $manifestation['time_slot_id'],
+            'time_slot_id' => $tsid,
             'gauge_free' => $manifestation['gauge_free'],
         ];
         return $this;
@@ -196,6 +307,7 @@ class OcDecisionHelper
         $this->timeSlots[$id] = [
             'id' => $id,
             'name' => isset($timeSlot['name']) ? $timeSlot['name'] : sprintf('TS #%d', count($this->timeSlots) + 1),
+            'manifestations' => [],
         ];
     }
 }
