@@ -43,10 +43,8 @@ $(document).ready(function(){
 });
 
 
-liOC.fixTableScroll = function() {
-  var table = $('.sf_admin_list table');
-  
-  // horizontal+vertical
+// horizontal+vertical
+liOC.fixTableScrollBoth = function(table) {
   var cloneTopLeft = $('<table></table>').addClass('thead-th-clone');
   table.find('thead tr:first th:first-child, thead tr:last th:first-child').each(function(){
     var width = $(this).width();
@@ -59,7 +57,11 @@ liOC.fixTableScroll = function() {
   table.find('thead th').width('auto').height('auto');
   var top = table.position().top;
   
-  // horizontal
+  return cloneTopLeft;
+}
+
+// horizontal
+liOC.fixTableScrollHorizontal = function(table) {
   var cloneLeft = $('<table></table>').addClass('th-clone');
   var width = table.find('tbody th:first').width();
   var height = table.find('tbody th:first').height();
@@ -68,51 +70,93 @@ liOC.fixTableScroll = function() {
   cloneLeft.find('tbody th').width(width).height(height);
   table.find('tbody th').width('auto').height('auto');
   
-  // vertical
+  return cloneLeft;
+}
+
+// vertical
+liOC.fixTableScrollVertical = function(table){
   var thead = table.find('thead');
   thead.find('td, th').each(function(){
     $(this).width($(this).width());
   });
-  var cloneTop = $('<table></table>').append(thead.clone()).addClass('thead-clone');
+  cloneTop = $('<table></table>').append(thead.clone()).addClass('thead-clone');
   cloneTop.width(table.width());
   thead.find('td, th').width('auto');
   
+  return cloneTop;
+}
+
+liOC.fixTableReset = function() {
+  $('.sf_admin_list').find('.th-clone, .thead-clone, .thead-th-clone').remove();
+}
+
+liOC.fixTableScroll = function() {
+  liOC.fixTableReset();
+  var table = $('.sf_admin_list table');
+  var thead = table.find('thead');
+    
+  // vertical & vertical+horizontal
+  var clones = {
+    left: liOC.fixTableScrollHorizontal(table),
+    top:  liOC.fixTableScrollVertical(table),
+    both: liOC.fixTableScrollBoth(table)
+  }
+  
+  $.each(clones, function(i, clone){
+    clone.hide().insertBefore(table);
+  });
+  
   // both
-  $(window).scroll(function(e){
+  $(window).scroll(function(){
     // top
     if ( thead.position().top-$(window).scrollTop()-$('#menu').position().top-$('#menu').height() < 0 ) {
-        cloneTopLeft.insertBefore(table);
-        cloneTop.insertBefore(table);
+        clones['both'].show();
+        clones['top'].show();
     }
     else {
-        cloneTopLeft.remove();
-        cloneTop.remove();
+        clones['both'].hide();
+        clones['top'].hide();
     }
-    cloneTop.css('margin-left', -$(window).scrollLeft());
+    clones['top'].css('margin-left', -$(window).scrollLeft());
     
     // left
     if ( $(window).scrollLeft() > table.find('tbody th:first').position().left ) {
-        cloneLeft.insertBefore(table);
-        cloneTopLeft.insertBefore(table);
+        clones['left'].show();
+        clones['both'].show();
     }
     else {
-        cloneLeft.remove();
-        cloneTopLeft.remove();
+        clones['left'].hide();
+        clones['both'].hide();
     }
-    cloneLeft.css('margin-top', -$(window).scrollTop());
-    cloneTopLeft.css('top', $(window).scrollTop() > 104 ? 50 : 154-$(window).scrollTop());
+    clones['left'].css('margin-top', -$(window).scrollTop());
+    clones['both'].css('top', $(window).scrollTop() > 104 ? 50 : 154-$(window).scrollTop());
+  }).scroll();
+  
+  var to;
+  $(window).off('resize').resize(function(){
+    if ( to !== undefined ) {
+        clearTimeout(to);
+    }
+    to = setTimeout(function(){
+        liOC.fixTableScroll();
+    },500);
   });
 }
 
+liOC.blockContextMenu = function(){
+    $('.sf_admin_list table').contextmenu(function(e){ e.preventDefault(); return false; });
+}
 
 liOC.header_cell = '<th class="sf_admin_text sf_admin_list_th_id ui-state-default ui-th-column"></th>';
 liOC.link_day = '<a href="#" class="fg-button ui-widget ui-state-default ui-corner-all"></a>';
 liOC.choices = ['none', 'one', 'two', 'three'];
 
 liOC.gaugeChange = function(cell, value) {
-  var gauge = $('.plan_gauges th').eq(cell.index()).find('.gauge');
-  var part = parseInt(gauge.attr('data-part')) + value;
-  gauge.attr('data-part', part);
+  $('.plan_gauges').each(function(){
+    var gauge = $(this).find('th').eq(cell.index()).find('.gauge');
+    var part = parseInt(gauge.attr('data-part')) + value;
+    gauge.attr('data-part', part);
+  });
 }
 
 liOC.gaugeInc = function(cell) {
@@ -137,6 +181,7 @@ liOC.loadSnapshot = function(url) {
       liOC.addPros(data);
       liOC.refreshGauges();
       liOC.fixTableScroll();
+      liOC.blockContextMenu();
       $('#transition .close').click();
     },
     error: function(data){
