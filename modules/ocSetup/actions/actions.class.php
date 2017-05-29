@@ -22,8 +22,7 @@ class ocSetupActions extends autoOcSetupActions
         $this->forward('ocSetup', 'new');
     }
     else {
-        $request->setParameter('id', $q->fetchOne()->id);
-        $this->forward('ocSetup', 'edit');
+        $this->redirect('ocSetup/edit?id='.$q->fetchOne()->id);
     }
   }
   
@@ -36,8 +35,6 @@ class ocSetupActions extends autoOcSetupActions
       $this->redirect('ocSetup/index');
     }
   }
-  
-
   
   public function executeNew(sfWebRequest $request)
   {

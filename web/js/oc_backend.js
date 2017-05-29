@@ -43,47 +43,120 @@ $(document).ready(function(){
 });
 
 
-liOC.fixTableScroll = function() {
-  var table = $('.sf_admin_list table');
+// horizontal+vertical
+liOC.fixTableScrollBoth = function(table) {
+  var cloneTopLeft = $('<table></table>').addClass('thead-th-clone');
+  table.find('thead tr:first th:first-child, thead tr:last th:first-child').each(function(){
+    var width = $(this).width();
+    var height = $(this).height();
+    $(this).width(width).height(height);
+  });
+  cloneTopLeft.append(table.find('thead').clone()).find('thead')
+    .find('th:not(:first-child), tr:not(:first):not(:last)').remove();
+  cloneTopLeft.find('thead th[rowspan]').prop('rowspan',1);
+  table.find('thead th').width('auto').height('auto');
+  var top = table.position().top;
   
-  // horizontal
-  $('<table></table>')
-    .apppend('<thead><thead>')
-    .apppend('<tbody><tbody>')
-  ;
-  // TODO
+  return cloneTopLeft;
+}
+
+// horizontal
+liOC.fixTableScrollHorizontal = function(table) {
+  var cloneLeft = $('<table></table>').addClass('th-clone');
+  var width = table.find('tbody th:first').width();
+  var height = table.find('tbody th:first').height();
+  cloneLeft.append(table.find('tbody').clone()).find('tbody')
+    .find('td').remove();
+  cloneLeft.find('tbody th').width(width).height(height);
+  table.find('tbody th').width('auto').height('auto');
   
-  // vertical
+  return cloneLeft;
+}
+
+// vertical
+liOC.fixTableScrollVertical = function(table){
   var thead = table.find('thead');
   thead.find('td, th').each(function(){
     $(this).width($(this).width());
   });
-  var clone = $('<table></table>').append(thead.clone()).addClass('thead-clone');
-  clone.width(table.width());
+  cloneTop = $('<table></table>').append(thead.clone()).addClass('thead-clone');
+  cloneTop.width(table.width());
   thead.find('td, th').width('auto');
   
-  $(window).scroll(function(e){
+  return cloneTop;
+}
+
+liOC.fixTableReset = function() {
+  $('.sf_admin_list').find('.th-clone, .thead-clone, .thead-th-clone').remove();
+}
+
+liOC.fixTableScroll = function() {
+  liOC.fixTableReset();
+  var table = $('.sf_admin_list table');
+  var thead = table.find('thead');
+    
+  // vertical & vertical+horizontal
+  var clones = {
+    left: liOC.fixTableScrollHorizontal(table),
+    top:  liOC.fixTableScrollVertical(table),
+    both: liOC.fixTableScrollBoth(table)
+  }
+  
+  $.each(clones, function(i, clone){
+    clone.hide().insertBefore(table);
+  });
+  
+  // both
+  $(window).scroll(function(){
+    // top
     if ( thead.position().top-$(window).scrollTop()-$('#menu').position().top-$('#menu').height() < 0 ) {
-        clone.insertBefore(table);
+        clones['both'].show();
+        clones['top'].show();
     }
     else {
-        clone.remove();
+        clones['both'].hide();
+        clones['top'].hide();
     }
+    clones['top'].css('margin-left', -$(window).scrollLeft());
     
-    clone.css('margin-left', -$(window).scrollLeft());
-    console.error('pouet');
+    // left
+    if ( $(window).scrollLeft() > table.find('tbody th:first').position().left ) {
+        clones['left'].show();
+        clones['both'].show();
+    }
+    else {
+        clones['left'].hide();
+        clones['both'].hide();
+    }
+    clones['left'].css('margin-top', -$(window).scrollTop());
+    clones['both'].css('top', $(window).scrollTop() > 104 ? 50 : 154-$(window).scrollTop());
+  }).scroll();
+  
+  var to;
+  $(window).off('resize').resize(function(){
+    if ( to !== undefined ) {
+        clearTimeout(to);
+    }
+    to = setTimeout(function(){
+        liOC.fixTableScroll();
+    },500);
   });
 }
 
+liOC.blockContextMenu = function(){
+    $('.sf_admin_list table').contextmenu(function(e){ e.preventDefault(); return false; });
+}
 
 liOC.header_cell = '<th class="sf_admin_text sf_admin_list_th_id ui-state-default ui-th-column"></th>';
 liOC.link_day = '<a href="#" class="fg-button ui-widget ui-state-default ui-corner-all"></a>';
 liOC.choices = ['none', 'one', 'two', 'three'];
 
 liOC.gaugeChange = function(cell, value) {
-  var gauge = $('.plan_gauges th').eq(cell.index()).find('.gauge');
-  var part = parseInt(gauge.attr('data-part')) + value;
-  gauge.attr('data-part', part);
+  $('.plan_gauges').each(function(){
+    var gauge = $(this).find('th').eq(cell.index()).find('.gauge');
+    var part = parseInt(gauge.attr('data-part')) + value;
+    gauge.attr('data-part', part);
+  });
 }
 
 liOC.gaugeInc = function(cell) {
@@ -108,6 +181,7 @@ liOC.loadSnapshot = function(url) {
       liOC.addPros(data);
       liOC.refreshGauges();
       liOC.fixTableScroll();
+      liOC.blockContextMenu();
       $('#transition .close').click();
     },
     error: function(data){
