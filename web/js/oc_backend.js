@@ -46,32 +46,61 @@ $(document).ready(function(){
 liOC.fixTableScroll = function() {
   var table = $('.sf_admin_list table');
   
+  // horizontal+vertical
+  var cloneTopLeft = $('<table></table>').addClass('thead-th-clone');
+  table.find('thead tr:first th:first-child, thead tr:last th:first-child').each(function(){
+    var width = $(this).width();
+    var height = $(this).height();
+    $(this).width(width).height(height);
+  });
+  cloneTopLeft.append(table.find('thead').clone()).find('thead')
+    .find('th:not(:first-child), tr:not(:first):not(:last)').remove();
+  cloneTopLeft.find('thead th[rowspan]').prop('rowspan',1);
+  table.find('thead th').width('auto').height('auto');
+  var top = table.position().top;
+  
   // horizontal
-  $('<table></table>')
-    .apppend('<thead><thead>')
-    .apppend('<tbody><tbody>')
-  ;
-  // TODO
+  var cloneLeft = $('<table></table>').addClass('th-clone');
+  var width = table.find('tbody th:first').width();
+  var height = table.find('tbody th:first').height();
+  cloneLeft.append(table.find('tbody').clone()).find('tbody')
+    .find('td').remove();
+  cloneLeft.find('tbody th').width(width).height(height);
+  table.find('tbody th').width('auto').height('auto');
   
   // vertical
   var thead = table.find('thead');
   thead.find('td, th').each(function(){
     $(this).width($(this).width());
   });
-  var clone = $('<table></table>').append(thead.clone()).addClass('thead-clone');
-  clone.width(table.width());
+  var cloneTop = $('<table></table>').append(thead.clone()).addClass('thead-clone');
+  cloneTop.width(table.width());
   thead.find('td, th').width('auto');
   
+  // both
   $(window).scroll(function(e){
+    // top
     if ( thead.position().top-$(window).scrollTop()-$('#menu').position().top-$('#menu').height() < 0 ) {
-        clone.insertBefore(table);
+        cloneTopLeft.insertBefore(table);
+        cloneTop.insertBefore(table);
     }
     else {
-        clone.remove();
+        cloneTopLeft.remove();
+        cloneTop.remove();
     }
+    cloneTop.css('margin-left', -$(window).scrollLeft());
     
-    clone.css('margin-left', -$(window).scrollLeft());
-    console.error('pouet');
+    // left
+    if ( $(window).scrollLeft() > table.find('tbody th:first').position().left ) {
+        cloneLeft.insertBefore(table);
+        cloneTopLeft.insertBefore(table);
+    }
+    else {
+        cloneLeft.remove();
+        cloneTopLeft.remove();
+    }
+    cloneLeft.css('margin-top', -$(window).scrollTop());
+    cloneTopLeft.css('top', $(window).scrollTop() > 104 ? 50 : 154-$(window).scrollTop());
   });
 }
 
