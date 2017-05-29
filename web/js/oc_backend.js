@@ -8,7 +8,7 @@ $(document).ready(function(){
   liOC.loadHeaders($('.plan_day').attr('data-day'));
   
   $('.validate').click(function() {
-    validate();
+    liOC.validate();
   });
   
   $('.save_popup').click(function() {
@@ -195,12 +195,18 @@ liOC.saveSnapshot = function(type = 'save') {
   
   $('.plan_body tr').each(function() {
     var contact = new Object();
-    contact.id = $(this).find('td:first-child').attr('data-id');
-    contact.name = $(this).find('td:first-child').text();
+    contact.id = $(this).find('th:first-child').attr('data-id');
+    contact.name = $(this).find('th:first-child').text();
     contact.manifestations = [];
     $(this).find('td').filter('.none, .algo, .human').each(function() {
       var manifestation = new Object();
       manifestation.id = $('.plan_events th').eq($(this).index()-1).attr('data-id');
+      manifestation.time_slot_id = $('.plan_hours th').eq($(this).index()-1).attr('data-grp-id');
+      var gauge = $('.plan_gauges th').eq($(this).index()).find('.gauge');
+      var current = gauge.attr('data-part');
+      var max = gauge.attr('data-max');
+      manifestation.gauge_free = max - current;
+      manifestation.gauge_id = $('.plan_gauges th').eq($(this).index()).attr('data-id');
       manifestation.rank = $(this).text();
       var accepted = $(this).attr('class').match(/none|algo|human/g);
       if ( accepted.length > 0 )
@@ -301,6 +307,7 @@ liOC.loadHours = function(data) {
       $('<span></span>').appendTo(header_events).text(event.name);
       
       var header_gauges = $(liOC.header_cell)
+        .attr('data-id', event.gauge.id)
         .appendTo('.plan_gauges'); 
       $('.raw').clone()
         .removeClass('raw')
