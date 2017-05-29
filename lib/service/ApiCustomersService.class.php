@@ -31,7 +31,6 @@ class ApiCustomersService extends ApiEntityService
         'locale'        => ['type' => 'single', 'value' => 'Contact.culture'],
         'uid'           => ['type' => 'single', 'value' => 'Contact.vcard_uid'],
         'subscribedToNewsletter' => ['type' => 'single', 'value' => '!contact_email_no_newsletter'],
-        //'password'      => ['type' => 'single', 'value' => 'Contact.password'],
     ];
 
     /**
@@ -72,9 +71,11 @@ class ApiCustomersService extends ApiEntityService
                 ->orderBy('t.created_at DESC')
                 ->fetchOne();
             if ( $transaction instanceof OcTransaction ) {
-                $token->OcTransaction = $transaction;
-                $token->save();
+                $token->OcTransaction->oc_token_id = NULL;
+                $token->OcTransaction->save();
                 $transaction->OcToken = $token;
+                $token->OcTransaction = $transaction;
+                $transaction->save();
             }
             // else, create a new transaction
             else {

@@ -40,7 +40,9 @@ OcTransaction:
   columns:
     oc_professional_id: integer
     transaction_id: integer
-    oc_token_id: integer
+    oc_token_id:
+        type: integer
+        unique: true
     checkout_state:
       type: enum
       values: [cart, new, fulfilled, cancelled]
