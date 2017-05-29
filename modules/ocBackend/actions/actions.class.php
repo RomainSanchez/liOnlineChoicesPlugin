@@ -34,6 +34,8 @@ class ocBackendActions extends autoOcBackendActions
 
     $this->form = new OcSnapshotForm();
     $this->_csrf_token = $this->form->getCSRFToken();
+    $this->day = null;
+    $this->snapshots = array();
 
     $dates = $this->getDates();
     if ( count($dates) == 0 )
@@ -142,6 +144,9 @@ class ocBackendActions extends autoOcBackendActions
 
   public function executePros(sfWebRequest $request)
   {
+    $this->setTemplate('json');
+    $this->isDebug($request->hasParameter('debug'));
+    
     $this->json = array();
     
     $date = $request->getParameter('date');
@@ -204,14 +209,14 @@ class ocBackendActions extends autoOcBackendActions
       
       $this->json[] = $pro;
     }
-    
-    $this->setTemplate('json');
-    $this->isDebug($request->hasParameter('debug'));
   }
 
   public function executeEvents(sfWebRequest $request)
   {
     $this->getContext()->getConfiguration()->loadHelpers(['Date', 'Array']);
+    
+    $this->setTemplate('json');
+    $this->isDebug($request->hasParameter('debug'));
     
     $this->json = array();
     $current = $previous = $next = null;
@@ -227,26 +232,22 @@ class ocBackendActions extends autoOcBackendActions
     if ( !$date )
       $date = $dates[0]['m_start'];
     
-    $q = "
-      SELECT DISTINCT ts.id, ts.name AS time_name, ts.starts_at AS time_start, ts.ends_at AS time_end, m.happens_at AS manif_start, m.duration AS manif_duration, 
-        m.id AS manif_id, et.name AS event_name, et.short_name AS event_short_name, g.id AS gauge_id, g.value AS gauge,
-        (SELECT count(*) FROM oc_ticket k WHERE k.gauge_id = g.id AND accepted IN ('algo', 'human')) AS part
-      FROM manifestation m
-      INNER JOIN event e ON e.id = m.event_id
-      INNER JOIN event_translation et ON et.id = e.id
-      INNER JOIN meta_event me ON me.id = e.meta_event_id
-      INNER JOIN meta_event_user meu ON meu.meta_event_id = me.id
-      INNER JOIN gauge g ON g.manifestation_id = m.id
-      INNER JOIN oc_time_slot ts ON m.happens_at >= ts.starts_at AND m.happens_at < ts.ends_at
-      WHERE date(m.happens_at) = :selected_date
-      AND meu.sf_guard_user_id = :user_id
-      ORDER BY ts.starts_at, et.short_name
-    ";
-    $pdo = Doctrine_Manager::getInstance()->getCurrentConnection()->getDbh();
-    $stmt = $pdo->prepare($q);
-    $stmt->execute(array('selected_date' => $date, 'user_id' => $this->getUser()->getId()));
-    $manifestations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+    $q = Doctrine_Query::create()
+      ->select('ts.id, ts.name AS time_name, ts.starts_at AS time_start, ts.ends_at AS time_end, m.happens_at AS manif_start, m.duration AS manif_duration')
+      ->addSelect('m.id AS manif_id, e.id, et.name AS event_name, et.short_name AS event_short_name, g.id AS gauge_id, g.value AS gauge')
+      ->addSelect("(SELECT count(*) FROM OcTicket k WHERE k.gauge_id = g.id AND accepted IN ('algo', 'human')) AS part")
+      ->distinct()
+      ->from('Manifestation m')
+      ->innerJoin('m.Event e')
+      ->leftJoin('e.Translation et WITH et.lang = ?', $this->getUser()->getCulture())
+      ->innerJoin('m.Gauges g')
+      ->innerJoin('m.OcTimeSlots ts')
+      ->andWhere('date(m.happens_at) = ?', $date)
+      ->andWhereIn('e.meta_event_id', array_keys($this->getUser()->getMetaEventsCredentials()))
+      ->orderBy('ts.starts_at, et.short_name');
+      
+    $manifestations = $q->fetchArray();
+      
     $day = array_search($date, array_column($dates, 'm_start'));
     
     if ( $day !== false )
@@ -301,8 +302,5 @@ class ocBackendActions extends autoOcBackendActions
 
       $this->json['manifestations'][$i] = $manifestation;
     }
-  
-    $this->setTemplate('json');
-    $this->isDebug($request->hasParameter('debug'));
   }
 }
