@@ -8,10 +8,18 @@ return [
     'ocSetup',
     'ocTimeSlot',
     'ocApplication',
+    'ocBackend',
+    'ocPicture',
     'ocApiOAuth',
     'ocApiCustomers',
     'ocApiManifestations',
     'ocApiEvents',
+    'ocApiCarts',
+    'ocApiCartItems',
+    'ocApiCheckouts',
 
+  ],
+  'filters' => [
+    'exceptionCatcherFilter' => 'on',
   ],
 ];
