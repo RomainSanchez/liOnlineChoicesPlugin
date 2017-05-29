@@ -160,9 +160,30 @@ class ocBackendActions extends autoOcBackendActions
     if ( !$date )
       $date = $dates[0]['m_start'];
 
-    $q = Doctrine_Query::create()
+    // add any contact in the target group that does not have an OcProfessional yet
+    $q = Doctrine::getTable('Professional')->createQuery('p')
+      ->select('p.id')
+      
+      ->leftJoin('p.OcProfessionals op')
+      ->andWhere('op.id IS NULL')
+      
+      ->leftJoin('p.Groups grp')
+      ->leftJoin('grp.Users gu')
+      ->andWhere('? AND gu.id IS NULL OR gu.id = ?', [$this->getUser()->hasCredential('pr-group-common') || $this->getUser()->isSuperAdmin(), $this->getUser()->getId()])
+      
+      ->leftJoin('grp.OcConfigs conf')
+      ->andWhere('conf.sf_guard_user_id = ?', $this->getUser()->getId())
+      ->orderBy('c.name, c.firstname')
+    ;
+    foreach ( $q->fetchArray() as $i => $p ) {
+        $pro = new OcProfessional;
+        $pro->professional_id = $p['id'];
+        $pro->save();
+    }
+    
+    // get back authorized and targetted OcProfessionals and their OcTickets
+    $q = Doctrine::getTable('OcProfessional')->createQuery('op')
       ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, g.id, m.id, tck.rank, tck.accepted')
-      ->from('OcProfessional op')
       ->leftJoin('op.Professional p')
       
       ->leftJoin('p.Contact c')
