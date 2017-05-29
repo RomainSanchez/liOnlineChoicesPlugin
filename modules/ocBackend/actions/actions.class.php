@@ -106,6 +106,24 @@ class ocBackendActions extends autoOcBackendActions
     $this->setTemplate('json');
     $this->isDebug($request->hasParameter('debug'));
   }
+  
+  public function executeSaveOrdering(sfWebRequest $request)
+  {
+    if (!( is_array($request->getParameter('rank',[])) && $request->getParameter('rank',[]) )) {
+        return sfView::NONE;
+    }
+    
+    foreach ( $request->getParameter('rank',[]) as $rank => $proid ) {
+        Doctrine::getTable('OcProfessional')->createQuery('op')
+            ->update()
+            ->set('rank', $rank+1)
+            ->where('id = ?', $proid)
+            ->execute();
+    }
+    
+    return sfView::NONE;
+  }
+  
   public function executeSaveSnapshot(sfWebRequest $request)
   {
     $this->json = array();
@@ -183,10 +201,11 @@ class ocBackendActions extends autoOcBackendActions
     
     // get back authorized and targetted OcProfessionals and their OcTickets
     $q = Doctrine::getTable('OcProfessional')->createQuery('op')
-      ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, g.id, m.id, tck.rank, tck.accepted')
+      ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted')
       ->leftJoin('op.Professional p')
       
       ->leftJoin('p.Contact c')
+      ->leftJoin('p.Organism o')
       ->leftJoin('op.OcTransactions t')
       ->leftJoin('t.OcTickets tck')
       ->leftJoin('tck.Gauge g')
@@ -216,6 +235,7 @@ class ocBackendActions extends autoOcBackendActions
       $pro['id'] = $ocPro['id'];
       $pro['rank'] = $ocPro['rank'];
       $pro['name'] = $ocPro['Professional']['Contact']['firstname'].' '.$ocPro['Professional']['Contact']['name'];
+      $pro['organism'] = $ocPro['Professional']['Organism']['name'];
       $pro['manifestations'] = array();
       
       if ( count($ocPro['OcTransactions']) > 0 )

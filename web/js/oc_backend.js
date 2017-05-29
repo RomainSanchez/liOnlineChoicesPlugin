@@ -75,7 +75,7 @@ liOC.fixTableScrollHorizontal = function(table) {
   var width = table.find('tbody th:first').width();
   var height = table.find('tbody th:first').height();
   cloneLeft.append(table.find('tbody').clone()).find('tbody')
-    .find('td').remove();
+    .find('td, .rank').remove();
   cloneLeft.find('tbody th').width(width).height(height);
   table.find('tbody th').width('auto').height('auto');
   
@@ -334,8 +334,11 @@ liOC.addPros = function(data) {
     
     row_pro.append(
         $('<th></th>')
+            .append($('<input>').prop('type', 'hidden').prop('name', 'rank[]').val(pro.id).addClass('rank'))
             .append($('<span>').addClass('rank').attr('data-rank', pro.rank).text(pro.rank))
             .append($('<span>').addClass('name').text(pro.name))
+            .append('<br/>')
+            .append($('<span>').addClass('organism').text(pro.organism))
             .attr('data-id', pro.id)
     );
 
@@ -396,19 +399,34 @@ liOC.addPros = function(data) {
   liOC.sortPros();
 }
 
+liOC.computeRanks = function(elt) {
+  var rank = 1;
+  $(elt).find('tr').each(function(){
+    $(this).find('.rank').text(rank).attr('data-rank', rank);
+    rank++;
+  });
+}
+
 liOC.sortPros = function() {
   $('.sf_admin_list table.real tbody').sortable({
     cursor: 'move',
     delay: 150,
     update: function(event, ui){
-      console.error('move', ui);
-      var rank = 1;
-      $(this).find('tr').each(function(){
-        $(this).find('.rank').text(rank).attr('data-rank', rank);
-        rank++;
-      });
+      liOC.computeRanks(this);
       liOC.fixTableScroll();
     }
+  });
+  
+  $('#sf_admin_content .sf_admin_actions_block .ranks a').click(function(){
+    $.ajax({
+      url: $(this).prop('href'),
+      method: 'post',
+      data: $(this).closest('form').serialize(),
+      complete: function(){
+        $('#transition .close').click();
+      }
+    });
+    return false;
   });
 }
 
