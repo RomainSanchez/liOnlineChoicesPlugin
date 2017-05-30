@@ -159,4 +159,38 @@ class ocApiCartItemsActions extends apiActions
     }
 
 
+    /**
+     * Action for reordering cart items
+     * @param sfWebRequest $request
+     * @return string (sfView::NONE)
+     */
+    public function executeReorder(sfWebRequest $request)
+    {
+        $status = ApiHttpStatus::SUCCESS;
+        $message = ApiHttpMessage::UPDATE_SUCCESSFUL;
+
+        $cart_id = $request->getParameter('id', 0);
+
+        /* @var $cartsService ApiCartsService */
+        $cartsService = $this->getService('api_carts_service');
+        if (!$cartsService->isCartEditable($cart_id)) {
+            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
+        }
+
+        /* @var $cartItemsService ApiCartItemsService */
+        $cartItemsService = $this->getService('api_cartitems_service');
+        $isSuccess = $cartItemsService->reorderItems($cart_id, $request->getParameter('application/json'));
+
+        if (!$isSuccess) {
+            $status = ApiHttpStatus::BAD_REQUEST;
+            $message = ApiHttpMessage::UPDATE_FAILED;
+        }
+
+        return $this->createJsonResponse([
+                "code" => $status,
+                'message' => $message
+                ], $status);
+    }
+
+
 }

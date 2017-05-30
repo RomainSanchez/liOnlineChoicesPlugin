@@ -272,6 +272,15 @@ oc_api_carts_items_resource_delete:
         id: \d+
         item_id: \d+
         sf_method: [DELETE]
+oc_api_carts_items_reorder:
+    url: /api/v2/carts/:id/items/reorder
+    class: sfRequestRoute
+    param: { module: ocApiCartItems, action: reorder }
+    options:
+        credentials: tck-onlinechoices-api-cart-items-edit
+    requirements:
+        id: \d+
+        sf_method: [POST]
 
 #
 # CHECKOUTS

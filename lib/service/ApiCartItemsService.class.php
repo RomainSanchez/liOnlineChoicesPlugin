@@ -261,7 +261,56 @@ class ApiCartItemsService extends ApiEntityService
         return true;
     }
 
+    /**
+     * @param int $cartId
+     * @param array $data
+     * @return boolean   true if successful, false if failed
+     */
+    public function reorderItems($cartId, $data)
+    {
+        // Validate data
+        if (!is_array($data)) {
+            return false;
+        }
 
+        $ranks = [];
+        $cartItemIds = [];
+        foreach($data as $d) {
+            if (!isset($d['cartItemId']) || !isset($d['rank'])) {
+                return false;
+            }
+            $ranks[$d['cartItemId']] = (int)$d['rank'];
+            $cartItemIds[] = (int)$d['cartItemId'];
+        }
+
+        $cartItems = $dotrineCol = $this->buildQuery([])
+            ->leftJoin('root.Gauge gau')
+            ->andWhere('root.oc_transaction_id = ?', $cartId)
+            ->andWhereIn('root.id', $cartItemIds)
+            ->execute()
+        ;
+        if ($cartItems->count() != count($cartItemIds)) {
+            return false;
+        }
+
+        // Check if all cart items belong to the same time slot
+        $declinationIds = [];
+        foreach($cartItems as $item) {
+            $declinationIds[] = $item->Gauge->manifestation_id;
+        }
+        $timeSlotIds = $this->getTimeSlotIds($declinationIds);
+        if (count($timeSlotIds) != 1) {
+            return false;
+        }
+
+        // Update cart item ranks
+        foreach($cartItems as $item) {
+            $item->rank = $ranks[$item->id];
+            $item->save();
+        }
+
+        return true;
+    }
 
     /**
      *
@@ -386,11 +435,32 @@ class ApiCartItemsService extends ApiEntityService
             ->andWhere('gau.id = ?', $declinationId)
         ;
         $timeSlot = $q->fetchArray();
-        
+
         if (!$timeSlot) {
             return false;
         }
         return $timeSlot[0]['id'];
+    }
+
+    /**
+     * @param array $declinationIds
+     * @return array
+     */
+    protected function getTimeSlotIds($declinationIds)
+    {
+        $q = Doctrine::getTable('ocTimeSlot')->createQuery('ts')
+            ->select('ts.id')
+            ->leftJoin('ts.OcTimeSlotManifestations tsm')
+            ->leftJoin('tsm.Manifestation man')
+            ->leftJoin('man.Gauges gau')
+            ->andWhereIn('gau.id', $declinationIds)
+        ;
+        $timeSlots = $q->fetchArray();
+        $timeSlotIds = [];
+        foreach($timeSlots as $ts) {
+            $timeSlotIds[] = $ts['id'];
+        }
+        return array_unique($timeSlotIds);
     }
 
 
