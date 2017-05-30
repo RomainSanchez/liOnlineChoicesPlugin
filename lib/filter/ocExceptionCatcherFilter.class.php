@@ -18,7 +18,7 @@ class ocExceptionCatcherFilter
         // use this filter only if the context expects "JSON" answers
         if ( sfContext::hasInstance() ) {
             if ( $aEntry = sfContext::getInstance()->getActionStack()->getLastEntry() ) {
-                if ( ! $aEntry->getActionInstance() instanceof jsonActions ) {
+                if (!( $aEntry->getActionInstance() instanceof jsonActions )) {
                     $filterChain->execute();
                     return;
                 }
@@ -30,7 +30,7 @@ class ocExceptionCatcherFilter
             $filterChain->execute();
             
         } catch ( ocAuthException $e ) {
-        
+            
             OcLogger::log($e->getMessage());
             $r = $this->getResponse();
             $r->setStatusCode(ApiHttpStatus::UNAUTHORIZED);
