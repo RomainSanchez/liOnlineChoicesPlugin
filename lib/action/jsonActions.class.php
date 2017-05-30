@@ -30,13 +30,13 @@ abstract class jsonActions extends sfActions
 
     private function authenticate()
     {
-        $request = $this->getRequest();
-        
-        $route = $request->getRequestParameters()['_sf_route'];
-        $security = $route->getOptions();
-        $secure = isset($security['secure']) ? $security['secure'] : true;
-        
-        if ( $secure ) {
+      $request = $this->getRequest();
+      
+      $route = $request->getRequestParameters()['_sf_route'];
+      $security = $route->getOptions();
+      $secure = isset($security['secure']) ? $security['secure'] : true;
+      
+      if ( $secure ) {
 		    /* @var $oauthService ApiAuthService */
 		    $oauthService = $this->getService('api_oauth_service');
 		    /* @var $sf_user sfBasicSecurityUser */
@@ -75,7 +75,7 @@ abstract class jsonActions extends sfActions
 		            throw new ocAuthCredentialsException('[Permissions] Invalid authentication credentials');
 		        }
 	    	}
-		}
+      }
     }
 
     private function convertJsonToParameters()

@@ -96,6 +96,7 @@ class ApiManifestationsService extends ApiEntityService
             ? $this->oauth->getToken()->OcTransaction->OcProfessional->Professional->contact_id
             : NULL
         );
+        $q->andWhere('g.online = ?', true);
         return $q;
     }
 
