@@ -14,7 +14,7 @@ class ApiActionsService
 {
     public function populateAccessControlHeaders(sfResponse $response)
     {
-        $response->setHttpHeader('Access-Control-Allow-Origin', '*');
+        $response->setHttpHeader('Access-Control-Allow-Origin', '*'); // TODO, precise the authorized sources
         $response->setHttpHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, OPTIONS, DELETE');
         $response->setHttpHeader('Access-Control-Allow-Headers', 'authorization, x-requested-with, content-type');
     }
