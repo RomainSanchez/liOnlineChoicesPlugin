@@ -106,6 +106,24 @@ class ocBackendActions extends autoOcBackendActions
     $this->setTemplate('json');
     $this->isDebug($request->hasParameter('debug'));
   }
+  
+  public function executeSaveOrdering(sfWebRequest $request)
+  {
+    if (!( is_array($request->getParameter('rank',[])) && $request->getParameter('rank',[]) )) {
+        return sfView::NONE;
+    }
+    
+    foreach ( $request->getParameter('rank',[]) as $rank => $proid ) {
+        Doctrine::getTable('OcProfessional')->createQuery('op')
+            ->update()
+            ->set('rank', $rank+1)
+            ->where('id = ?', $proid)
+            ->execute();
+    }
+    
+    return sfView::NONE;
+  }
+  
   public function executeSaveSnapshot(sfWebRequest $request)
   {
     $this->json = array();
@@ -160,12 +178,34 @@ class ocBackendActions extends autoOcBackendActions
     if ( !$date )
       $date = $dates[0]['m_start'];
 
-    $q = Doctrine_Query::create()
-      ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, g.id, m.id, tck.rank, tck.accepted')
-      ->from('OcProfessional op')
+    // add any contact in the target group that does not have an OcProfessional yet
+    $q = Doctrine::getTable('Professional')->createQuery('p')
+      ->select('p.id')
+      
+      ->leftJoin('p.OcProfessionals op')
+      ->andWhere('op.id IS NULL')
+      
+      ->leftJoin('p.Groups grp')
+      ->leftJoin('grp.Users gu')
+      ->andWhere('? AND gu.id IS NULL OR gu.id = ?', [$this->getUser()->hasCredential('pr-group-common') || $this->getUser()->isSuperAdmin(), $this->getUser()->getId()])
+      
+      ->leftJoin('grp.OcConfigs conf')
+      ->andWhere('conf.sf_guard_user_id = ?', $this->getUser()->getId())
+      ->orderBy('c.name, c.firstname')
+    ;
+    foreach ( $q->fetchArray() as $i => $p ) {
+        $pro = new OcProfessional;
+        $pro->professional_id = $p['id'];
+        $pro->save();
+    }
+    
+    // get back authorized and targetted OcProfessionals and their OcTickets
+    $q = Doctrine::getTable('OcProfessional')->createQuery('op')
+      ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted')
       ->leftJoin('op.Professional p')
       
       ->leftJoin('p.Contact c')
+      ->leftJoin('p.Organism o')
       ->leftJoin('op.OcTransactions t')
       ->leftJoin('t.OcTickets tck')
       ->leftJoin('tck.Gauge g')
@@ -195,6 +235,7 @@ class ocBackendActions extends autoOcBackendActions
       $pro['id'] = $ocPro['id'];
       $pro['rank'] = $ocPro['rank'];
       $pro['name'] = $ocPro['Professional']['Contact']['firstname'].' '.$ocPro['Professional']['Contact']['name'];
+      $pro['organism'] = $ocPro['Professional']['Organism']['name'];
       $pro['manifestations'] = array();
       
       if ( count($ocPro['OcTransactions']) > 0 )

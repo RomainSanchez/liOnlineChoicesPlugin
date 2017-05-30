@@ -531,6 +531,13 @@ oc_backend_load_snapshot:
     requirements:
         id: \d+
         sf_method: [GET, POST]
+oc_backend_save_ordering:
+    url: /oc_backend/ordering/save
+    class: sfRequestRoute
+    param: { module: ocBackend, action: saveOrdering }
+    requirements:
+        id: \d+
+        sf_method: [POST]
 
 oc_snapshot:
   class: sfDoctrineRouteCollection

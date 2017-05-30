@@ -77,6 +77,10 @@
         <target>Placement auto</target>
       </trans-unit>
       <trans-unit>
+        <source>Save ordering</source>
+        <target>Enregistrer l'ordre</target>
+      </trans-unit>
+      <trans-unit>
         <source>List of events</source>
         <target>Liste des évènements</target>
       </trans-unit>

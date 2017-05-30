@@ -7,7 +7,7 @@
   
   <input id="_csrf_token" type="hidden" value="<?php echo $_csrf_token ?>">
   
-  <div id="sf_admin_content">
+  <form id="sf_admin_content">
     
       <div class="sf_admin_actions_block floatleft">
         <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-snapshot') ): ?>
@@ -18,6 +18,9 @@
         <?php endif ?>
       </div>
       <div class="sf_admin_actions_block floatright">
+        <?php if ( $sf_user->hasCredential('tck-onlinechoices-rank') ): ?>
+        <span class="fg-button ui-widget ui-state-default ui-corner-all ranks"><a href="<?php echo url_for('oc_backend_save_ordering') ?>"><?php echo __('Save ordering', null, 'li_oc') ?></a></span>
+        <?php endif ?>
         <?php if ( $sf_user->hasCredential('tck-onlinechoices-auto') ): ?>
         <span data-url="" class="fg-button ui-widget ui-state-default ui-corner-all"><?php echo __('Auto positioning', null, 'li_oc') ?></span>
         <?php endif ?>
@@ -29,7 +32,7 @@
       <?php include_partial('ocBackend/list', array('day' => $day)) ?>
 
 
-  </div>
+  </form>
 
   <?php include_partial('ocBackend/themeswitcher') ?>
 </div>
