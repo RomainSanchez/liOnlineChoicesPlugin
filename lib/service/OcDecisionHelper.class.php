@@ -43,8 +43,11 @@ class OcDecisionHelper
     public function process($data, $maxIterations = 7)
     {
         $this->init($data);
-
         $this->doProcess($maxIterations);
+
+        //echo "\n================== best state:\n";
+        //print_r($this->getBestState());
+
         return $this->formatOutput();
     }
 
@@ -53,14 +56,84 @@ class OcDecisionHelper
      */
     protected function init($data)
     {
-        $this->timeSlots = [];
-        $this->participants = [];
         $this->maxRank = 0;
         $this->states = [];
-        foreach($data as $participant) {
-            $this->addParticipant($participant);
+
+        // Init time slots
+        $this->timeSlots = [];
+        foreach($data['timeSlots'] as $ts) {
+            $tsid = $ts['id'];
+            $manifestations = [];
+            foreach($ts['manifestations'] as $m) {
+                $mid = $m['id'];
+                $manifestations[$mid] = [
+                    'name' => isset($m['name']) ? $m['name'] : "t$tsid.m$mid",
+                    'time_slot_id' => $tsid,
+                    'gauge_free' => $m['gauge_free'],
+                ];
+            }
+            $this->timeSlots[$tsid] = [
+                'id' => $tsid,
+                'name' => isset($ts['name']) ? $ts['name'] : "t$tsid",
+                'manifestations' => $manifestations,
+            ];
         }
+
+        // Init participants
+        $this->participants = [];
+        foreach($data['participants'] as $k => $p) {
+            $pid = $p['id'];
+            $timeSlots = [];
+            $humanTsIds = [];
+            foreach($p['manifestations'] as $m) {
+                $mid = $m['id'];
+                $manifestation = $this->getManifestation($mid);
+                if (false === $manifestation) {
+                    throw new Exception(sprintf('Manifestation id=%d not found when paring participant id=%d', $mid, $pid));
+                }
+                $tsid = $manifestation['time_slot_id'];
+                if (!isset($timeSlots[$tsid])) {
+                    $timeSlots[$tsid] = [];
+                }
+
+                $isHuman = $m['accepted'] == 'human';
+                $timeSlots[$tsid][$mid] = [
+                    'rank' => $m['rank'],
+                    'human' => $isHuman,
+                ];
+                if ($isHuman) {
+                    $humanTsIds[] = $tsid;
+                }
+
+                if ($m['accepted'] == 'algo') {
+                    $this->timeSlots[$tsid][$mid]['gauge_free']++;
+                }
+            }
+
+            // Update $this->maxRank when needed
+            foreach($timeSlots as $tsid => $ts) {
+                if (in_array($tsid, $humanTsIds)) {
+                    continue;
+                }
+                foreach($ts as $m) {
+                    $this->maxRank = max($this->maxRank, $m['rank']);
+                }
+            }
+
+            $this->participants[$pid] = [
+                'name' => isset($p['name']) ? $p['name'] : "p$pid",
+                'rank' => $k + 1,
+                'timeSlots' => $timeSlots,
+                'humanTsIds' => $humanTsIds,
+            ];
+        }
+
+        //echo "\n================== timeSlots:\n";
+        //print_r($this->timeSlots);
+        //echo "\n================== participants:\n";
+        //print_r($this->participants);
     }
+
 
     /**
      * @param int $maxIterations
@@ -163,12 +236,29 @@ class OcDecisionHelper
      */
     protected function formatOutput()
     {
-        $iter = count($this->states);
-        if (!$iter) {
+        $state = $this->getBestState();
+        if (!$state) {
             return false;
         }
-        $state = $this->states[$iter-1];
-        $output = [];
+
+        $timeSlots = [];
+        foreach ($this->timeSlots as $tsid => $ts) {
+            $manifestations = [];
+            foreach ($ts['manifestations'] as $mid => $m) {
+                $manifestations[] = [
+                    'id' => $mid,
+                    'name' => $m['name'],
+                    'gauge_free' => $state['gauges'][$mid],
+                ];
+            }
+            $timeSlots[] = [
+                'id' => $tsid,
+                'name' => $ts['name'],
+                'manifestations' => $manifestations,
+            ];
+        }
+
+        $participants = [];
         foreach($this->participants as $pid => $p) {
             $manifestations = [];
             foreach($p['timeSlots'] as $tsid => $ts) {
@@ -177,25 +267,32 @@ class OcDecisionHelper
                     if ($m['human']) {
                         $accepted = 'human';
                     }
-                    else if ($state['participants'][$pid]['timeSlots'][$tsid] == $mid) {
+                    else if (isset($state['participants'][$pid]['timeSlots'][$tsid])
+                        && $state['participants'][$pid]['timeSlots'][$tsid] == $mid) {
                         $accepted = 'algo';
                     }
-
                     $manifestations[] = [
                         'id' => $mid,
-                        'time_slot_id' => $tsid,
-                        'gauge_free' => $state['gauges'][$mid],
                         'rank' => $m['rank'],
                         'accepted' => $accepted,
                     ];
                 }
             }
-            $output[] = [
+            $participants[] = [
                 'id' => $pid,
                 'name' => $p['name'],
                 'manifestations' => $manifestations,
             ];
         }
+
+        $output = [
+            'timeSlots' => $timeSlots,
+            'participants' => $participants,
+        ];
+
+        //echo "\n================== output:\n";
+        //print_r($output);
+
         return $output;
     }
 
@@ -223,7 +320,7 @@ class OcDecisionHelper
      */
     public function validateInitialData()
     {
-        return true;
+        return true; // TODO
     }
 
     /**
@@ -232,6 +329,22 @@ class OcDecisionHelper
     public function getStates()
     {
         return $this->states;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBestState()
+    {
+        $maxPoints = -1;
+        $bestStateId = -1;
+        foreach($this->states as $k => $state) {
+            if ($state['points'] > $maxPoints) {
+                $bestStateId = $k;
+                $maxPoints = $state['points'];
+            }
+        }
+        return $bestStateId >= 0 ? $this->states[$bestStateId] : [];
     }
 
     /**
@@ -258,61 +371,6 @@ class OcDecisionHelper
     public function getAllParticipants()
     {
         return $this->participants;
-    }
-
-    /**
-     * @param array $participant
-     * @return self
-     */
-    protected function addParticipant($participant)
-    {
-        $id = $participant['id'];
-        if ($this->getParticipant($id)) {
-            return $this;
-        }
-
-        $timeSlots = [];
-        $humanTsIds = [];
-        foreach($participant['manifestations'] as $manifestation) {
-            $this->addManifestation($manifestation);
-
-            $tsid = $manifestation['time_slot_id'];
-            $mid = $manifestation['id'];
-            if (!isset($timeSlots[$tsid])) {
-                $timeSlots[$tsid] = [];
-            }
-
-            $isHuman = $manifestation['accepted'] == 'human';
-            $timeSlots[$tsid][$mid] = [
-                'rank' => $manifestation['rank'],
-                'human' => $isHuman,
-            ];
-            if ($isHuman) {
-                $humanTsIds[] = $tsid;
-            }
-
-            if ($manifestation['accepted'] == 'algo') {
-                $this->timeSlots[$tsid][$mid]['gauge_free']++;
-            }
-        }
-
-        foreach($timeSlots as $tsid => $ts) {
-            if (in_array($tsid, $humanTsIds)) {
-                continue;
-            }
-            foreach($ts as $m) {
-                $this->maxRank = max($this->maxRank, $m['rank']);
-            }
-        }
-
-        $this->participants[$id] = [
-            'name' => isset($participant['name']) ? $participant['name'] : '',
-            'rank' => count($this->participants) + 1,
-            'timeSlots' => $timeSlots,
-            'humanTsIds' =>$humanTsIds,
-        ];
-
-        return $this;
     }
 
     /**
@@ -344,29 +402,6 @@ class OcDecisionHelper
     }
 
     /**
-     * @param array $manifestation
-     * @return self
-     */
-    public function addManifestation($manifestation)
-    {
-        $id = $manifestation['id'];
-        if ($this->getManifestation($id)) {
-            return $this;
-        }
-
-        $tsid = $manifestation['time_slot_id'];
-        $this->addTimeSlot(['id' => $tsid]);
-
-        $this->timeSlots[$tsid]['manifestations'][$id] = [
-            'name' => isset($manifestation['name']) ? $manifestation['name'] : '',
-            'time_slot_id' => $tsid,
-            'gauge_free' => $manifestation['gauge_free'],
-        ];
-        return $this;
-    }
-
-
-    /**
      * @param integer $time_slot_id
      * @return array | false if not found
      */
@@ -383,21 +418,4 @@ class OcDecisionHelper
         return $this->timeSlots;
     }
 
-    /**
-     * @param array $timeSlot
-     * @return self
-     */
-    public function addTimeSlot($timeSlot)
-    {
-        $id = $timeSlot['id'];
-        if ($this->getTimeSlot($id)) {
-            return $this;
-        }
-
-        $this->timeSlots[$id] = [
-            'id' => $id,
-            'name' => isset($timeSlot['name']) ? $timeSlot['name'] : sprintf('TS #%d', count($this->timeSlots) + 1),
-            'manifestations' => [],
-        ];
-    }
 }

@@ -51,10 +51,9 @@ class testOcDecisionHelperTask extends sfBaseTask
         }
 
         $output = $this->service->process($data);
-//        print_r($output);
         print "\n";
-        $state = $this->service->getLastState();
-        $this->displayState($data, $state);
+        $state = $this->service->getBestState();
+        $this->displayState($state);
         print "\n";
 //        $randomData = $this->getRandomData();
 //        print_r($randomData);
@@ -75,44 +74,60 @@ class testOcDecisionHelperTask extends sfBaseTask
     protected function getSampleData()
     {
         return [
-            ['id' => 1, 'name' => 'Ambassadeur A', 'manifestations' => [
-                    ['id' => 1, 'time_slot_id' => 1, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 2, 'time_slot_id' => 1, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 3, 'time_slot_id' => 1, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                    ['id' => 4, 'time_slot_id' => 2, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 5, 'time_slot_id' => 2, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                ]],
-            ['id' => 2, 'name' => 'Ambassadeur B', 'manifestations' => [
-                    ['id' => 1, 'time_slot_id' => 1, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 2, 'time_slot_id' => 1, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 3, 'time_slot_id' => 1, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                    ['id' => 5, 'time_slot_id' => 2, 'gauge_free' => 2, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 6, 'time_slot_id' => 2, 'gauge_free' => 3, 'rank' => 2, 'accepted' => 'none'],
-                ]],
-            ['id' => 3, 'name' => 'Ambassadeur C', 'manifestations' => [
-                    ['id' => 1, 'time_slot_id' => 1, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'human'],
-                    ['id' => 2, 'time_slot_id' => 1, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 3, 'time_slot_id' => 1, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                    ['id' => 4, 'time_slot_id' => 2, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 5, 'time_slot_id' => 2, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 6, 'time_slot_id' => 2, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                ]],
-            ['id' => 4, 'name' => 'Ambassadeur D', 'manifestations' => [
-                    ['id' => 1, 'time_slot_id' => 1, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 2, 'time_slot_id' => 1, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 3, 'time_slot_id' => 1, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                    ['id' => 4, 'time_slot_id' => 2, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 5, 'time_slot_id' => 2, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 6, 'time_slot_id' => 2, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                ]],
-            ['id' => 5, 'name' => 'Ambassadeur E', 'manifestations' => [
-                    ['id' => 1, 'time_slot_id' => 1, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 2, 'time_slot_id' => 1, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 3, 'time_slot_id' => 1, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                    ['id' => 4, 'time_slot_id' => 2, 'gauge_free' => 1, 'rank' => 1, 'accepted' => 'none'],
-                    ['id' => 5, 'time_slot_id' => 2, 'gauge_free' => 2, 'rank' => 2, 'accepted' => 'none'],
-                    ['id' => 6, 'time_slot_id' => 2, 'gauge_free' => 3, 'rank' => 3, 'accepted' => 'none'],
-                ]],
+            'timeSlots' => [
+                ['id' => 1, 'manifestations' => [
+                        ['id' => 1, 'gauge_free' => 1],
+                        ['id' => 2, 'gauge_free' => 2],
+                        ['id' => 3, 'gauge_free' => 3],
+                    ]
+                ],
+                ['id' => 2, 'manifestations' => [
+                        ['id' => 4, 'gauge_free' => 1],
+                        ['id' => 5, 'gauge_free' => 2],
+                        ['id' => 6, 'gauge_free' => 3],
+                    ]
+                ],
+            ],
+            'participants' => [
+                ['id' => 1, 'name' => 'Ambassadeur A', 'manifestations' => [
+                        ['id' => 1,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 2,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 3,  'rank' => 3, 'accepted' => 'none'],
+                        ['id' => 4,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 5,  'rank' => 2, 'accepted' => 'none'],
+                    ]],
+                ['id' => 2, 'name' => 'Ambassadeur B', 'manifestations' => [
+                        ['id' => 1,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 2,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 3,  'rank' => 3, 'accepted' => 'none'],
+                        ['id' => 5,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 6,  'rank' => 2, 'accepted' => 'none'],
+                    ]],
+                ['id' => 3, 'name' => 'Ambassadeur C', 'manifestations' => [
+                        ['id' => 1,  'rank' => 1, 'accepted' => 'human'],
+                        ['id' => 2,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 3,  'rank' => 3, 'accepted' => 'none'],
+                        ['id' => 4,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 5,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 6,  'rank' => 3, 'accepted' => 'none'],
+                    ]],
+                ['id' => 4, 'name' => 'Ambassadeur D', 'manifestations' => [
+                        ['id' => 1,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 2,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 3,  'rank' => 3, 'accepted' => 'none'],
+                        ['id' => 4,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 5,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 6,  'rank' => 3, 'accepted' => 'none'],
+                    ]],
+                ['id' => 5, 'name' => 'Ambassadeur E', 'manifestations' => [
+                        ['id' => 1,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 2,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 3,  'rank' => 3, 'accepted' => 'none'],
+                        ['id' => 4,  'rank' => 1, 'accepted' => 'none'],
+                        ['id' => 5,  'rank' => 2, 'accepted' => 'none'],
+                        ['id' => 6,  'rank' => 3, 'accepted' => 'none'],
+                    ]],
+            ]
         ];
     }
 
@@ -123,15 +138,20 @@ class testOcDecisionHelperTask extends sfBaseTask
         $nbManifestations = 3;
         $gauge_free = 5;
 
-        $data = [];
+        $timeSlots = [];
+        for ($tsid = 1; $tsid <= $nbTimeSlots; $tsid++) {
+            $manifestations = [];
+            for ($mid = ($tsid-1) * $nbManifestations + 1; $mid <= $tsid * $nbManifestations; $mid++) {
+                $manifestations[] = ['id' => $mid, 'gauge_free' => $gauge_free];
+            }
+            $timeSlots[] = ['id' => $tsid, 'manifestations' => $manifestations];
+        }
+
+        $participants = [];
         for ($pid = 1; $pid <= $nbParticipants; $pid++) {
-            $participant = [
-                'id' => $pid,
-                'name' => "Participant $pid",
-            ];
             $manifestations = [];
             for ($tsid = 0; $tsid < $nbTimeSlots; $tsid++) {
-                if (rand(1, 100) < 50) {
+                if (rand(1, 100) < 70) {
                     continue;
                 }
                 $availableMids = range($tsid * $nbManifestations, ($tsid + 1) * $nbManifestations - 1);
@@ -141,8 +161,6 @@ class testOcDecisionHelperTask extends sfBaseTask
                     if (in_array($k, $mids)) {
                         $manifestations[] = [
                             'id' => $mid + 1,
-                            'time_slot_id' => $tsid + 1,
-                            'gauge_free' => $gauge_free,
                             'rank' => array_search($k, $mids) + 1,
                             'accepted' => 'none',
                         ];
@@ -150,30 +168,31 @@ class testOcDecisionHelperTask extends sfBaseTask
                 }
 
             }
-            $participant['manifestations'] = $manifestations;
-            $data[] = $participant;
+            $participants[] = [
+                'id' => $pid,
+                'name' => "Participant $pid",
+                'manifestations' => $manifestations,
+            ];
         }
+
+        $data = ['timeSlots' => $timeSlots, 'participants' => $participants];
+        //print_r($data); die();
         return $data;
     }
 
-    protected function displayState($data, $state)
+    protected function displayState($state)
     {
         print "\n\n";
 
-        print_r($this->service->getAllManifestations());
-
+        // Line mask
         $mask = "| %-20.20s| %5.5s | %5.5s ||";
-
-        $manifestations = [];
-        foreach ($this->service->getAllManifestations() as $mid => $m) {
-            $manifestations[$mid] = [
-                'name' => sprintf("t%d.m%d", $m['time_slot_id'], $mid),
-                'tsid' => $m['time_slot_id']
-            ];
+        $manifestations = $this->service->getAllManifestations();
+        foreach ($manifestations as $mid => $m) {
             $mask .= " %5.5s |";
         }
         $mask .= "\n";
 
+        // HEADER
         $line = [
             'Participant',
             'IR',
@@ -183,7 +202,6 @@ class testOcDecisionHelperTask extends sfBaseTask
             $line[] = $manifestation['name'];
         }
         vprintf($mask, $line);
-
         $hline = [
             '---------------------------',
             '---------------------------',
@@ -194,26 +212,24 @@ class testOcDecisionHelperTask extends sfBaseTask
         }
         vprintf($mask, $hline);
 
-        foreach ($data as $k => $participant) {
-            $pid = $participant['id'];
+        // BODY
+        $participants = $this->service->getAllParticipants();
+        foreach ($participants as $pid => $p) {
             $line = [
-                $participant['name'],
-                $k+1,
+                $p['name'],
+                $p['rank'],
                 $state['participants'][$pid]['rr'],
             ];
             foreach ($manifestations as $mid => $manifestation) {
                 $rank = '';
-                foreach ($participant['manifestations'] as $m) {
-                    if ($m['id'] == $mid) {
-                        $rank = $m['rank'];
-                        $tsid = $manifestation['tsid'];
-                        if ($m['accepted'] == 'human') {
-                            $rank = '[' . $rank . ']';
-                        }
-                        elseif (isset($state['participants'][$pid]['timeSlots'][$tsid]) && $state['participants'][$pid]['timeSlots'][$tsid] == $mid) {
-                            $rank = '*' . $rank . '*';
-                        }
-                        break;
+                $tsid = $manifestation['time_slot_id'];
+                if (isset($p['timeSlots'][$tsid][$mid])) {
+                    $rank = $p['timeSlots'][$tsid][$mid]['rank'];
+                    if ($p['timeSlots'][$tsid][$mid]['human']) {
+                        $rank = '[' . $rank . ']';
+                    }
+                    elseif (isset($state['participants'][$pid]['timeSlots'][$tsid]) && $state['participants'][$pid]['timeSlots'][$tsid] == $mid) {
+                        $rank = '*' . $rank . '*';
                     }
                 }
                 $line[] = $rank;
