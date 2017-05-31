@@ -40,7 +40,7 @@ class OcDecisionHelper
      * @param int $maxIterations
      * @return array | false
      */
-    public function process($data, $maxIterations = 7)
+    public function process($data, $maxIterations = 10)
     {
         $this->init($data);
         $this->doProcess($maxIterations);
@@ -139,7 +139,7 @@ class OcDecisionHelper
      * @param int $maxIterations
      * @return array
      */
-    protected function doProcess($maxIterations = 7)
+    protected function doProcess($maxIterations = 10)
     {
         $iter = count($this->states) + 1;
         if ($iter > $maxIterations) {
