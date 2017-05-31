@@ -16,7 +16,7 @@ abstract class jsonActions extends sfActions
 {
 
     /**
-     * 
+     *
      */
     public function preExecute()
     {
@@ -31,31 +31,31 @@ abstract class jsonActions extends sfActions
     private function authenticate()
     {
       $request = $this->getRequest();
-      
+
       $route = $request->getRequestParameters()['_sf_route'];
       $security = $route->getOptions();
       $secure = isset($security['secure']) ? $security['secure'] : true;
-      
+
       if ( $secure ) {
 		    /* @var $oauthService ApiAuthService */
 		    $oauthService = $this->getService('api_oauth_service');
 		    /* @var $sf_user sfBasicSecurityUser */
 		    $sf_user = sfContext::getInstance()->getUser();
-			
+
 			// check oauth authentification
 		    if ( !$oauthService->authenticate($request) ) {
 		        throw new ocAuthCredentialsException('[OAuth] Invalid authentication credentials');
 		    }
 		    // assign user
 		    $sf_user->signIn($oauthService->getToken()->OcApplication->User, true);
-		    
-		    $cultures = array_keys(sfConfig::get('project_internals_cultures', ['fr' => 'Français]));
+
+		    $cultures = array_keys(sfConfig::get('project_internals_cultures', ['fr' => 'Français']));
 		    $sf_user->setCulture($cultures[0]);
-		    
+
 		    // check credentials
 		    if ( isset($security['credentials']) && !$sf_user->isSuperAdmin() ) {
 		        $credentials = !is_array($security['credentials']) ? [$security['credentials']] : $security['credentials'];
-    		    
+
     		    $hasCredentials = true;
     		    foreach ( $credentials as $credential ) {
     		        if ( is_array($credential) ) {
@@ -71,7 +71,7 @@ abstract class jsonActions extends sfActions
         		        $hasCredentials = $hasCredentials && $sf_user->hasCredential($credential);
         		    }
     		    }
-    		    
+
     		    // unauthorized
     		    if ( !$hasCredentials ) {
     		        OcLogger::log('[Permissions] Invalid authentication credentials. Expected: '.json_encode($credentials,true).', having: '.json_encode($sf_user->getCredentials()).'.', $this);
@@ -88,18 +88,18 @@ abstract class jsonActions extends sfActions
 
         if ( $contentType == 'application/json' && $content ) {
             $jsonParams = json_decode($content, true);
-            
+
             $this->getRequest()->setParameter('application/json', $jsonParams);
             foreach ( $jsonParams as $k => $v ) {
                 $this->getRequest()->setParameter($k, $v);
             }
         }
-        
+
     }
 
     /**
      * Create a json response from an array and a status code
-     * 
+     *
      * @param array|ArrayAccess $data
      * @return string (sfView::NONE)
      */
@@ -113,10 +113,10 @@ abstract class jsonActions extends sfActions
         $this->getResponse()->setStatusCode($status);
         return $this->renderText(json_encode($data, JSON_PRETTY_PRINT) . "\n");
     }
-    
+
     /**
      * Create an empty response with a status code
-     * 
+     *
      * @param array|ArrayAccess $data
      * @return string (sfView::NONE)
      */
@@ -128,7 +128,7 @@ abstract class jsonActions extends sfActions
 
     /**
      * Create an error json response from a message and a status code
-     * 
+     *
      * @param string $message
      * @return string (sfView::NONE)
      */
@@ -145,7 +145,7 @@ abstract class jsonActions extends sfActions
     {
         return $this->getContext()->getContainer()->get($aServiceName);
     }
-    
+
     /**
      * Retrieve the current service
      *
