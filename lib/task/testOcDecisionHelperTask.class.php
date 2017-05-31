@@ -51,12 +51,15 @@ class testOcDecisionHelperTask extends sfBaseTask
         }
 
         $output = $this->service->process($data, 10);
-        print "\n";
+
         $state = $this->service->getBestState();
         $this->displayState($state);
-        print "\n";
-//        $randomData = $this->getRandomData();
-//        print_r($randomData);
+        print "\n\n";
+
+        foreach($this->service->getStates() as $state) {
+            printf("* iter #%d : %f\n", $state['iteration'], $state['points']);
+        }
+        print "\n\n";
     }
 
     protected function getSampleDataFromFile($file)
@@ -134,15 +137,15 @@ class testOcDecisionHelperTask extends sfBaseTask
     protected function getRandomData()
     {
         $nbParticipants = 50;
-        $nbTimeSlots = 2;
+        $nbTimeSlots = 3;
         $nbManifestations = 3;
-        $gauge_free_max = 10;
+        $gauge_free_max = 5;
 
         $timeSlots = [];
         for ($tsid = 1; $tsid <= $nbTimeSlots; $tsid++) {
             $manifestations = [];
             for ($mid = ($tsid-1) * $nbManifestations + 1; $mid <= $tsid * $nbManifestations; $mid++) {
-                $manifestations[] = ['id' => $mid, 'gauge_free' => rand(0, $gauge_free_max)];
+                $manifestations[] = ['id' => $mid, 'gauge_free' => rand(1, $gauge_free_max)];
             }
             $timeSlots[] = ['id' => $tsid, 'manifestations' => $manifestations];
         }
@@ -185,9 +188,14 @@ class testOcDecisionHelperTask extends sfBaseTask
         print "\n\n";
 
         // Line mask
-        $mask = "| %-20.20s| %5.5s | %5.5s ||";
+        $mask = "| %-20.20s| %-5.5s | %-5.5s |";
         $manifestations = $this->service->getAllManifestations();
+        $tsid = 0;
         foreach ($manifestations as $mid => $m) {
+            if ($tsid != $m['time_slot_id']) {
+                $mask .= '|';
+                $tsid = $m['time_slot_id'];
+            }
             $mask .= " %5.5s |";
         }
         $mask .= "| %5.5s |\n";
@@ -206,7 +214,7 @@ class testOcDecisionHelperTask extends sfBaseTask
             'RR',
         ];
         foreach ($manifestations as $manifestation) {
-            $line[] = sprintf('[%d]', $manifestation['gauge_free']);
+            $line[] = sprintf('g=%d', $manifestation['gauge_free']);
         }
         $line[] = "Pts";
         vprintf($mask, $line);
