@@ -34,6 +34,7 @@ class ocBackendActions extends autoOcBackendActions
     if ( count($dates) == 0 )
       return;
 
+    $this->getContext()->getConfiguration()->loadHelpers(['Array']); // backward compatibility with PHP < 5.6
     if ( (!$date || $date && !strtotime($date) || array_search($date, array_column($dates, 'm_start')) === false) && count($dates) > 0 )
     {
       $this->day = $dates[0]['m_start'];

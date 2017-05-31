@@ -29,7 +29,7 @@ class ocApiOAuthActions extends jsonActions
         $this->getService('api_actions_service')
             ->setResponse($this->getResponse())
             ->populateAccessControlHeaders()
-            ->populateCacheControlHeader($this->getService('api_oauth_service')->getTokenLifetime(), 'public');
+            ->populateCacheControlHeader($this->getService('api_oauth_service')->getTokenLifetime(), 'private');
         
         return sfView::NONE;
     }
