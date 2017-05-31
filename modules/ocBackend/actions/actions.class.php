@@ -85,7 +85,82 @@ class ocBackendActions extends autoOcBackendActions
   
   public function executeAutoPositioning(sfWebRequest $request)
   {
-    // TODO
+
+    $service = sfContext::getInstance()->getContainer()->get('oc_decision_helper');
+
+    $contacts = json_decode($request->getParameter('content'), true);
+
+    $timeslots = array();
+    $participants = array();
+    
+    // Format data for the Decision service
+    foreach ($contacts as $contact) {
+      $participant = array();
+      $participant['id'] = $contact['id'];
+      $participant['name'] = $contact['name'];
+      $manifestations = array();
+      
+      foreach ($contact['manifestations'] as $c_manifestation) {
+        $timeslot = array();
+        
+        $tsid = intval($c_manifestation['time_slot_id']);
+        if( !array_key_exists($tsid, $timeslots) )
+        {
+          $timeslot['id'] = $tsid;
+          $timeslot['manifestations'] = array();
+          $timeslots[$tsid] = $timeslot;
+        }
+
+        $mid = intval($c_manifestation['id']);
+        if ( !array_key_exists($mid, $timeslots[$tsid]['manifestations']) )
+        {
+          $t_manif = array();
+          $t_manif['id'] = $mid;
+          $t_manif['gauge_free'] = $c_manifestation['gauge_free'];
+          $timeslots[$tsid]['manifestations'][$mid] = $t_manif;
+        }
+
+        $manif = array();
+        $manif['id'] = intval($c_manifestation['id']);
+        $manif['rank'] = $c_manifestation['rank'];
+        $manif['accepted'] = $c_manifestation['accepted'];
+        $manifestations[] = $manif;
+      }
+      
+      $participant['manifestations'] = $manifestations;
+      $participants[] = $participant;
+    }
+
+    $data = array();
+    $data['timeSlots'] = $timeslots;
+    $data['participants'] = $participants;
+    
+    // Call the Decision service
+    $output = $service->process($data);
+    
+    // Format data for the ajax query
+    $contacts = array();
+    
+    foreach ($output['participants'] as $participant)
+    {
+      $contact = array();
+      $contact['id'] = $participant['id'];
+      $contact['name'] = $participant['name'];
+      $contact['manifestations'] = array();
+      foreach ($participant['manifestations'] as $manifestation) {
+        $manif = array();
+        $manif['id'] = $manifestation['id'];
+        $manif['rank'] = $manifestation['rank'];
+        $manif['accepted'] = $manifestation['accepted'];
+        $contact['manifestations'][] = $manif;
+      }
+      $contacts[] = $contact;
+    }
+    
+    $this->json = $contacts;
+    
+    $this->setTemplate('json');
+    $this->isDebug($request->hasParameter('debug'));
   }
 
   protected function isDebug($debug)

@@ -550,7 +550,7 @@ oc_backend_save_ordering:
 oc_backend_auto:
     url: /oc_backend/auto
     class: sfRequestRoute
-    param: { module: ocBackend, action: auto }
+    param: { module: ocBackend, action: autoPositioning }
     requirements:
         sf_method: [GET, POST]
 oc_backend_validate:
