@@ -14,6 +14,8 @@
 class testOcDecisionHelperTask extends sfBaseTask
 {
 
+    private $service;
+
     public function configure()
     {
         $this->namespace = 'e-venement';
@@ -22,9 +24,9 @@ class testOcDecisionHelperTask extends sfBaseTask
         $this->detailedDescription = "";
 
         $this->addOptions(array(
-            new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name',
-            'default'),
+            new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'default'),
             new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
+            new sfCommandOption('random', null, sfCommandOption::PARAMETER_NONE, 'Random data'),
         ));
 
         $this->addArguments(array(
@@ -37,22 +39,25 @@ class testOcDecisionHelperTask extends sfBaseTask
         sfContext::createInstance($this->configuration, $options['env']);
 
         // get the service we want to test
-        $service = sfContext::createInstance($this->configuration)->getContainer()->get('oc_decision_helper');
-
+        $this->service = sfContext::createInstance($this->configuration)->getContainer()->get('oc_decision_helper');
         if ($arguments['input']) {
             $data = $this->getSampleDataFromFile($arguments['input']);
+        }
+        elseif ($options['random']) {
+            $data = $this->getRandomData();
         }
         else {
             $data = $this->getSampleData();
         }
 
-        $output = $service->process($data);
-        print_r($output);
+        $output = $this->service->process($data);
+//        print_r($output);
         print "\n";
-        $state = $service->getLastState();
+        $state = $this->service->getLastState();
         $this->displayState($data, $state);
         print "\n";
-        $this->getRandomData();
+//        $randomData = $this->getRandomData();
+//        print_r($randomData);
     }
 
     protected function getSampleDataFromFile($file)
@@ -113,9 +118,10 @@ class testOcDecisionHelperTask extends sfBaseTask
 
     protected function getRandomData()
     {
-        $nbParticipants = 2;
+        $nbParticipants = 50;
         $nbTimeSlots = 2;
         $nbManifestations = 3;
+        $gauge_free = 5;
 
         $data = [];
         for ($pid = 1; $pid <= $nbParticipants; $pid++) {
@@ -126,18 +132,18 @@ class testOcDecisionHelperTask extends sfBaseTask
             $manifestations = [];
             for ($tsid = 0; $tsid < $nbTimeSlots; $tsid++) {
                 if (rand(1, 100) < 50) {
-                    //continue;
+                    continue;
                 }
-                $availableMids = range($tsid * $nbTimeSlots, $tsid * $nbTimeSlots + $nbManifestations - 1);
-                $mids = array_rand($availableMids, rand(1, $nbManifestations));
-                print_r($mids);
+                $availableMids = range($tsid * $nbManifestations, ($tsid + 1) * $nbManifestations - 1);
+                $mids = (array)array_rand($availableMids, rand(1, $nbManifestations));
+                shuffle($mids);
                 foreach ($availableMids as $k => $mid) {
                     if (in_array($k, $mids)) {
                         $manifestations[] = [
                             'id' => $mid + 1,
                             'time_slot_id' => $tsid + 1,
-                            'gauge_free' => 10,
-                            'rank' => 'test',
+                            'gauge_free' => $gauge_free,
+                            'rank' => array_search($k, $mids) + 1,
                             'accepted' => 'none',
                         ];
                     }
@@ -152,21 +158,19 @@ class testOcDecisionHelperTask extends sfBaseTask
 
     protected function displayState($data, $state)
     {
-        printf("Iteration #%d\n", $state['iteration']);
-        printf("Points total: %d\n\n", $state['points']);
+        print "\n\n";
+
+        print_r($this->service->getAllManifestations());
 
         $mask = "| %-20.20s| %5.5s | %5.5s ||";
+
         $manifestations = [];
-        foreach ($data as $p) {
-            foreach ($p['manifestations'] as $m) {
-                if (!isset($manifestations[$m['id']])) {
-                    $manifestations[$m['id']] = [
-                        'name' => sprintf("t%d.m%d", $m['time_slot_id'], $m['id']),
-                        'tsid' => $m['time_slot_id']
-                    ];
-                    $mask .= " %5.5s |";
-                }
-            }
+        foreach ($this->service->getAllManifestations() as $mid => $m) {
+            $manifestations[$mid] = [
+                'name' => sprintf("t%d.m%d", $m['time_slot_id'], $mid),
+                'tsid' => $m['time_slot_id']
+            ];
+            $mask .= " %5.5s |";
         }
         $mask .= "\n";
 
@@ -216,6 +220,9 @@ class testOcDecisionHelperTask extends sfBaseTask
             }
             vprintf($mask, $line);
         }
+
+        printf("\n\nIteration #%d\n", $state['iteration']);
+        printf("Points total: %d\n\n", $state['points']);
     }
 
 }
