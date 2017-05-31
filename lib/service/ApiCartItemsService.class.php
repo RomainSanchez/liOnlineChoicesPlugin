@@ -289,9 +289,6 @@ class ApiCartItemsService extends ApiEntityService
             ->andWhereIn('root.id', $cartItemIds)
             ->execute()
         ;
-        if ($cartItems->count() != count($cartItemIds)) {
-            return false;
-        }
 
         // Check if all cart items belong to the same time slot
         $declinationIds = [];
@@ -300,7 +297,7 @@ class ApiCartItemsService extends ApiEntityService
         }
         $timeSlotIds = $this->getTimeSlotIds($declinationIds);
         if (count($timeSlotIds) != 1) {
-            return false;
+            //return false;
         }
 
         // Update cart item ranks
