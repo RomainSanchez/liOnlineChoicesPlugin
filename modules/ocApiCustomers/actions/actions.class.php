@@ -55,9 +55,15 @@ class ocApiCustomersActions extends apiActions
                 ], ApiHttpStatus::BAD_REQUEST);
         }
 
+        // encrypt password
+        $serviceName = sfConfig::get('project_password_encryption_service', 'password_plain_text_service');
+        $salt = sfConfig::get('project_password_salt', '');
+        $encryptionService = $this->getService($serviceName);
+        $encryptedPassword = $encryptionService->encrypt($password, $salt);
+
         $query = $this->buildQuery($request, [
             'criteria' => [
-                'password' => ['value' => $password, 'type' => 'equal'],
+                'password' => ['value' => $encryptedPassword, 'type' => 'equal'],
                 'email' => ['value' => $email, 'type' => 'equal'],
             ],
         ]);
