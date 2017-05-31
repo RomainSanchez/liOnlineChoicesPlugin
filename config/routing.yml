@@ -547,20 +547,22 @@ oc_backend_save_ordering:
     requirements:
         id: \d+
         sf_method: [POST]
-
-oc_snapshot:
-  class: sfDoctrineRouteCollection
-  options:
-    model:                OcSnapshot
-    module:               ocSnapshot
-    prefix_path:          /oc_snapshot
-    column:               id
-    with_wildcard_routes: true
-
-oc_snapshot_validate:
-    url: /oc_snapshot/validate
+oc_backend_auto:
+    url: /oc_backend/auto
     class: sfRequestRoute
-    param: { module: ocSnapshot, action: validate }
+    param: { module: ocBackend, action: auto }
+    requirements:
+        sf_method: [GET, POST]
+oc_backend_validate:
+    url: /oc_backend/validate
+    class: sfRequestRoute
+    param: { module: ocBackend, action: validate }
+    requirements:
+        sf_method: [GET, POST]
+oc_backend_list_snapshots:
+    url: /oc_backend/list_snapshots
+    class: sfRequestRoute
+    param: { module: ocBackend, action: listSnapshots }
     requirements:
         sf_method: [GET, POST]
 

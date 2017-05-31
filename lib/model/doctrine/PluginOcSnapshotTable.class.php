@@ -16,4 +16,13 @@ class PluginOcSnapshotTable extends TraceableTable
     {
         return Doctrine_Core::getTable('PluginOcSnapshot');
     }
+    
+    
+    public function getLastValid($day = null) 
+    {
+      return parent::createQuery('ocs')
+        ->andWhere('ocs.purpose = ?', 'valid')
+        ->andWhere('ocs.day = ?', $day)
+        ->orderBy('ocs.created_at DESC');
+    }
 }

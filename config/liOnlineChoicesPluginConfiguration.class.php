@@ -65,14 +65,6 @@ class liOnlineChoicesPluginConfiguration extends sfPluginConfiguration
         ),
       ),
       'ticketting' => array(
-        'Validate placements' => array(
-          'url'   => array(
-            'app' => 'tck',
-            'route' => 'oc_snapshot/index'
-          ),
-          'credential' => array(),
-          'i18n'  => 'li_oc',
-        ),
         'Manage placements' => array(
           'url'   => array(
             'app' => 'tck',

@@ -18,7 +18,8 @@ $(document).ready(function(){
   liOC.loadHeaders($('.plan_day').attr('data-day'));
   
   $('.validate').click(function() {
-    liOC.validate();
+    $('#transition').fadeIn('medium');
+    liOC.validate($(this).attr('data-url'));
   });
   
   $('.save_popup').click(function() {
@@ -26,7 +27,20 @@ $(document).ready(function(){
   });
   
   $('.load_popup').click(function() {
-    $('.snapshot_load').show();
+    $('#transition').fadeIn('medium');
+    $.ajax({
+      url: $(this).attr('data-url'),
+      data: {},
+      method: 'get',
+      success: function(data){
+        $('.list_snapshots').html(data);
+        $('#transition .close').click();
+        $('.snapshot_load').show();
+      },
+      error: function(data){
+        console.log(data);
+      }
+    });
   });
   
   $('.snapshot').click(function(event) {
@@ -177,8 +191,33 @@ liOC.gaugeDec = function(cell) {
   liOC.gaugeChange(cell, -1);
 }
 
-liOC.validate = function() {
-  liOC.saveSnapshot('valid');
+liOC.disable = function() {
+  $('.sf_admin_actions_block .fg-button')
+    .addClass('ui-state-disabled')
+    .off();
+  $('.cell_choices')
+    .removeClass('cell_choices')
+    .off();
+}
+
+liOC.validate = function(url) {
+  $('#transition').fadeIn('medium');
+  
+  var snapshots = liOC.createSnapshot();
+
+  $.post(url, 
+    {
+      content: JSON.stringify(snapshots),
+      name: $('#snapshot_name').val(),
+      date: $('.plan_day th').eq(1).attr('data-date'),
+      purpose: 'valid',
+      _csrf_token: $('#_csrf_token').val()
+    }, 
+    function(data) {
+      $('#transition .close').click();
+      liOC.disable();
+  });
+
 }
 
 liOC.loadSnapshot = function(url) {
@@ -200,8 +239,8 @@ liOC.loadSnapshot = function(url) {
   });
 }
 
-liOC.saveSnapshot = function(type = 'save') {
-  var snapshot = [];
+liOC.createSnapshot = function () {
+  var snapshots = [];
   
   $('.plan_body tr').each(function() {
     var contact = new Object();
@@ -224,15 +263,21 @@ liOC.saveSnapshot = function(type = 'save') {
         
       contact.manifestations.push(manifestation);
     });
-    snapshot.push(contact);
+    snapshots.push(contact);
   });
+  
+  return snapshots;
+}
+
+liOC.saveSnapshot = function() {
+  var snapshots = liOC.createSnapshot();
   
   $.post($('.save_snapshot_popup').attr('data-url'), 
     {
-      content: JSON.stringify(snapshot),
+      content: JSON.stringify(snapshots),
       name: $('#snapshot_name').val(),
-      day: $('.plan_day th').eq(1).attr('data-date'),
-      purpose: type,
+      date: $('.plan_day th').eq(1).attr('data-date'),
+      purpose: 'save',
       _csrf_token: $('#_csrf_token').val()
     }, 
     function(data) {
@@ -349,8 +394,10 @@ liOC.addPros = function(data) {
 
     $('.plan_events th').each(function() {
       var manif_cell = $('<td></td>')
-        .addClass('cell_choices')
-        .appendTo(row_pro)
+        .appendTo(row_pro);
+        
+      if ( !liOC.valid ) {
+        manif_cell.addClass('cell_choices')
         .click(function() {
           var group_id = $('.plan_events th').eq($(this).index()-1).attr('data-grp-id');
           var group = $('.plan_hours th[data-grp-id='+group_id+']');
@@ -362,12 +409,17 @@ liOC.addPros = function(data) {
             previous_selected.removeClass('none algo human');
             liOC.gaugeDec(previous_selected);
           }
-          
-          $(this).removeClass('none algo human');
-          $(this).addClass('human');
-          liOC.gaugeInc($(this));
+
+          if ( $(this).index() != previous_selected.index() ) {
+            $(this).removeClass('none algo human');
+            $(this).addClass('human');
+            liOC.gaugeInc($(this));
+          }
+
           liOC.refreshGauges();
         });
+      }
+
       var m_id = $(this).attr('data-id');
       var g_id = $(this).index() + 1;
 
@@ -494,6 +546,10 @@ liOC.loadPros = function(length, date) {
     success: function(data){
       liOC.addPros(data);
       liOC.fixTableScroll();
+      $(document).on('contextmenu', 'td', function(e) {
+        e.preventDefault();
+        return false;
+      });
     },
     error: function(data){
       console.log(data);
@@ -517,6 +573,10 @@ liOC.loadHeaders = function(date) {
       liOC.loadHours(data.manifestations);
       liOC.loadPros(data.length, date);
       liOC.refreshGauges();
+      
+      if ( liOC.valid ) {
+        liOC.disable();
+      }
     },
     error: function(data){
       console.log(data);

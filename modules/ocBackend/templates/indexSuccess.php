@@ -14,7 +14,7 @@
         <span class="fg-button ui-widget ui-state-default ui-corner-all save_popup"><?php echo __('Save state', null, 'li_oc') ?></span>
         <?php endif ?>
         <?php if ( $sf_user->hasCredential('tck-onlinechoices-data') ): ?>
-        <span class="fg-button ui-widget ui-state-default ui-corner-all load_popup"><?php echo __('Load state', null, 'li_oc') ?></span>
+        <span data-url="<?php echo url_for('oc_backend_list_snapshots'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all load_popup"><?php echo __('Load state', null, 'li_oc') ?></span>
         <?php endif ?>
       </div>
       <div class="sf_admin_actions_block floatright">
@@ -25,7 +25,7 @@
         <span data-url="" class="fg-button ui-widget ui-state-default ui-corner-all"><?php echo __('Auto positioning', null, 'li_oc') ?></span>
         <?php endif ?>
         <?php if ( $sf_user->hasCredential('tck-onlinechoices-transpose') ): ?>
-        <span data-url="<?php echo url_for('oc_backend/saveSnapshot'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate"><?php echo __('Validate', null, 'li_oc') ?></span>
+        <span data-url="<?php echo url_for('oc_backend/validate'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate"><?php echo __('Validate', null, 'li_oc') ?></span>
         <?php endif ?>
       </div>
 
@@ -38,5 +38,10 @@
 </div>
 
 <?php include_partial('ocBackend/popup', array('type' => 'save')) ?>
-<?php include_partial('ocBackend/popup', array('type' => 'load', 'snapshots' => $snapshots)) ?>
+<?php include_partial('ocBackend/popup', array('type' => 'load', 'snapshots' => $snapshots, 'day' => $day)) ?>
 
+<script type="text/javascript">
+
+liOC.valid = <?php echo $valid ? 'true' : 'false'; ?>;
+
+</script>
