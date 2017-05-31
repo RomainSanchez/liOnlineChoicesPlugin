@@ -17,7 +17,8 @@ abstract class apiActions extends jsonActions
     public function preExecute()
     {
         $this->getService('api_actions_service')
-            ->populateAccessControlHeaders($this->getResponse());
+            ->setResponse($this->getResponse())
+            ->populateAccessControlHeaders();
 
         parent::preExecute();
     }
