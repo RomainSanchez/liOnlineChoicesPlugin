@@ -12,10 +12,28 @@
  */
 class ApiActionsService
 {
-    public function populateAccessControlHeaders(sfResponse $response)
+    protected $response;
+    
+    public function setResponse(sfResponse $response)
     {
-        $response->setHttpHeader('Access-Control-Allow-Origin', '*'); // TODO, precise the authorized sources
-        $response->setHttpHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, OPTIONS, DELETE');
-        $response->setHttpHeader('Access-Control-Allow-Headers', 'authorization, x-requested-with, content-type');
+      $this->response = $response;
+      
+      return $this;
+    }
+    
+    public function populateAccessControlHeaders()
+    {
+        $this->response->setHttpHeader('Access-Control-Allow-Origin', '*'); // TODO, precise the authorized sources
+        $this->response->setHttpHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, OPTIONS, DELETE');
+        $this->response->setHttpHeader('Access-Control-Allow-Headers', 'authorization, x-requested-with, content-type');
+        
+        return $this;
+    }
+    
+    public function populateCacheControlHeader($lifetime = 3600, $directive = 'private')
+    {
+        $this->response->setHttpHeader('Cache-Control', $directive.', max-age='.$lifetime);
+        
+        return $this;
     }
 }

@@ -55,8 +55,9 @@
   background-color: #009688;
 }
 
-.sf_admin_list table tbody th .rank { display: inline-block; width: 4em; height: 2em; float: left; text-align: right; padding-right: 0.5em; font-size: 75%; }
-.sf_admin_list table tbody th { white-space: nowrap; }
+.sf_admin_list table tbody th .rank { position: absolute; display: inline-block; margin-left: -4.5em; width: 4em; text-align: right; font-size: 75%; }
+.sf_admin_list table tbody th { padding-left: 3em; padding-right: 0.2em; cursor: default; white-space: nowrap; user-select: none; -moz-user-select: none; }
+.sf_admin_actions_block .ranks { display: none; }
 
 .sf_admin_list table tfoot { display: none; }
 
@@ -83,6 +84,6 @@
 
 /* fixed thead */
 .th-clone, .thead-th-clone, .thead-clone { position: fixed; top: 50px; z-index: 10; }
-.sf_admin_list .th-clone { width: auto; top: 307px; left: 0; background-color: white; z-index: 9; }
+.sf_admin_list .th-clone { width: auto; top: 315px; left: 0; background-color: white; z-index: 9; }
 .sf_admin_list .thead-th-clone { width: auto; top: 154px; left: 0; z-index: 11; }
 .th-clone tbody, .thead-th-clone thead { border-right: 3px solid #a6c9e2; }

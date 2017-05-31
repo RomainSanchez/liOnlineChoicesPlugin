@@ -16,19 +16,21 @@ class ocApiOAuthActions extends jsonActions
     public function preExecute()
     {
         $this->getService('api_actions_service')
-            ->populateAccessControlHeaders($this->getResponse());
+            ->setResponse($this->getResponse())
+            ->populateAccessControlHeaders();
 
         parent::preExecute();
     }
 
     public function executePreflight(sfWebRequest $request)
     {
-        $response = $this->getResponse();
-        $response->clearHttpHeaders();
-
+        $this->getResponse()->clearHttpHeaders();
+        
         $this->getService('api_actions_service')
-            ->populateAccessControlHeaders($response);
-
+            ->setResponse($this->getResponse())
+            ->populateAccessControlHeaders()
+            ->populateCacheControlHeader($this->getService('api_oauth_service')->getTokenLifetime(), 'public');
+        
         return sfView::NONE;
     }
 
