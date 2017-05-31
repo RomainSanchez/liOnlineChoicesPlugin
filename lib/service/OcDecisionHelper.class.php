@@ -106,7 +106,7 @@ class OcDecisionHelper
                 }
 
                 if ($m['accepted'] == 'algo') {
-                    $this->timeSlots[$tsid][$mid]['gauge_free']++;
+                    $this->timeSlots[$tsid]['manifestations'][$mid]['gauge_free']++;
                 }
             }
 
@@ -193,7 +193,8 @@ class OcDecisionHelper
                         continue;
                     }
                     $participants[$pid]['timeSlots'][$tsid] = $mid;
-                    $participants[$pid]['points'] += $this->getPoints($rank);
+                    $participantRank = $this->participants[$pid]['rank'];
+                    $participants[$pid]['points'] += $this->getPoints($rank, $participantRank);
                     $gauges[$mid]--;
                 }
             }
@@ -206,9 +207,9 @@ class OcDecisionHelper
         }
 
         // If no improvement, return last state
-        if ($iter > 1 && $this->states[$iter-2]['points'] >= $points) {
-            return $this->states[$iter-2];
-        }
+//        if ($iter > 1 && $this->states[$iter-2]['points'] >= $points) {
+//            return $this->states[$iter-2];
+//        }
 
         // compute new relative ranks
         foreach($participants as $pid => $p) {
@@ -219,7 +220,7 @@ class OcDecisionHelper
             $ir = $this->participants[$pid]['rank'];  // initial rank
             $nbTimeSlots = count($p['timeSlots']);
             $avgPoints = $nbTimeSlots ? $p['points'] / $nbTimeSlots : 0;
-            $participants[$pid]['rr'] = round( ($prrt + $ir + $avgPoints / 1.62) / $iter );
+            $participants[$pid]['rr'] = round( ($prrt + $ir + $avgPoints / 1.62) / $iter, 4 );
         }
 
         $this->states[] = [
@@ -228,6 +229,7 @@ class OcDecisionHelper
             'participants' => $participants,
             'gauges' => $gauges,
         ];
+
         return $this->doProcess($maxIterations);
     }
 
@@ -298,9 +300,10 @@ class OcDecisionHelper
 
     /**
      * @param int $choiceRank
-     * @return int
+     * @param int $participantRank
+     * @return float
      */
-    protected function getPoints($choiceRank)
+    protected function getPoints($choiceRank, $participantRank)
     {
         if ($choiceRank > 6) return 0;
         $points = [
@@ -311,7 +314,8 @@ class OcDecisionHelper
             '5' => 2,
             '6' => 1,
         ];
-        return $points[$choiceRank];
+        $N = count($this->participants);
+        return $points[$choiceRank] * ( 1 + ($N - $participantRank) / $N * 3);
     }
 
     /**

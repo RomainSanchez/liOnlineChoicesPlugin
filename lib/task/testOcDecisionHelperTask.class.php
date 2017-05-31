@@ -50,7 +50,7 @@ class testOcDecisionHelperTask extends sfBaseTask
             $data = $this->getSampleData();
         }
 
-        $output = $this->service->process($data);
+        $output = $this->service->process($data, 10);
         print "\n";
         $state = $this->service->getBestState();
         $this->displayState($state);
@@ -136,13 +136,13 @@ class testOcDecisionHelperTask extends sfBaseTask
         $nbParticipants = 50;
         $nbTimeSlots = 2;
         $nbManifestations = 3;
-        $gauge_free = 5;
+        $gauge_free_max = 10;
 
         $timeSlots = [];
         for ($tsid = 1; $tsid <= $nbTimeSlots; $tsid++) {
             $manifestations = [];
             for ($mid = ($tsid-1) * $nbManifestations + 1; $mid <= $tsid * $nbManifestations; $mid++) {
-                $manifestations[] = ['id' => $mid, 'gauge_free' => $gauge_free];
+                $manifestations[] = ['id' => $mid, 'gauge_free' => rand(0, $gauge_free_max)];
             }
             $timeSlots[] = ['id' => $tsid, 'manifestations' => $manifestations];
         }
@@ -151,7 +151,7 @@ class testOcDecisionHelperTask extends sfBaseTask
         for ($pid = 1; $pid <= $nbParticipants; $pid++) {
             $manifestations = [];
             for ($tsid = 0; $tsid < $nbTimeSlots; $tsid++) {
-                if (rand(1, 100) < 70) {
+                if (rand(1, 100) < 30) {
                     continue;
                 }
                 $availableMids = range($tsid * $nbManifestations, ($tsid + 1) * $nbManifestations - 1);
@@ -190,26 +190,27 @@ class testOcDecisionHelperTask extends sfBaseTask
         foreach ($manifestations as $mid => $m) {
             $mask .= " %5.5s |";
         }
-        $mask .= "\n";
+        $mask .= "| %5.5s |\n";
 
         // HEADER
+        $line = ['', '', ''];
+        foreach ($manifestations as $manifestation) {
+            $line[] = $manifestation['name'];
+        }
+        $line[] = "";
+        vprintf($mask, $line);
+
         $line = [
             'Participant',
             'IR',
             'RR',
         ];
         foreach ($manifestations as $manifestation) {
-            $line[] = $manifestation['name'];
+            $line[] = sprintf('[%d]', $manifestation['gauge_free']);
         }
+        $line[] = "Pts";
         vprintf($mask, $line);
-        $hline = [
-            '---------------------------',
-            '---------------------------',
-            '---------------------------',
-        ];
-        foreach ($manifestations as $manifestation) {
-            $hline[] = '---------------------------';
-        }
+        $hline = array_fill(1, 4 + count($manifestations), '---------------------------');
         vprintf($mask, $hline);
 
         // BODY
@@ -234,11 +235,12 @@ class testOcDecisionHelperTask extends sfBaseTask
                 }
                 $line[] = $rank;
             }
+            $line[] = $state['participants'][$pid]['points'];
             vprintf($mask, $line);
         }
 
         printf("\n\nIteration #%d\n", $state['iteration']);
-        printf("Points total: %d\n\n", $state['points']);
+        printf("Points total: %f\n\n", $state['points']);
     }
 
 }
