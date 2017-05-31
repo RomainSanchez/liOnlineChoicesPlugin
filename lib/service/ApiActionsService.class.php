@@ -33,6 +33,7 @@ class ApiActionsService
     public function populateCacheControlHeader($lifetime = 3600, $directive = 'private')
     {
         $this->response->setHttpHeader('Cache-Control', $directive.', max-age='.$lifetime);
+        $this->response->setHttpHeader('Access-Control-Max-Age', $lifetime);
         
         return $this;
     }
