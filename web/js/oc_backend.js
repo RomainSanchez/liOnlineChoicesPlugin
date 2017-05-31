@@ -88,7 +88,7 @@ liOC.fixTableScrollHorizontal = function(table) {
   var cloneLeft = $('<table></table>').addClass('th-clone');
   var width = table.find('tbody th:first').width();
   var height = table.find('tbody th:first').height();
-  cloneLeft.append(table.find('tbody').clone()).find('tbody').find('td, input.rank').remove();
+  cloneLeft.append(table.find('tbody').clone()).find('tbody').removeClass('plan_body').find('td, input.rank').remove();
 
   cloneLeft.find('tbody th').width(width).height(height);
   table.find('tbody th').width('auto').height('auto');
