@@ -26,7 +26,7 @@
         <span data-url="<?php echo url_for('oc_backend/auto'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all positioning"><?php echo __('Auto positioning', null, 'li_oc') ?></span>
         <?php endif ?>
         <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-transpose') ): ?>
-        <span data-url="<?php echo url_for('oc_backend/validate'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate"><?php echo __('Validate', null, 'li_oc') ?></span>
+        <span data-url="<?php echo url_for('oc_backend/validate'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate"><?php echo __('Transpose', null, 'li_oc') ?></span>
         <?php endif ?>
       </div>
 

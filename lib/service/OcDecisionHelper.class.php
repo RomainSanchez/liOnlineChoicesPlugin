@@ -70,8 +70,6 @@ class OcDecisionHelper
      */
     protected function init($data)
     {
-        file_put_contents('/home/beta/tmp/test.auto.json', json_encode($data, JSON_PRETTY_PRINT));
-        
         $this->maxRank = 0;
         $this->states = [];
 

@@ -530,15 +530,16 @@ class ocBackendActions extends autoOcBackendActions
     $q = Doctrine::getTable('OcProfessional')->createQuery('op')
       ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
       ->innerJoin('op.Professional p')
-      ->innerJoin('p.Groups grp WITH grp.id = ?', $this->getUser()->getGuardUser()->OcConfig->group_id)
-      ->innerJoin('p.Contact c')
-      ->innerJoin('p.Organism o')
+      ->leftJoin('p.Groups grp')
+      ->leftJoin('p.Contact c')
+      ->leftJoin('p.Organism o')
       ->leftJoin('op.OcTransactions t')
       ->leftJoin('t.OcTickets tck')
       ->leftJoin('tck.Gauge g WITH g.workspace_id = ?', $this->getUser()->getGuardUser()->OcConfig->workspace_id)
       ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
       ->leftJoin('m.Event e')
-      
+      ->andWhere('p.id IN (SELECT gpro.professional_id FROM GroupProfessional gpro WHERE gpro.group_id = ?)', $this->getUser()->getGuardUser()->OcConfig->group_id)
+
       /*
       // filters tickets to keep only tickets linked to the current workspace
       ->leftJoin('g.Workspace ws')
