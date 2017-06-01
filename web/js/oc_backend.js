@@ -543,6 +543,16 @@ liOC.addPros = function(data) {
     header_pos += parseInt($(this).prop('colspan'));
   });
   
+  $('.real .plan_body tr')
+    .mouseover(function() {
+      $(this).addClass('ui-state-hover');
+      $('.th-clone tbody tr').eq($(this).index()).addClass('ui-state-hover');
+    })
+    .mouseout(function() {
+      $(this).removeClass('ui-state-hover');
+      $('.th-clone tbody tr').eq($(this).index()).removeClass('ui-state-hover');
+    });
+  
   liOC.sortPros();
 }
 
