@@ -201,6 +201,12 @@ OcSnapshot:
     day:
       type: timestamp
       notnull: true
+    group_id:
+      type: integer
+      notnull: true
+    workspace_id:
+      type: integer
+      notnull: true
     purpose:
       type: enum
       values: [temp, save, valid]
@@ -213,5 +219,13 @@ OcSnapshot:
       notnull: true
   relations:
     sfGuardUser:
+      foreignAlias: ocSnapshots
+    Workspace:
+      onDelete: SET NULL
+      onUpdate: CASCADE
+      foreignAlias: ocSnapshots
+    Group:
+      onDelete: CASCADE
+      onUpdate: CASCADE
       foreignAlias: ocSnapshots
 

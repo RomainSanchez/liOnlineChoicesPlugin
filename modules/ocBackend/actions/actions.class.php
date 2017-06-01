@@ -77,8 +77,10 @@ class ocBackendActions extends autoOcBackendActions
     $this->_csrf_token = $this->form->getCSRFToken();    
     $this->valid = $this->isValidated();
 
+    $this->group = $this->getUser()->getGuardUser()->OcConfig->Group->name;
+    $this->workspace = $this->getUser()->getGuardUser()->OcConfig->Workspace->name;
+
     $this->snapshots = Doctrine::getTable('OcSnapshot')->createQuery('s')
-      ->andWhere('s.sf_guard_user_id = ?', $this->getUser()->getId())
       ->andWhere('date(s.day) = ?', $this->day)
       ->orderBy('s.created_at DESC')
       ->execute();
@@ -205,7 +207,9 @@ class ocBackendActions extends autoOcBackendActions
 
   public function executeLoadSnapshot(sfWebRequest $request)
   {
-    $ocs = Doctrine::getTable('ocSnapshot')->findOneById(intval($request->getParameter('id')));
+    $ocs = Doctrine::getTable('ocSnapshot')->createQuery('s')
+      ->andWhere('s.id = ?', intval($request->getParameter('id')))
+      ->fetchOne();
 
     if ( $ocs && $ocs->sf_guard_user_id == $this->getUser()->getId())
     {
@@ -253,6 +257,8 @@ class ocBackendActions extends autoOcBackendActions
       $params['sf_guard_user_id'] = $this->getUser()->getId();
       $params['content'] = serialize($data);
       $params['_csrf_token'] = $request->getParameter('_csrf_token');
+      $params['group_id'] = $this->getUser()->getGuardUser()->OcConfig->group_id;
+      $params['workspace_id'] = $this->getUser()->getGuardUser()->OcConfig->workspace_id;
       
       $ocsf->bind($params);
       
@@ -520,16 +526,17 @@ class ocBackendActions extends autoOcBackendActions
     // get back authorized and targetted OcProfessionals and their OcTickets
     $q = Doctrine::getTable('OcProfessional')->createQuery('op')
       ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted')
-      ->leftJoin('op.Professional p')
-      
-      ->leftJoin('p.Contact c')
-      ->leftJoin('p.Organism o')
+      ->innerJoin('op.Professional p')
+      ->innerJoin('p.ProfessionalGroups grp WITH grp.group_id = ?', $this->getUser()->getGuardUser()->OcConfig->group_id)
+      ->innerJoin('p.Contact c')
+      ->innerJoin('p.Organism o')
       ->leftJoin('op.OcTransactions t')
       ->leftJoin('t.OcTickets tck')
-      ->leftJoin('tck.Gauge g')
+      ->leftJoin('tck.Gauge g WITH g.workspace_id = ?', $this->getUser()->getGuardUser()->OcConfig->workspace_id)
       ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
       ->leftJoin('m.Event e')
       
+      /*
       // filters tickets to keep only tickets linked to the current workspace
       ->leftJoin('g.Workspace ws')
       ->leftJoin('ws.OcConfigs oc WITH oc.sf_guard_user_id = ?', $this->getUser()->getId())
@@ -539,8 +546,9 @@ class ocBackendActions extends autoOcBackendActions
       ->leftJoin('p.Groups grp')
       ->leftJoin('grp.Users gu')
       ->andWhere('? AND gu.id IS NULL OR gu.id = ?', [$this->getUser()->hasCredential('pr-group-common') || $this->getUser()->isSuperAdmin(), $this->getUser()->getId()])
-      ->leftJoin('grp.OcConfigs conf')
-      ->andWhere('conf.sf_guard_user_id = ?', $this->getUser()->getId())
+      //->leftJoin('grp.OcConfigs conf')
+      //->andWhere('conf.sf_guard_user_id = ?', $this->getUser()->getId())
+      */
       
       ->orderBy('op.rank, c.name, c.firstname')
     ;
@@ -603,6 +611,7 @@ class ocBackendActions extends autoOcBackendActions
       ->innerJoin('m.OcTimeSlots ts')
       ->andWhere('date(m.happens_at) = ?', $date)
       ->andWhereIn('e.meta_event_id', array_keys($this->getUser()->getMetaEventsCredentials()))
+      ->andWhere('g.workspace_id = ?', $this->getUser()->getGuardUser()->OcConfig->workspace_id)
       ->orderBy('ts.starts_at, et.short_name');
       
     $manifestations = $q->fetchArray();

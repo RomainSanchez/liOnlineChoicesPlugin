@@ -29,7 +29,7 @@
         <?php endif ?>
       </div>
 
-      <?php include_partial('ocBackend/list', array('day' => $day)) ?>
+      <?php include_partial('ocBackend/list', array('day' => $day, 'group' => $group)) ?>
 
 
   </form>
