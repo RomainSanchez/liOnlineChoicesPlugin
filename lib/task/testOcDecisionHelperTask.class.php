@@ -27,6 +27,9 @@ class testOcDecisionHelperTask extends sfBaseTask
             new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'default'),
             new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
             new sfCommandOption('random', null, sfCommandOption::PARAMETER_NONE, 'Random data'),
+            new sfCommandOption('no-upgrade', null, sfCommandOption::PARAMETER_NONE, 'Do not upgrade unlukies participants'),
+            new sfCommandOption('print-states', null, sfCommandOption::PARAMETER_OPTIONAL, 'Give states that will be printed out, separated by commas (ex: 1, 2)'),
+            new sfCommandOption('dump-file', null, sfCommandOption::PARAMETER_OPTIONAL, 'Give states that will be printed out, separated by commas (ex: 1, 2)'),
         ));
 
         $this->addArguments(array(
@@ -49,11 +52,26 @@ class testOcDecisionHelperTask extends sfBaseTask
         else {
             $data = $this->getSampleData();
         }
-
+        
+        if ( $options['no-upgrade'] ) {
+            $this->service->setOption('noUpgrade', true);
+        }
+        
         $output = $this->service->process($data, 10);
+        
+        if ( $options['dump-file'] ) {
+            file_put_contents($options['dump-file'], json_encode($data, JSON_PRETTY_PRINT));
+        }
+        
+        if ( $options['print-states'] ) {
+            foreach ( explode(',', $options['print-states']) as $state) {
+                $state = intval($state);
+                $this->displayState($this->service->getState($state));
+                print "\n\n";
+            }
+        }
 
-        $state = $this->service->getBestState();
-        $this->displayState($state);
+        $this->displayState($this->service->getBestState());
         print "\n\n";
 
         foreach($this->service->getStates() as $state) {
@@ -136,16 +154,16 @@ class testOcDecisionHelperTask extends sfBaseTask
 
     protected function getRandomData()
     {
-        $nbParticipants = 50;
-        $nbTimeSlots = 3;
-        $nbManifestations = 3;
-        $gauge_free_max = 5;
+        $nbParticipants = rand(400,800);
+        $nbTimeSlots = rand(2,3);
+        $nbManifestations = rand(5,8);
+        $gauge_free_max = rand(10,40);
 
         $timeSlots = [];
         for ($tsid = 1; $tsid <= $nbTimeSlots; $tsid++) {
             $manifestations = [];
             for ($mid = ($tsid-1) * $nbManifestations + 1; $mid <= $tsid * $nbManifestations; $mid++) {
-                $manifestations[] = ['id' => $mid, 'gauge_free' => rand(1, $gauge_free_max)];
+                $manifestations[] = ['id' => $mid, 'gauge_free' => rand($gauge_free_max/3, $gauge_free_max)];
             }
             $timeSlots[] = ['id' => $tsid, 'manifestations' => $manifestations];
         }
@@ -157,7 +175,16 @@ class testOcDecisionHelperTask extends sfBaseTask
                 if (rand(1, 100) < 30) {
                     continue;
                 }
-                $availableMids = range($tsid * $nbManifestations, ($tsid + 1) * $nbManifestations - 1);
+                // init
+                $randomAvailableMids = $availableMids = range($tsid * $nbManifestations, ($tsid + 1) * $nbManifestations - 1);
+                
+                // prefered manifs
+                $mids[] = $availableMids[rand(0,count($availableMids) < 3 ? count($availableMids)-1 : 2)];
+                foreach ( $mids as $mid ) {
+                    unset($randomAvailableMids[$mid]);
+                }
+                
+                // other manifs random
                 $mids = (array)array_rand($availableMids, rand(1, $nbManifestations));
                 shuffle($mids);
                 foreach ($availableMids as $k => $mid) {
@@ -179,7 +206,6 @@ class testOcDecisionHelperTask extends sfBaseTask
         }
 
         $data = ['timeSlots' => $timeSlots, 'participants' => $participants];
-        //print_r($data); die();
         return $data;
     }
 
