@@ -1,104 +1,132 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN" "http://www.oasis-open.org/committees/xliff/documents/xliff.dtd" >
 <xliff version="1.0">
-  <file original="global" source-language="en" datatype="plaintext">
+  <file original="global" source-language="en" target-language="me" datatype="plaintext">
     <header/>
     <body>
-      <trans-unit>
+      <trans-unit id="1">
         <source>Secret</source>
         <target>Secret</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="2">
         <source>User</source>
         <target>Utilisateur</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="3">
         <source>Identifier</source>
         <target>Identifiant</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="4">
         <source>Let it empty if no change is required</source>
         <target>Laisser vide sauf besoin de changement</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="5">
         <source>Group</source>
         <target>Groupe</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="6">
         <source>Workspace</source>
         <target>Espace de travail</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="7">
         <source>Starts at</source>
         <target>Début</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="8">
         <source>Starts before</source>
         <target>Débutte avant le</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="9">
         <source>Ends after</source>
         <target>Termine après le</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="10">
         <source>Ends at</source>
         <target>Fin</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="11">
         <source>Context Setup</source>
         <target>Configuration contextuelle</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="12">
         <source>Define Time Slots</source>
         <target>Créneaux horaires</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="13">
         <source>Authorize Applications</source>
         <target>Autorisation d'applications</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="14">
         <source>Save state</source>
         <target>Enregistrer l'état</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="15">
         <source>Save</source>
         <target>Enregistrer</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="16">
         <source>Load state</source>
         <target>Charger un état</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="17">
         <source>Load</source>
         <target>Charger</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="18">
         <source>Auto positioning</source>
         <target>Placement auto</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="19">
         <source>Save ordering</source>
         <target>Enregistrer l'ordre</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="20">
         <source>List of events</source>
         <target>Liste des évènements</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="21">
         <source>Validate</source>
         <target>Valider</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="22">
         <source>Cancel</source>
         <target>Annuler</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="23">
         <source>Manage placements</source>
         <target>Gérer les placements</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="24">
         <source>Validate placements</source>
         <target>Valider les placements</target>
+      </trans-unit>
+      <trans-unit id="25">
+        <source>OcTimeSlot List</source>
+        <target>Liste des créneaux horaires</target>
+      </trans-unit>
+      <trans-unit id="26">
+        <source>Name</source>
+        <target>Nom</target>
+      </trans-unit>
+      <trans-unit id="27">
+        <source>Your configuration</source>
+        <target>Paramétrage des accès de la partie publique</target>
+      </trans-unit>
+      <trans-unit id="28">
+        <source>OcApplication List</source>
+        <target>Liste des droits d'accès API</target>
+      </trans-unit>
+      <trans-unit id="29">
+        <source>New OcApplication</source>
+        <target>Nouveau droit d'accès</target>
+      </trans-unit>
+      <trans-unit id="30">
+        <source>OcApplication</source>
+        <target>API Choix En Ligne</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Transpose</source>
+        <target>Transposer en billeterie</target>
       </trans-unit>
     </body>
   </file>
