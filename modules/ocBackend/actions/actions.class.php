@@ -404,7 +404,8 @@ class ocBackendActions extends autoOcBackendActions
     
     $sf_guard_user_id = null;
     $this->json = array();
-
+    $this->json['error'] = 'Success';
+    
     $day = date($request->getParameter('date'));
 
     $json = $this->saveSnapshot($request);
@@ -419,7 +420,7 @@ class ocBackendActions extends autoOcBackendActions
 
     if ( !$snapshot )
     {
-      $this->json['Error'] = 'No snapshot present';
+      $this->json['message'] = 'No snapshot present';
       return;
     }
 
@@ -428,7 +429,8 @@ class ocBackendActions extends autoOcBackendActions
       $this->updateOcTicket($snapshot);
     } catch (liEvenementException $e)
     {
-      $this->json['Error'] = $e->getMessage();
+      $this->json['error'] ='Error';
+      $this->json['message'][] = $e->getMessage();
       return;
     }
 
@@ -448,6 +450,8 @@ class ocBackendActions extends autoOcBackendActions
       ->andWhere('date(m.happens_at) = ?', $snapshot->day)
       ->execute()
     ;
+
+    $to_save = array();
 
     foreach ($oc_transactions as $oc_transaction)
     {
@@ -477,7 +481,8 @@ class ocBackendActions extends autoOcBackendActions
         try {
           $ticket->linkToMemberCard();
         } catch ( liMemberCardException $e ) {
-          $this->json['Error'][] = 'No member card for contact '.$oc_transaction->OcProfessional->Professional->Contact
+          $this->json['error'] = 'Error';
+          $this->json['message'][] = 'No member card for contact '.$oc_transaction->OcProfessional->Professional->Contact
             .' - id '.$oc_transaction->OcProfessional->Professional->contact_id;
           continue;
         }
@@ -485,8 +490,22 @@ class ocBackendActions extends autoOcBackendActions
         $oc_transaction->Transaction->Tickets[] = $ticket;
       }
 
-      $oc_transaction->Transaction->save();
+      $to_save[] = $oc_transaction->Transaction;
+      //$oc_transaction->Transaction->save();
     }
+    
+    if ( $this->json['error'] == 'Success' )
+    {
+      foreach ($to_save as $transaction) {
+        $transaction->save();
+      }
+    } else {
+      $snapshot = Doctrine::getTable('OcSnapshot')->getLastValid($this->day)->fetchOne();
+      if ( $snapshot ) {
+        $snapshot->delete();
+      }
+    }
+    
   }
 
   public function executePros(sfWebRequest $request)

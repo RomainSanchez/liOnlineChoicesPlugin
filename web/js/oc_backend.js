@@ -29,9 +29,10 @@ $(document).ready(function(){
         _csrf_token: $('#_csrf_token').val()
       })
       .done(function(data) {
+        $('.real .plan_gauges .gauge').attr('data-part', 0)
         liOC.loadPositions(data);
-        liOC.fixTableScroll();
         liOC.refreshGauges();
+        liOC.fixTableScroll();
         liOC.blockContextMenu();
         $('#transition .close').click();
       })
@@ -44,7 +45,11 @@ $(document).ready(function(){
   
   $('.validate').click(function() {
     $('#transition').fadeIn('medium');
-    liOC.validate($(this).attr('data-url'));
+    if ( confirm('Etes-vous sûr de vouloir transposer la sélection en billeterie ? Cette action est définitive.') ) {
+        liOC.validate($(this).attr('data-url'));
+    } else {
+      $('#transition .close').click();
+    }
   });
   
   $('.save_popup').click(function() {
@@ -258,6 +263,17 @@ liOC.disable = function() {
     .off();
 }
 
+liOC.checkError = function(data) {
+  if (data.error == 'Error') {
+    $.each(data.message, function(key, value) {
+      LI.alert(key + ' : ' + value,'error');
+    });
+    return true;
+  }
+  
+  return false;
+}
+
 liOC.validate = function(url) {
   $('#transition').fadeIn('medium');
   
@@ -273,7 +289,9 @@ liOC.validate = function(url) {
     }, 
     function(data) {
       $('#transition .close').click();
-      liOC.disable();
+      if ( !liOC.checkError(data) ) {
+          liOC.disable();
+      }
   });
 
 }
@@ -299,7 +317,8 @@ liOC.loadSnapshot = function(url) {
     url: url,
     data: {},
     method: 'get',
-    success: function(data){      
+    success: function(data){
+      $('.real .plan_gauges .gauge').attr('data-part', 0)
       liOC.loadPositions(data);
       liOC.refreshGauges();
       liOC.fixTableScroll();
@@ -308,6 +327,7 @@ liOC.loadSnapshot = function(url) {
     },
     error: function(data){
       console.log(data);
+      liOC.checkError(data);
     }
   });
 }
@@ -357,18 +377,17 @@ liOC.saveSnapshot = function() {
     }, 
     function(data) {
       console.log(data);
+      if (data.error == 'Error') {
+        $.each(data.message, function(key, value) {
+          LI.alert(key + ' : ' + value,'error');
+        });
+      }
       $('#transition .close').click();
   });
 }
 
 liOC.refreshGauges = function() {
-  
-  console.log('ok');
-  
   $('.real .plan_gauges th').each(function() {
-    
-    console.log(this);
-    
     var gauge = $(this).find('div > .gauge');
     gauge.find('.text').text(gauge.attr('data-part') + ' / ' + gauge.attr('data-max'));
     var part = parseInt(gauge.attr('data-part'));
@@ -660,6 +679,7 @@ liOC.loadPros = function(length, date) {
     },
     error: function(data){
       console.log(data);
+      liOC.checkError(data);
     }
   });
 }
@@ -687,6 +707,7 @@ liOC.loadHeaders = function(date) {
     },
     error: function(data){
       console.log(data);
+      liOC.checkError(data);
     }
   });
 }
