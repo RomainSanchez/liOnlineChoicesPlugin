@@ -15,7 +15,7 @@ liOC.choices = ['none', 'one', 'two', 'three'];
 $(document).ready(function(){
   
   // the content
-  liOC.loadHeaders($('.plan_day').attr('data-day'));
+  liOC.loadHeaders($('.real .plan_day').attr('data-day'));
   
   $('.positioning').click(function() {
     $('#transition').fadeIn('medium');    
@@ -24,13 +24,12 @@ $(document).ready(function(){
       {
         content: JSON.stringify(snapshots),
         name: $('#snapshot_name').val(),
-        date: $('.plan_day th').eq(1).attr('data-date'),
+        date: $('.real .plan_day th').eq(1).attr('data-date'),
         purpose: 'valid',
         _csrf_token: $('#_csrf_token').val()
       })
       .done(function(data) {
-        $('.plan_body').html('');
-        liOC.addPros(data);
+        liOC.loadPositions(data);
         liOC.fixTableScroll();
         liOC.refreshGauges();
         liOC.blockContextMenu();
@@ -60,6 +59,12 @@ $(document).ready(function(){
       method: 'get',
       success: function(data){
         $('.list_snapshots').html(data);
+        $('.snapshot').click(function(event) {
+          event.preventDefault();
+          $('#transition').fadeIn('medium');
+          liOC.loadSnapshot($(this).prop('href'));
+          $('.popup_close').click();
+        })        
         $('#transition .close').click();
         $('.snapshot_load').show();
       },
@@ -100,8 +105,7 @@ liOC.fixTableScrollBoth = function(table) {
     var height = $(this).height();
     $(this).width(width).height(height);
   });
-  var thead = table.find('thead').clone().removeClass();
-  thead.find('tr').removeClass();
+  var thead = table.find('thead').clone();
   cloneTopLeft.append(thead).find('thead')
     .find('th:not(:first-child), tr:not(:first):not(:last)').remove();
   cloneTopLeft.find('thead th[rowspan]').prop('rowspan',1);
@@ -116,7 +120,7 @@ liOC.fixTableScrollHorizontal = function(table) {
   var cloneLeft = $('<table></table>').addClass('th-clone');
   var width = table.find('tbody th:first').width();
   var height = table.find('tbody th:first').height();
-  cloneLeft.append(table.find('tbody').clone()).find('tbody').removeClass('plan_body').find('td, input.rank').remove();
+  cloneLeft.append(table.find('tbody').clone()).find('tbody').find('td, input.rank').remove();
 
   cloneLeft.find('tbody th').width(width).height(height);
   table.find('tbody th').width('auto').height('auto');
@@ -135,8 +139,7 @@ liOC.fixTableScrollVertical = function(table){
   thead.find('td, th').each(function(){
     $(this).width($(this).width());
   });
-  var clone = thead.clone().removeClass();
-  clone.find('tr').removeClass();
+  var clone = thead.clone();
   cloneTop = $('<table></table>').append(clone).addClass('thead-clone');
   cloneTop.width(table.width());
   thead.find('td, th').width('auto');
@@ -206,7 +209,7 @@ liOC.blockContextMenu = function(){
 }
 
 liOC.gaugeChange = function(cell, value) {
-  $('.plan_gauges').each(function(){
+  $('.real .plan_gauges').each(function(){
     var gauge = $(this).find('th').eq(cell.index()).find('.gauge');
     var part = parseInt(gauge.attr('data-part')) + value;
     gauge.attr('data-part', part);
@@ -239,7 +242,7 @@ liOC.validate = function(url) {
     {
       content: JSON.stringify(snapshots),
       name: $('#snapshot_name').val(),
-      date: $('.plan_day th').eq(1).attr('data-date'),
+      date: $('.real .plan_day th').eq(1).attr('data-date'),
       purpose: 'valid',
       _csrf_token: $('#_csrf_token').val()
     }, 
@@ -250,14 +253,23 @@ liOC.validate = function(url) {
 
 }
 
+liOC.loadPositions = function(data) {
+  $('.real .cell_choices').removeClass('none algo human');
+  $.each(data, function(i, pro) {
+    var line = $('.real .plan_body tr th[data-id='+pro.id+']').closest('tr');
+    $.each(pro.manifestations, function(i, manif) {
+      line.find('td').eq($('.real .plan_events th[data-id='+manif.id+']').index()).addClass(manif.accepted);
+    });
+  });
+}
+
 liOC.loadSnapshot = function(url) {
   $.ajax({
     url: url,
     data: {},
     method: 'get',
     success: function(data){      
-      $('.plan_body').html('');
-      liOC.addPros(data);
+      liOC.loadPositions(data);
       liOC.fixTableScroll();
       liOC.refreshGauges();
       liOC.blockContextMenu();
@@ -272,20 +284,20 @@ liOC.loadSnapshot = function(url) {
 liOC.createSnapshot = function () {
   var snapshots = [];
   
-  $('.plan_body tr').each(function() {
+  $('.real .plan_body tr').each(function() {
     var contact = new Object();
     contact.id = $(this).find('th:first-child').attr('data-id');
-    contact.name = $(this).find('th:first-child').text();
+    contact.name = $(this).find('th:first-child .name').text();
     contact.manifestations = [];
     $(this).find('td').filter('.none, .algo, .human').each(function() {
       var manifestation = new Object();
-      manifestation.id = $('.plan_events th').eq($(this).index()-1).attr('data-id');
-      manifestation.time_slot_id = $('.plan_events th').eq($(this).index()-1).attr('data-grp-id');
-      var gauge = $('.plan_gauges th').eq($(this).index()).find('.gauge');
+      manifestation.id = $('.real .plan_events th').eq($(this).index()-1).attr('data-id');
+      manifestation.time_slot_id = $('.real .plan_events th').eq($(this).index()-1).attr('data-grp-id');
+      var gauge = $('.real .plan_gauges th').eq($(this).index()).find('.gauge');
       var current = gauge.attr('data-part');
       var max = gauge.attr('data-max');
       manifestation.gauge_free = max - current;
-      manifestation.gauge_id = $('.plan_gauges th').eq($(this).index()).attr('data-id');
+      manifestation.gauge_id = $('.real .plan_gauges th').eq($(this).index()).attr('data-id');
       manifestation.rank = $(this).text();
       var accepted = $(this).attr('class').match(/none|algo|human/g);
       if ( accepted.length > 0 )
@@ -293,7 +305,9 @@ liOC.createSnapshot = function () {
         
       contact.manifestations.push(manifestation);
     });
-    snapshots.push(contact);
+    if ( contact.manifestations.length > 0 ) {
+      snapshots.push(contact);
+    }
   });
   
   return snapshots;
@@ -306,7 +320,7 @@ liOC.saveSnapshot = function() {
     {
       content: JSON.stringify(snapshots),
       name: $('#snapshot_name').val(),
-      date: $('.plan_day th').eq(1).attr('data-date'),
+      date: $('.real .plan_day th').eq(1).attr('data-date'),
       purpose: 'save',
       _csrf_token: $('#_csrf_token').val()
     }, 
@@ -318,7 +332,7 @@ liOC.saveSnapshot = function() {
 
 liOC.refreshGauges = function() {
   
-  $('.plan_gauges th').each(function() {
+  $('.real .plan_gauges th').each(function() {
     var gauge = $(this).find('div > .gauge');
     gauge.find('.text').text(gauge.attr('data-part') + ' / ' + gauge.attr('data-max'));
     var part = parseInt(gauge.attr('data-part'));
@@ -341,12 +355,12 @@ liOC.refreshGauges = function() {
 liOC.loadDay = function(data, length) {
   var header_gauges = liOC.createHeaderCell()
     .prop('rowspan', 3)
-    .appendTo('.plan_day');
+    .appendTo('.real .plan_day');
     
   var header_day = liOC.createHeaderCell()
     .prop('colspan', length)
     .attr('data-date', data.current.date)
-    .appendTo('.plan_day');
+    .appendTo('.real .plan_day');
        
   var previous = $('<div class="plan_previous floatleft"></div>').appendTo(header_day);
   var next = $('<div class="plan_next floatright"></div>').appendTo(header_day);
@@ -376,7 +390,7 @@ liOC.loadHours = function(data) {
       .prop('colspan', manifestation.events.length)
       .attr('data-grp-id', manifestation.time_id)
       .attr('data-min', i)
-      .appendTo('.plan_hours'); 
+      .appendTo('.real .plan_hours'); 
     $('<span></span>').appendTo(header_hours).text(manifestation.range);
     
     $.each(manifestation.events, function(key, event) {
@@ -384,12 +398,12 @@ liOC.loadHours = function(data) {
       var header_events = liOC.createHeaderCell()
         .attr('data-id', event.id)
         .attr('data-grp-id', manifestation.time_id)
-        .appendTo('.plan_events'); 
+        .appendTo('.real .plan_events'); 
       $('<span></span>').appendTo(header_events).text(event.name);
       
       var header_gauges = liOC.createHeaderCell()
         .attr('data-id', event.gauge.id)
-        .appendTo('.plan_gauges'); 
+        .appendTo('.real .plan_gauges'); 
       $('.raw').clone()
         .removeClass('raw')
         .appendTo(header_gauges)
@@ -403,11 +417,11 @@ liOC.loadHours = function(data) {
 }
 
 liOC.addPros = function(data) {
-  $('.plan_gauges th .gauge').attr('data-part', 0);
+  $('.real .plan_gauges th .gauge').attr('data-part', 0);
   
   $.each(data, function(i, pro) {
     var row_pro = $('<tr class="sf_admin_row ui-widget-content"></tr>')
-      .appendTo('.plan_body');
+      .appendTo('.real .plan_body');
     if ( i%2 ) {
       row_pro.addClass('odd');
     }
@@ -422,15 +436,15 @@ liOC.addPros = function(data) {
             .attr('data-id', pro.id)
     );
 
-    $('.plan_events th').each(function() {
+    $('.real .plan_events th').each(function() {
       var manif_cell = $('<td></td>')
         .appendTo(row_pro);
         
       if ( !liOC.valid ) {
         manif_cell.addClass('cell_choices')
         .click(function() {
-          var group_id = $('.plan_events th').eq($(this).index()-1).attr('data-grp-id');
-          var group = $('.plan_hours th[data-grp-id='+group_id+']');
+          var group_id = $('.real .plan_events th').eq($(this).index()-1).attr('data-grp-id');
+          var group = $('.real .plan_hours th[data-grp-id='+group_id+']');
           var min = parseInt(group.attr('data-min'))+2;
           var max = parseInt(group.attr('data-max'))+1;
           var previous_selected = $(this).closest('tr').find('td:nth-child(n+'+min+'):nth-child(-n+'+max+')').filter('.algo, .human');
@@ -459,7 +473,7 @@ liOC.addPros = function(data) {
           manif_cell.addClass(manif.accepted);
 
           if ( manif.accepted != 'none' ) {
-            var gauge = $('.plan_gauges th').eq(g_id).find('.gauge');
+            var gauge = $('.real .plan_gauges th').eq(g_id).find('.gauge');
             gauge.attr('data-part', parseInt(gauge.attr('data-part')) + 1);
           }
           
@@ -477,10 +491,10 @@ liOC.addPros = function(data) {
   });
 
   var header_pos = 0;
-  $('.plan_hours th').addClass('time_slot_left').each(function() {
-    $('.plan_events th').eq(header_pos).addClass('time_slot_left');
-    $('.plan_gauges th').eq(header_pos+1).addClass('time_slot_left');
-    $('.plan_body td:nth-child('+(header_pos+2)+')').addClass('time_slot_left');
+  $('.real .plan_hours th').addClass('time_slot_left').each(function() {
+    $('.real .plan_events th').eq(header_pos).addClass('time_slot_left');
+    $('.real .plan_gauges th').eq(header_pos+1).addClass('time_slot_left');
+    $('.real .plan_body td:nth-child('+(header_pos+2)+')').addClass('time_slot_left');
     header_pos += parseInt($(this).prop('colspan'));
   });
   
@@ -571,7 +585,7 @@ liOC.sortPros = function() {
 
 liOC.loadPros = function(length, date) {
   $.ajax({
-    url: $('.plan_body').attr('data-url') + (date !== undefined ? '?date=' + date : ''),
+    url: $('.real .plan_body').attr('data-url') + (date !== undefined ? '?date=' + date : ''),
     data: {},
     method: 'get',
     success: function(data){
@@ -595,7 +609,7 @@ liOC.initGUI = function() {
 
 liOC.loadHeaders = function(date) {
   $.ajax({
-    url: $('.plan_header').attr('data-url') + (date !== undefined ? '?date=' + date : ''),
+    url: $('.real .plan_header').attr('data-url') + (date !== undefined ? '?date=' + date : ''),
     data: {},
     method: 'get',
     success: function(data){      
