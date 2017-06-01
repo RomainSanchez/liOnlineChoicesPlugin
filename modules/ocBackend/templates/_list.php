@@ -10,7 +10,7 @@
   <table class="real">
     
     <caption class="fg-toolbar ui-widget-header ui-corner-top">
-      <h1><span class="ui-icon ui-icon-triangle-1-s"></span> <?php echo __('List of events', null, 'li_oc') ?></h1>
+      <h1><span class="ui-icon ui-icon-triangle-1-s"></span> <?php echo __('List of events', null, 'li_oc').' - '.$group ?></h1>
     </caption>
 
     <thead class="ui-widget-header plan_header" data-url="<?php echo url_for('oc_backend/events') ?>">

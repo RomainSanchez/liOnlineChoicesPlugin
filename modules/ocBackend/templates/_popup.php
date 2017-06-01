@@ -1,5 +1,4 @@
-<div style="position: fixed; top: 50%; left: 50%; width:50%; max-width: 600px; min-width: 500px; height: auto; transform: translateX(-50%) translateY(-50%); display:none;" 
-  class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons snapshot_<?php echo $type ?>">
+<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons snapshot_<?php echo $type ?>">
   <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
     <span id="ui-id-1" class="ui-dialog-title"><?php echo $type=='load'?__('Load state', null, 'li_oc'):__('Save state', null, 'li_oc') ?></span>
   </div>

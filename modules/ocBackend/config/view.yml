@@ -1,5 +1,5 @@
 default:
-  javascripts: [/liOnlineChoicesPlugin/js/oc_backend, /liOnlineChoicesPlugin/js/jquery.multisortable.js]
+  javascripts: [/liOnlineChoicesPlugin/js/oc_backend]
   stylesheets: [/liOnlineChoicesPlugin/css/oc_backend]
 
 jsonSuccess:

@@ -33,6 +33,20 @@ class OcDecisionHelper
      */
     private $maxRank = 0;
 
+    /**
+     * @var array
+     */
+    protected $points = [
+        '1' => 10,
+        '2' => 6,
+        '3' => 4,
+        '4' => 3,
+        '5' => 2,
+        '6' => 1,
+        null => 0,
+    ];
+    
+    private $options = [];
 
     /**
      *
@@ -143,6 +157,16 @@ class OcDecisionHelper
     {
         $iter = count($this->states) + 1;
         if ($iter > $maxIterations) {
+            
+            // TODO remove this test part
+            /*
+            $arr = [];
+            foreach ( $this->states[1]['participants'] as $p ){
+                $arr[$p['id']] = $p['rr'];
+            }
+            print_r($arr);
+            */
+            
             return $iter > 1 ? $this->states[$iter-2] : null;
         }
 
@@ -160,28 +184,51 @@ class OcDecisionHelper
                 'points' => 0,
             ];
         }
-
+        
         // sort participants by previous relative rank then by initial rank
         if ($iter > 1) {
             uasort($participants, function($a, $b) {
                 if($a['rr'] == $b['rr']) {
                     return $this->participants[$a['id']]['rank'] < $this->participants[$b['id']]['rank'] ? -1 : 1;
                 }
-                return $a['rr'] < $b['rr'] ? -1 : 1;
+                return $a['rr'] > $b['rr'] ? -1 : 1;
             });
         }
-
+        
         // initialize gauges
         $gauges = [];
         foreach ($this->getAllManifestations() as $mid => $manifestation) {
             $gauges[$mid] = $manifestation['gauge_free'];
         }
+        
+        $this->doProcessRaw($participants, $gauges);
+        $points = $this->doProcessPoints($participants);
+        if ( !$this->getOption('noUpgrade', false) ) {
+            $this->upgradeUnlukies($participants);
+        }
+        
+        $this->states[] = [
+            'iteration' => $iter,
+            'points' => $points,
+            'participants' => $participants,
+            'gauges' => $gauges,
+        ];
 
+        return $this->doProcess($maxIterations);
+    }
+
+    protected function doProcessRaw(array &$participants, array $gauges)
+    {
         // Do the job...
-        for ($rank = 1; $rank <= $this->maxRank; $rank++) {
-            foreach ($this->getAllManifestations() as $mid => $manifestation) {
-                $tsid = $manifestation['time_slot_id'];
-                foreach($participants as $pid => $p) {
+        $tsids = [];
+        foreach($participants as $pid => $p) {
+            $tsids[$pid] = [];
+            for ($rank = 1; $rank <= $this->maxRank; $rank++) {
+                foreach ($this->getAllManifestations() as $mid => $manifestation) {
+                    $tsid = $manifestation['time_slot_id'];
+                    if ( in_array($tsid, $tsids[$pid]) ){
+                        continue;
+                    }
                     if (!isset($p['timeSlots'][$tsid][$mid])) {
                         continue;
                     }
@@ -194,43 +241,61 @@ class OcDecisionHelper
                     }
                     $participants[$pid]['timeSlots'][$tsid] = $mid;
                     $participantRank = $this->participants[$pid]['rank'];
-                    $participants[$pid]['points'] += $this->getPoints($rank, $participantRank);
+                    $participants[$pid]['points'] += $this->getPoints($rank, $participantRank, count($p['timeSlots']));
                     $gauges[$mid]--;
+                    $tsids[$pid][] = $tsid;
                 }
             }
         }
-
+        
+        return $this;
+    }
+    
+    protected function doProcessPoints(array &$participants)
+    {
         // compute state total points
         $points = 0;
         foreach($participants as $pid => $p) {
-            $points += $p['points'];
+            $points += $participants[$pid]['rr'] = $p['points'];
         }
-
-        // If no improvement, return last state
-//        if ($iter > 1 && $this->states[$iter-2]['points'] >= $points) {
-//            return $this->states[$iter-2];
-//        }
-
-        // compute new relative ranks
-        foreach($participants as $pid => $p) {
-            $prrt = 0; // previous relative ranks total
-            foreach($this->states as $state) {
-                $prrt += $state['participants'][$pid]['rr'];
+        
+        return $points;
+    }
+    
+    protected function upgradeUnlukies(array &$participants)
+    {
+        // try to upgrade participants with bad luck...
+        $lasts = [];
+        $i = -1;
+        foreach ( $participants as $pid => $p ) {
+            $i++;
+            $last[] = &$participants[$pid];
+            if ( $i < 2 ) {
+                continue;
             }
-            $ir = $this->participants[$pid]['rank'];  // initial rank
-            $nbTimeSlots = count($p['timeSlots']);
-            $avgPoints = $nbTimeSlots ? $p['points'] / $nbTimeSlots : 0;
-            $participants[$pid]['rr'] = round( ($prrt + $ir + $avgPoints / 1.62) / $iter, 4 );
+            if ( $last[$i-1]['rr'] < $last[$i]['rr'] ) {
+                $first = $last[$i-2]['rr'];
+                $last[$i-2]['rr'] = $last[$i]['rr'];
+                $last[$i]['rr']   = $last[$i-1]['rr'];
+                $last[$i-1]['rr'] = $first; // aka last[$i-2]['rr'];
+            }
         }
 
-        $this->states[] = [
-            'iteration' => $iter,
-            'points' => $points,
-            'participants' => $participants,
-            'gauges' => $gauges,
-        ];
-
-        return $this->doProcess($maxIterations);
+        return $this;
+    }
+    
+    /**
+     * @param int $choiceRank
+     * @param int $participantRank
+     * @return float
+     */
+    protected function getPoints($choiceRank, $participantRank, $timeSlotsCount)
+    {
+        if ($choiceRank > 6) {
+            return 0;
+        }
+        $N = count($this->participants);
+        return $this->points[$choiceRank]/$timeSlotsCount * ( 1 + ($N-$participantRank) / (pow($N,2)/2) );
     }
 
     /**
@@ -297,25 +362,23 @@ class OcDecisionHelper
 
         return $output;
     }
-
-    /**
-     * @param int $choiceRank
-     * @param int $participantRank
-     * @return float
-     */
-    protected function getPoints($choiceRank, $participantRank)
+    
+    public function setOption($option, $value)
     {
-        if ($choiceRank > 6) return 0;
-        $points = [
-            '1' => 10,
-            '2' => 6,
-            '3' => 4,
-            '4' => 3,
-            '5' => 2,
-            '6' => 1,
-        ];
-        $N = count($this->participants);
-        return $points[$choiceRank] * ( 1 + ($N - $participantRank) / $N * 3);
+        if ( $value === NULL ) {
+            unset($this->options[$option]);
+        }
+        $this->options[$option] = $value;
+        return $this;
+    }
+
+    public function getOption($option, $defaultValue)
+    {
+        if ( !isset($this->options[$option]) ) {
+            return $defaultValue;
+        }
+        
+        return $this->options[$option];
     }
 
     /**
@@ -333,6 +396,14 @@ class OcDecisionHelper
     public function getStates()
     {
         return $this->states;
+    }
+
+    /**
+     * @return array
+     */
+    public function getState($i)
+    {
+        return $this->states[$i-1];
     }
 
     /**

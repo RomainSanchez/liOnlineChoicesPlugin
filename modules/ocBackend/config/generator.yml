@@ -19,5 +19,7 @@ generator:
         title: Liste des évènements
       filter:  ~
       form:    ~
-      edit:    ~
-      new:     ~
+      edit:
+        title: Liste des évènements
+      new:
+        title: Liste des évènements

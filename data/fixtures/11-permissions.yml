@@ -76,6 +76,11 @@ sfGuardPermission:
     description: 'Permission to modify the state of online choices'
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
+  sfGuardPermission_111:
+    name: tck-onlinechoices-data-rank
+    description: 'Permission to modify ordering of professionals'
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
   sfGuardPermission_11:
     name: tck-onlinechoices-data-transpose
     description: 'Permission to transpose online choices into the ticketting process'
@@ -363,9 +368,14 @@ sfGuardGroupPermission:
     Permission: sfGuardPermission_11
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
-  sfGuardGroupPermission_3_13:
+  sfGuardGroupPermission_3_111:
     Group: sfGuardGroup_3
-    Permission: sfGuardPermission_13
+    Permission: sfGuardPermission_111
+    created_at: '2017-05-26 08:59:00'
+    updated_at: '2017-05-26 08:59:00'
+  sfGuardGroupPermission_3_12:
+    Group: sfGuardGroup_3
+    Permission: sfGuardPermission_12
     created_at: '2017-05-26 08:59:00'
     updated_at: '2017-05-26 08:59:00'
   sfGuardGroupPermission_3_13:

@@ -17,12 +17,26 @@ class PluginOcSnapshotTable extends TraceableTable
         return Doctrine_Core::getTable('PluginOcSnapshot');
     }
     
+    public function createQuery($alias = 'ocs') 
+    {
+      $user = sfContext::getInstance()->getUser()->getGuardUser();
+      
+      $q = parent::createQuery($alias)
+        ->andWhere("$alias.group_id = ?", $user->OcConfig->group_id)
+        ->andWhere("$alias.workspace_id = ?", $user->OcConfig->workspace_id);
+        
+      return $q;
+    }
     
     public function getLastValid($day = null) 
     {
-      return parent::createQuery('ocs')
-        ->andWhere('ocs.purpose = ?', 'valid')
-        ->andWhere('ocs.day = ?', $day)
-        ->orderBy('ocs.created_at DESC');
+      $q = $this->createQuery('ocs');
+      $root = $q->getRootAlias();
+      
+      $q->andWhere("$root.purpose = ?", 'valid')
+        ->andWhere("$root.day = ?", $day)
+        ->orderBy("$root.created_at DESC");
+        
+      return $q;
     }
 }
