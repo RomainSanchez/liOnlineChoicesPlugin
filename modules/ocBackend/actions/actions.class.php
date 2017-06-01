@@ -482,6 +482,7 @@ class ocBackendActions extends autoOcBackendActions
   {
     $this->setTemplate('json');
     $this->isDebug($request->hasParameter('debug'));
+    $this->getContext()->getConfiguration()->loadHelpers('Url');
     
     $this->json = array();
     
@@ -519,7 +520,7 @@ class ocBackendActions extends autoOcBackendActions
     
     // get back authorized and targetted OcProfessionals and their OcTickets
     $q = Doctrine::getTable('OcProfessional')->createQuery('op')
-      ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted')
+      ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
       ->leftJoin('op.Professional p')
       
       ->leftJoin('p.Contact c')
@@ -554,7 +555,18 @@ class ocBackendActions extends autoOcBackendActions
       $pro['rank'] = $ocPro['rank'];
       $pro['name'] = $ocPro['Professional']['Contact']['firstname'].' '.$ocPro['Professional']['Contact']['name'];
       $pro['organism'] = $ocPro['Professional']['Organism']['name'];
-      $pro['manifestations'] = array();
+      $pro['manifestations'] = [];
+      $pro['groups'] = [];
+      foreach ( $ocPro['Professional']['Groups'] as $group ) {
+        if ( !$group['display_everywhere'] ) {
+            continue;
+        }
+        $pro['groups'][] = [
+            'id'        => $group['id'],
+            'name'      => $group['name'],
+            'picture'   => $group['picture_id'] ? url_for('@oc_api_picture?id='.$group['picture_id']) : null,
+        ];
+      }
       
       if ( count($ocPro['OcTransactions']) > 0 )
       foreach ($ocPro['OcTransactions'][0]['OcTickets'] as $ticket)
