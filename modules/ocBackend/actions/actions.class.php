@@ -74,7 +74,7 @@ class ocBackendActions extends autoOcBackendActions
     //parent::executeIndex($request);
 
     $this->form = new OcSnapshotForm();
-    $this->_csrf_token = $this->form->getCSRFToken();    
+    $this->_csrf_token = $this->form->getCSRFToken();
     $this->valid = $this->isValidated();
 
     $this->group = $this->getUser()->getGuardUser()->OcConfig->Group->name;
@@ -84,6 +84,8 @@ class ocBackendActions extends autoOcBackendActions
       ->andWhere('date(s.day) = ?', $this->day)
       ->orderBy('s.created_at DESC')
       ->execute();
+    
+    $this->groups = Doctrine::getTable('Group')->createQuery('g')->execute();
   }
   
   public function executeAutoPositioning(sfWebRequest $request)
@@ -528,7 +530,7 @@ class ocBackendActions extends autoOcBackendActions
     $q = Doctrine::getTable('OcProfessional')->createQuery('op')
       ->select('op.id, op.rank, p.id, t.id, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
       ->innerJoin('op.Professional p')
-      ->innerJoin('p.ProfessionalGroups grp WITH grp.group_id = ?', $this->getUser()->getGuardUser()->OcConfig->group_id)
+      ->innerJoin('p.Groups grp WITH grp.id = ?', $this->getUser()->getGuardUser()->OcConfig->group_id)
       ->innerJoin('p.Contact c')
       ->innerJoin('p.Organism o')
       ->leftJoin('op.OcTransactions t')

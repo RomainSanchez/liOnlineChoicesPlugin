@@ -87,3 +87,8 @@
 .sf_admin_list .th-clone { width: auto; top: 315px; left: 0; background-color: white; z-index: 9; }
 .sf_admin_list .thead-th-clone { width: auto; top: 154px; left: 0; z-index: 11; }
 .th-clone tbody, .thead-th-clone thead { border-right: 3px solid #a6c9e2; }
+
+/* popups */
+#content .ui-dialog { position: fixed; top: 50%; left: 50%; width:50%; max-width: 600px; min-width: 500px; height: auto; transform: translateX(-50%) translateY(-50%); display:none; }
+#content .ui-dialog.shuffle ol { cursor: default; -moz-user-select: none: user-select: none; }
+#content .ui-dialog.shuffle li { padding: 5px 10px; border: 1px solid grey; background-color: white; }

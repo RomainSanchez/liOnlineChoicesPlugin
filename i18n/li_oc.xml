@@ -124,9 +124,13 @@
         <source>OcApplication</source>
         <target>API Choix En Ligne</target>
       </trans-unit>
-      <trans-unit>
+      <trans-unit id="31">
         <source>Transpose</source>
         <target>Transposer en billeterie</target>
+      </trans-unit>
+      <trans-unit id="32">
+        <source>Shuffle ordering</source>
+        <target>Mélanger l'ordre</target>
       </trans-unit>
     </body>
   </file>

@@ -95,6 +95,15 @@ $(document).ready(function(){
     $('.snapshot_save').hide();
   });
   
+  $('.sf_admin_actions_block .shuffle').click(function(){
+    $('.ui-dialog.shuffle').toggle();
+  });
+  $('.ui-dialog.shuffle ol').sortable();
+  $('.ui-dialog.shuffle button.cancel').click(function(){ $(this).closest('.ui-dialog').hide(); });
+  $('.ui-dialog.shuffle button.shuffle').click(function(){
+    // TODO
+  });
+  
 });
 
 // horizontal+vertical
