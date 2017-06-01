@@ -55,8 +55,8 @@
   background-color: #009688;
 }
 
-.sf_admin_list table tbody th .rank { position: absolute; display: inline-block; margin-left: -4.5em; width: 4em; text-align: right; font-size: 75%; }
-.sf_admin_list table tbody th { padding-left: 3em; padding-right: 0.2em; cursor: default; white-space: nowrap; user-select: none; -moz-user-select: none; }
+.sf_admin_list table tbody th .rank { position: absolute; display: none; margin-left: -4.5em; width: 4em; text-align: right; font-size: 75%; }
+.sf_admin_list table tbody th { padding: 0.2em 0.5em; cursor: default; white-space: nowrap; user-select: none; -moz-user-select: none; }
 .sf_admin_actions_block .ranks { display: none; }
 
 .sf_admin_list table tfoot { display: none; }
