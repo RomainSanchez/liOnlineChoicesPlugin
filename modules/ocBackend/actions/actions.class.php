@@ -85,7 +85,10 @@ class ocBackendActions extends autoOcBackendActions
       ->orderBy('s.created_at DESC')
       ->execute();
     
-    $this->groups = Doctrine::getTable('Group')->createQuery('g')->execute();
+    $this->groups = Doctrine::getTable('Group')->createQuery('g')
+        ->andWhere('g.display_everywhere')
+        ->execute()
+    ;
   }
   
   public function executeAutoPositioning(sfWebRequest $request)

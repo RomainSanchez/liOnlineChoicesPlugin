@@ -95,15 +95,31 @@ $(document).ready(function(){
     $('.snapshot_save').hide();
   });
   
+  // shuffling professionals depending on human-ordered groups
   $('.sf_admin_actions_block .shuffle').click(function(){
     $('.ui-dialog.shuffle').toggle();
   });
   $('.ui-dialog.shuffle ol').sortable();
   $('.ui-dialog.shuffle button.cancel').click(function(){ $(this).closest('.ui-dialog').hide(); });
   $('.ui-dialog.shuffle button.shuffle').click(function(){
-    // TODO
+      $('#transition').show();
+      // takes the groups in the reversed order
+      $($.makeArray($(this).closest('.ui-dialog').find('li')).reverse()).each(function(){
+          var grpid = $(this).attr('data-id');
+          
+          // prepend randomly the given DOM TR objects
+          $.each($.makeArray($('.sf_admin_list table.real tbody [data-grp-id="'+grpid+'"]')).sort(function(){ return Math.random() - 0.5; }), function(i, item){
+              $(item).closest('tr').prependTo($('.sf_admin_list table.real tbody'));
+          });
+      });
+      
+      // save the order
+      liOC.prosSaveRanks(function(){
+          liOC.fixTableScroll();
+          $('.ui-dialog.shuffle button.cancel').click();
+          $('#transition .close').click();
+      });
   });
-  
 });
 
 // horizontal+vertical
@@ -455,10 +471,12 @@ liOC.addPros = function(data) {
       .attr('data-id', pro.id);
     
     $.each(pro.groups, function(i, group) {
-      cell_pro.append($('<span>')
-        .addClass('group_image')
-        .append('<img src="'+group.picture+'" alt="G" title="'+group.name+'">'))
-        .attr('data-grp-id', group.id);  
+      cell_pro.append(
+          $('<span>')
+            .addClass('group_image')
+            .append($('<img>').prop('src', group.picture ? group.picture : '').prop('alt', 'G').prop('title', group.name))
+            .attr('data-grp-id', group.id)
+      );
     });
     
     row_pro.append(cell_pro);
@@ -598,16 +616,23 @@ liOC.sortPros = function() {
   });
   
   $('#sf_admin_content .sf_admin_actions_block .ranks a').click(function(){
+    liOC.prosSaveRanks();
+    return false;
+  });
+}
+
+liOC.prosSaveRanks = function(callback){
     $.ajax({
-      url: $(this).prop('href'),
+      url: $('#sf_admin_content .sf_admin_actions_block .ranks a').prop('href'),
       method: 'post',
-      data: $(this).closest('form').serialize(),
+      data: $('#sf_admin_content').serialize(),
       complete: function(){
+        if ( typeof(callback) == 'function' ) {
+            callback();
+        }
         $('#transition .close').click();
       }
     });
-    return false;
-  });
 }
 
 liOC.loadPros = function(length, date) {
