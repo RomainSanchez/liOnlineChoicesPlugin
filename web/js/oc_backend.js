@@ -258,7 +258,13 @@ liOC.loadPositions = function(data) {
   $.each(data, function(i, pro) {
     var line = $('.real .plan_body tr th[data-id='+pro.id+']').closest('tr');
     $.each(pro.manifestations, function(i, manif) {
-      line.find('td').eq($('.real .plan_events th[data-id='+manif.id+']').index()).addClass(manif.accepted);
+      var g_id = $('.real .plan_events th[data-id='+manif.id+']').index();
+      line.find('td').eq(g_id).addClass(manif.accepted);
+      
+      if ( manif.accepted != 'none' ) {
+        var gauge = $('.real .plan_gauges th').eq(g_id + 1).find('.gauge');
+        gauge.attr('data-part', parseInt(gauge.attr('data-part')) + 1);
+      }
     });
   });
 }
@@ -270,8 +276,8 @@ liOC.loadSnapshot = function(url) {
     method: 'get',
     success: function(data){      
       liOC.loadPositions(data);
-      liOC.fixTableScroll();
       liOC.refreshGauges();
+      liOC.fixTableScroll();
       liOC.blockContextMenu();
       $('#transition .close').click();
     },
@@ -332,7 +338,12 @@ liOC.saveSnapshot = function() {
 
 liOC.refreshGauges = function() {
   
+  console.log('ok');
+  
   $('.real .plan_gauges th').each(function() {
+    
+    console.log(this);
+    
     var gauge = $(this).find('div > .gauge');
     gauge.find('.text').text(gauge.attr('data-part') + ' / ' + gauge.attr('data-max'));
     var part = parseInt(gauge.attr('data-part'));
@@ -426,15 +437,22 @@ liOC.addPros = function(data) {
       row_pro.addClass('odd');
     }
     
-    row_pro.append(
-        $('<th></th>')
-            .append($('<input>').prop('type', 'hidden').prop('name', 'rank[]').val(pro.id).addClass('rank'))
-            .append($('<span>').addClass('rank').attr('data-rank', pro.rank).text(pro.rank))
-            .append($('<span>').addClass('name').text(pro.name))
-            .append('<br/>')
-            .append($('<span>').addClass('organism').text(pro.organism))
-            .attr('data-id', pro.id)
-    );
+    var cell_pro = $('<th></th>')
+      .append($('<input>').prop('type', 'hidden').prop('name', 'rank[]').val(pro.id).addClass('rank'))
+      .append($('<span>').addClass('rank').attr('data-rank', pro.rank).text(pro.rank))
+      .append($('<span>').addClass('name').text(pro.name))
+      .append('<br/>')
+      .append($('<span>').addClass('organism').text(pro.organism))
+      .attr('data-id', pro.id);
+    
+    $.each(pro.groups, function(i, group) {
+      cell_pro.append($('<span>')
+        .addClass('group_image')
+        .append('<img src="'+group.picture+'" alt="G" title="'+group.name+'">'))
+        .attr('data-grp-id', group.id);  
+    });
+    
+    row_pro.append(cell_pro);
 
     $('.real .plan_events th').each(function() {
       var manif_cell = $('<td></td>')

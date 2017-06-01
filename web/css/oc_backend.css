@@ -80,7 +80,7 @@
 .two { background-color: #9c27b0; }
 .three { background-color: #3f51b5; }
 
-
+.group_image { margin: 5px; }
 
 /* fixed thead */
 .th-clone, .thead-th-clone, .thead-clone { position: fixed; top: 50px; z-index: 10; }
