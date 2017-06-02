@@ -239,7 +239,7 @@ liOC.blockContextMenu = function(){
 }
 
 liOC.gaugeChange = function(cell, value) {
-  $('.real .plan_gauges').each(function(){
+  $('.plan_gauges').each(function(){
     var gauge = $(this).find('th').eq(cell.index()).find('.gauge');
     var part = parseInt(gauge.attr('data-part')) + value;
     gauge.attr('data-part', part);
@@ -387,7 +387,7 @@ liOC.saveSnapshot = function() {
 }
 
 liOC.refreshGauges = function() {
-  $('.real .plan_gauges th').each(function() {
+  $('.plan_gauges th').each(function() {
     var gauge = $(this).find('div > .gauge');
     gauge.find('.text').text(gauge.attr('data-part') + ' / ' + gauge.attr('data-max'));
     var part = parseInt(gauge.attr('data-part'));

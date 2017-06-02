@@ -204,7 +204,6 @@ class ocBackendActions extends autoOcBackendActions
     sfConfig::set('sf_web_debug', false);
 
     $this->snapshots = Doctrine::getTable('OcSnapshot')->createQuery('s')
-      ->andWhere('s.sf_guard_user_id = ?', $this->getUser()->getId())
       ->andWhere('date(s.day) = ?', $this->day)
       ->orderBy('s.created_at DESC')
       ->execute();

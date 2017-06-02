@@ -14,10 +14,10 @@
 .ui-state-default.time_slot_left, .time_slot_left  { border-left: 3px solid #a6c9e2; }
 .ui-state-default.time_slot_right, .time_slot_right { border-right: 3px solid #a6c9e2; }
 
-.list_snapshots {
+.list_snapshots, .list_groups {
   margin-left: 50px;
 }
-.list_snapshots li {
+.list_snapshots li, .list_groups li {
   margin: 5px;
 }
 .list_snapshots a:hover {
