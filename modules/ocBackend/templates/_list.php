@@ -5,6 +5,11 @@
       <span class="text"></span>
       <span class="resa" style="width:0%;">&nbsp;</span>
     </div>
+    
+    <div class="gauge_first_choice">
+      <span class="text"></span>
+      <span class="resa" style="width:0%;">&nbsp;</span>
+    </div>
   </div>
   
   <table class="real">

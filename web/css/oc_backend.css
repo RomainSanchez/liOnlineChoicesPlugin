@@ -28,17 +28,21 @@
 }
 .list_snapshots .details { font-size: 75%; }
 
-.gauge, .gaugeover {
+.gauge, .gaugeover, .gauge_first_choice {
 	padding: 0;
 	margin: 0 auto;
 	border-radius: 8px;
 	overflow: hidden;
 	height: 1.2em;
-    width: 80px;
+  width: 80px;
 }
 
 .gauge_content { width: 80px; margin: 0 auto; }
-.gauge { color:white; font-weight: normal; }
+.gauge_first_choice {display:block;margin-top:5px;}
+.gauge_first_choice.free { color:gray; background-color:inherit; border: 1px solid green; }
+.gauge_first_choice.resa { color:gray; background-color:inherit; border: 1px solid orange; }
+
+.gauge, .gauge_first_choice { color:white; font-weight: normal; }
 .raw { display: none; }
 .gaugeover { 	background-color: orange; }
 

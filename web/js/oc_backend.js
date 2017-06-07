@@ -240,9 +240,12 @@ liOC.blockContextMenu = function(){
 
 liOC.gaugeChange = function(cell, value) {
   $('.plan_gauges').each(function(){
-    var gauge = $(this).find('th').eq(cell.index()).find('.gauge');
-    var part = parseInt(gauge.attr('data-part')) + value;
-    gauge.attr('data-part', part);
+    var gauges = $(this).find('th').eq(cell.index()).find('.gauge, .gauge_first_choice');
+    gauges.each(function(){
+    	var gauge = $(this);
+    	var part = parseInt(gauge.attr('data-part')) + value;
+    	gauge.attr('data-part', part);
+    });
   });
 }
 
@@ -318,7 +321,8 @@ liOC.loadSnapshot = function(url) {
     data: {},
     method: 'get',
     success: function(data){
-      $('.real .plan_gauges .gauge').attr('data-part', 0)
+      $('.real .plan_gauges .gauge').attr('data-part', 0);
+      $('.real .plan_gauges .gauge_first_choice').attr('data-part', 0)
       liOC.loadPositions(data);
       liOC.refreshGauges();
       liOC.fixTableScroll();
@@ -388,22 +392,25 @@ liOC.saveSnapshot = function() {
 
 liOC.refreshGauges = function() {
   $('.plan_gauges th').each(function() {
-    var gauge = $(this).find('div > .gauge');
-    gauge.find('.text').text(gauge.attr('data-part') + ' / ' + gauge.attr('data-max'));
-    var part = parseInt(gauge.attr('data-part'));
-    var max = parseInt(gauge.attr('data-max'));
-    var resa = part / max * 100;
-    
-    if ( part > max ) {
-      gauge.find('.resa').removeClass('resa').addClass('over');
-      resa = (part - max) / max * 100;
-      gauge.find('.over').css('width', resa + '%');
-      gauge.removeClass('free').addClass('resa');
-    } else {
-      gauge.find('.over').removeClass('over').addClass('resa');
-      gauge.find('.resa').css('width', resa + '%');
-      gauge.removeClass('resa').addClass('free');
-    }
+    var gauges = $(this).find('div > .gauge, div > .gauge_first_choice');
+    gauges.each(function(){
+    	gauge = $(this);
+		  gauge.find('.text').text(gauge.attr('data-part') + ' / ' + gauge.attr('data-max'));
+		  var part = parseInt(gauge.attr('data-part'));
+		  var max = parseInt(gauge.attr('data-max'));
+		  var resa = part / max * 100;
+		  
+		  if ( part > max ) {
+		    gauge.find('.resa').removeClass('resa').addClass('over');
+		    resa = (part - max) / max * 100;
+		    gauge.find('.over').css('width', resa + '%');
+		    gauge.removeClass('free').addClass('resa');
+		  } else {
+		    gauge.find('.over').removeClass('over').addClass('resa');
+		    gauge.find('.resa').css('width', resa + '%');
+		    gauge.removeClass('resa').addClass('free');
+		  }
+    });
   });
 }
 
@@ -458,13 +465,23 @@ liOC.loadHours = function(data) {
       
       var header_gauges = liOC.createHeaderCell()
         .attr('data-id', event.gauge.id)
-        .appendTo('.real .plan_gauges'); 
-      $('.raw').clone()
+        .appendTo('.real .plan_gauges');
+        
+      var gaugeContent = $('.raw').clone()
         .removeClass('raw')
-        .appendTo(header_gauges)
-        .find('.gauge')
+        .appendTo(header_gauges);
+      
+      //global gauge
+      gaugeContent.find('.gauge')
         .attr('data-part', event.gauge.part)
         .attr('data-max', event.gauge.value);
+        
+      //gauge for 1st choices
+      gaugeContent.find('.gauge_first_choice')
+        .attr('data-part', 0)
+        .attr('data-max', event.gauge.value);
+      
+        
     });
     
     header_hours.attr('data-max', i);
@@ -547,10 +564,19 @@ liOC.addPros = function(data) {
                 .addClass(liOC.choices[manif.rank])
                 .appendTo(manif_cell)
             );
+            
+            //1st choices
+            if( manif.rank == 1 ){
+            	var gauge = $('.real .plan_gauges th').eq(g_id).find('.gauge_first_choice');
+            	gauge.attr('data-part', parseInt(gauge.attr('data-part')) + 1);
+            }
+            
           }
           return false;
         }
       });
+      
+      
     });
   });
 
@@ -573,6 +599,7 @@ liOC.addPros = function(data) {
     });
   
   liOC.sortPros();
+  liOC.refreshGauges();
 }
 
 liOC.computeRanks = function(elt) {
