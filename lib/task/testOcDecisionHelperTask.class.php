@@ -72,6 +72,8 @@ class testOcDecisionHelperTask extends sfBaseTask
         }
 
         $this->displayState($this->service->getBestState());
+        
+        $this->exportStateToCsv($this->service->getBestState());
         print "\n\n";
 
         foreach($this->service->getStates() as $state) {
@@ -225,6 +227,74 @@ class testOcDecisionHelperTask extends sfBaseTask
             $mask .= " %5.5s |";
         }
         $mask .= "| %5.5s |\n";
+
+        // HEADER
+        $line = ['', '', ''];
+        foreach ($manifestations as $manifestation) {
+            $line[] = $manifestation['name'];
+        }
+        $line[] = "";
+        vprintf($mask, $line);
+
+        $line = [
+            'Participant',
+            'IR',
+            'RR',
+        ];
+        foreach ($manifestations as $manifestation) {
+            $line[] = sprintf('g=%d', $manifestation['gauge_free']);
+        }
+        $line[] = "Pts";
+        vprintf($mask, $line);
+        $hline = array_fill(1, 4 + count($manifestations), '---------------------------');
+        vprintf($mask, $hline);
+
+        // BODY
+        $participants = $this->service->getAllParticipants();
+        foreach ($participants as $pid => $p) {
+            $line = [
+                $p['name'],
+                $p['rank'],
+                $state['participants'][$pid]['rr'],
+            ];
+            foreach ($manifestations as $mid => $manifestation) {
+                $rank = '';
+                $tsid = $manifestation['time_slot_id'];
+                if (isset($p['timeSlots'][$tsid][$mid])) {
+                    $rank = $p['timeSlots'][$tsid][$mid]['rank'];
+                    if ($p['timeSlots'][$tsid][$mid]['human']) {
+                        $rank = '[' . $rank . ']';
+                    }
+                    elseif (isset($state['participants'][$pid]['timeSlots'][$tsid]) && $state['participants'][$pid]['timeSlots'][$tsid] == $mid) {
+                        $rank = '*' . $rank . '*';
+                    }
+                }
+                $line[] = $rank;
+            }
+            $line[] = $state['participants'][$pid]['points'];
+            vprintf($mask, $line);
+        }
+
+        printf("\n\nIteration #%d\n", $state['iteration']);
+        printf("Points total: %f\n\n", $state['points']);
+    }
+    
+    protected function exportStateToCsv($state)
+    {
+        print "\n\n";
+
+        // Line mask
+        $mask = "%-20.20s , %-5.5s , %-5.5s ,";
+        $manifestations = $this->service->getAllManifestations();
+        $tsid = 0;
+        foreach ($manifestations as $mid => $m) {
+            if ($tsid != $m['time_slot_id']) {
+                $mask .= ',';
+                $tsid = $m['time_slot_id'];
+            }
+            $mask .= " %5.5s ,";
+        }
+        $mask .= ", %5.5s \n";
 
         // HEADER
         $line = ['', '', ''];

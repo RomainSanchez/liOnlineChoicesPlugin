@@ -132,6 +132,10 @@
         <source>Shuffle ordering</source>
         <target>Mélanger l'ordre</target>
       </trans-unit>
+      <trans-unit id="20">
+        <source>Statistics of Events</source>
+        <target>Statistiques sur les évènements</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
