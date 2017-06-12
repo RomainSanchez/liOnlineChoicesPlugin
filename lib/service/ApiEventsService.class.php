@@ -6,7 +6,7 @@
  */
 
 /**
- * Description of ApiCustomersService
+ * Description of ApiEventsService
  *
  * @author Baptiste SIMON <baptiste.simon@libre-informatique.fr>
  */
