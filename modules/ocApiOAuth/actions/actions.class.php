@@ -58,7 +58,7 @@ class ocApiOAuthActions extends jsonActions
             $newToken = $oauth->refreshToken($refresh, $app);
 
             if ( null === $newToken ) {
-                OcLogger::log($e->getMessage(), $this);
+                ApiLogger::log($e->getMessage(), $this);
                 return $this->createJsonErrorResponse('token cannot be refreshed', ApiHttpStatus::UNAUTHORIZED);
             }
         } else {
