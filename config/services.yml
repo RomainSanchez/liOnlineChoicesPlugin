@@ -6,10 +6,6 @@ all:
     parameters:
 
     services:
-        api_actions_service:
-            class: ApiActionsService
-        api_translation_service:
-            class: ApiTranslationService
         api_oauth_service:
             class: ApiOAuthService
         api_customers_service:
