@@ -65,7 +65,7 @@ class ApiEventsService extends ApiEntityService
         // manifestations
         $query = [
             'criteria' => [
-                'event_id' => [
+                'event.id' => [
                     'type'  => 'equal',
                     'value' => $entity['id'],
                 ],
