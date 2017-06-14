@@ -67,18 +67,18 @@ class ocApiCartItemsActions extends apiActions
         /* @var $cartsService ApiCartsService */
         $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
-            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
+            throw new liApiException("Cart not found or not editable (id=$cart_id)");
         }
 
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('api_cartitems_service');
         if (!$cartItemsService->isCartItemCreatable($cart_id, $declination_id)) {
-            return $this->createBadRequestResponse(['error' => "Time slot frozen"]);
+            throw new liApiException('Time slot frozen');
         }
         try {
             $cartItem = $cartItemsService->create($cart_id, $request->getParameter('application/json'));
         } catch (liOnlineSaleException $exc) {
-            return $this->createBadRequestResponse(['error' => $exc->getMessage()]);
+            throw new liApiException($exc->getMessage());
         }
 
         return $this->createJsonResponse($cartItem);
@@ -100,13 +100,13 @@ class ocApiCartItemsActions extends apiActions
         /* @var $cartsService ApiCartsService */
         $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
-            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
+            throw new liApiException("Cart not found or not editable (id=$cart_id)");
         }
 
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('api_cartitems_service');
         if (!$cartItemsService->isCartItemEditable($cart_id, $item_id)) {
-            return $this->createBadRequestResponse(['error' => "Cart item not found or not editable (id=$item_id)"]);
+            throw new liApiException("Cart item not found or not editable (id=$item_id)");
         }
         $isSuccess = $cartItemsService->updateCartItem($cart_id, $item_id, $request->getParameter('application/json'));
 
@@ -138,13 +138,13 @@ class ocApiCartItemsActions extends apiActions
         /* @var $cartsService ApiCartsService */
         $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
-            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
+            throw new liApiException("Cart not found or not editable (id=$cart_id)");
         }
 
         /* @var $cartItemsService ApiCartItemsService */
         $cartItemsService = $this->getService('api_cartitems_service');
         if (!$cartItemsService->isCartItemEditable($cart_id, $item_id)) {
-            return $this->createBadRequestResponse(['error' => "Cart item not found or not editable (id=$item_id)"]);
+            throw new liApiException("Cart item not found or not editable (id=$item_id)");
         }
         $isSuccess = $cartItemsService->deleteCartItem($cart_id, $item_id);
         if (!$isSuccess) {

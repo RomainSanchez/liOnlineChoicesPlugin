@@ -49,7 +49,7 @@ class ocApiCartsActions extends apiActions
         /* @var $cartsService ApiCartsService */
         $cartsService = $this->getService('api_carts_service');
         if (!$cartsService->isCartEditable($cart_id)) {
-            return $this->createBadRequestResponse(['error' => "Cart not found or not editable (id=$cart_id)"]);
+            throw new liApiException("Cart not found or not editable (id=$cart_id)");
         }
 
         $isSuccess = $cartsService->updateCart($cart_id, ['checkoutState' => 'new']);
