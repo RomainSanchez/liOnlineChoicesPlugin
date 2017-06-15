@@ -107,40 +107,40 @@ class ApiCartItemsService extends ApiEntityService
      * @param int $cartId
      * @param array $data
      * @return array
-     * @throws ocException
+     * @throws liApiException
      */
     public function create($cartId, $data)
     {
         // Check type
         if (!isset($data['type'])) {
-            throw new ocException('Missing type parameter');
+            throw new liApiException('Missing type parameter');
         }
         $type = $data['type'];
         $allowedTypes = ['ticket', 'product', 'pass'];
         if (!in_array($type, $allowedTypes)) {
-            throw new ocNotImplementedException(sprintf('Wrong type parameter: %s. Expected one of: ', $type, implode(',', $allowedTypes)));
+            throw new liApiNotImplementedException(sprintf('Wrong type parameter: %s. Expected one of: ', $type, implode(',', $allowedTypes)));
         }
         if ($type != 'ticket') {
             // TODO...
-            throw new ocNotImplementedException('Not implemented yet for type: ' . $type);
+            throw new liApiNotImplementedException('Not implemented yet for type: ' . $type);
         }
 
         if (!isset($data['priceId'])) {
-            throw new ocException('Missing priceId parameter');
+            throw new liApiException('Missing priceId parameter');
         }
         $priceId = (int)$data['priceId'];
 
         if (!isset($data['declinationId'])) {
-            throw new ocException('Missing declinationId parameter');
+            throw new liApiException('Missing declinationId parameter');
         }
         $declinationId = (int)$data['declinationId'];
 
         if ( !$this->checkGaugeAndPriceAccess($declinationId, $priceId) ) {
-            throw new ocException('Invalid value for priceId or declinationId parameter');
+            throw new liApiException('Invalid value for priceId or declinationId parameter');
         }
 
         if ( !$this->checkGaugeAvailability($declinationId) ) {
-            throw new ocException('Gauge is full or not available in your context');
+            throw new liApiException('Gauge is full or not available in your context');
         }
 
         $cartItem = $this->buildQuery([])
@@ -261,7 +261,53 @@ class ApiCartItemsService extends ApiEntityService
         return true;
     }
 
+    /**
+     * @param int $cartId
+     * @param array $data
+     * @return boolean   true if successful, false if failed
+     */
+    public function reorderItems($cartId, $data)
+    {
+        // Validate data
+        if (!is_array($data)) {
+            return false;
+        }
 
+        $ranks = [];
+        $cartItemIds = [];
+        foreach($data as $d) {
+            if (!isset($d['cartItemId']) || !isset($d['rank'])) {
+                return false;
+            }
+            $ranks[$d['cartItemId']] = (int)$d['rank'];
+            $cartItemIds[] = (int)$d['cartItemId'];
+        }
+
+        $cartItems = $dotrineCol = $this->buildQuery([])
+            ->leftJoin('root.Gauge gau')
+            ->andWhere('root.oc_transaction_id = ?', $cartId)
+            ->andWhereIn('root.id', $cartItemIds)
+            ->execute()
+        ;
+
+        // Check if all cart items belong to the same time slot
+        $declinationIds = [];
+        foreach($cartItems as $item) {
+            $declinationIds[] = $item->Gauge->manifestation_id;
+        }
+        $timeSlotIds = $this->getTimeSlotIds($declinationIds);
+        if (count($timeSlotIds) != 1) {
+            //return false;
+        }
+
+        // Update cart item ranks
+        foreach($cartItems as $item) {
+            $item->rank = $ranks[$item->id];
+            $item->save();
+        }
+
+        return true;
+    }
 
     /**
      *
@@ -386,11 +432,32 @@ class ApiCartItemsService extends ApiEntityService
             ->andWhere('gau.id = ?', $declinationId)
         ;
         $timeSlot = $q->fetchArray();
-        
+
         if (!$timeSlot) {
             return false;
         }
         return $timeSlot[0]['id'];
+    }
+
+    /**
+     * @param array $declinationIds
+     * @return array
+     */
+    protected function getTimeSlotIds($declinationIds)
+    {
+        $q = Doctrine::getTable('ocTimeSlot')->createQuery('ts')
+            ->select('ts.id')
+            ->leftJoin('ts.OcTimeSlotManifestations tsm')
+            ->leftJoin('tsm.Manifestation man')
+            ->leftJoin('man.Gauges gau')
+            ->andWhereIn('gau.id', $declinationIds)
+        ;
+        $timeSlots = $q->fetchArray();
+        $timeSlotIds = [];
+        foreach($timeSlots as $ts) {
+            $timeSlotIds[] = $ts['id'];
+        }
+        return array_unique($timeSlotIds);
     }
 
 

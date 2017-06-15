@@ -12,5 +12,17 @@
  */
 abstract class PluginOcProfessional extends BaseOcProfessional
 {
-
+    public function preSave($event)
+    {
+        if ( !$this->rank ) {
+            $max = Doctrine::getTable('OcProfessional')->createQuery('op')
+                ->orderBy('op.rank DESC')
+                ->select('op.rank')
+                ->limit(1)
+                ->fetchArray();
+            $this->rank = $max['rank']+1;
+        }
+        
+        parent::preSave($event);
+    }
 }

@@ -21,6 +21,7 @@ generator:
           type: date
       list:
         display: [name, starts_at, ends_at]
+        sort: [starts_at, asc]
         actions:
             _new: ~
             _refresh:

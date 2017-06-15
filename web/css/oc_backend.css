@@ -14,10 +14,10 @@
 .ui-state-default.time_slot_left, .time_slot_left  { border-left: 3px solid #a6c9e2; }
 .ui-state-default.time_slot_right, .time_slot_right { border-right: 3px solid #a6c9e2; }
 
-.list_snapshots {
+.list_snapshots, .list_groups {
   margin-left: 50px;
 }
-.list_snapshots li {
+.list_snapshots li, .list_groups li {
   margin: 5px;
 }
 .list_snapshots a:hover {
@@ -28,7 +28,7 @@
 }
 .list_snapshots .details { font-size: 75%; }
 
-.gauge, .gaugeover {
+.gauge, .gaugeover, .gauge_first_choice {
 	padding: 0;
 	margin: 0 auto;
 	border-radius: 8px;
@@ -38,7 +38,11 @@
 }
 
 .gauge_content { width: 80px; margin: 0 auto; }
-.gauge { color:white; font-weight: normal; }
+.gauge_first_choice {display:block;margin-top:5px;}
+.gauge_first_choice.free { color:gray; background-color:inherit; border: 1px solid green; }
+.gauge_first_choice.resa { color:gray; background-color:inherit; border: 1px solid orange; }
+
+.gauge, .gauge_first_choice { color:white; font-weight: normal; }
 .raw { display: none; }
 .gaugeover { 	background-color: orange; }
 
@@ -54,6 +58,12 @@
 .sf_admin_list table tbody tr.sf_admin_row td.cell_choices:active {
   background-color: #009688;
 }
+
+.sf_admin_list table tbody th .rank { position: absolute; display: none; margin-left: -4.5em; width: 4em; text-align: right; font-size: 75%; }
+.sf_admin_list table tbody th { padding: 0.2em 0.5em; cursor: default; white-space: nowrap; user-select: none; -moz-user-select: none; }
+.sf_admin_actions_block .ranks { display: none; }
+
+.sf_admin_list table tfoot { display: none; }
 
 .odd { background-color: lightgray; }
 .human { background-color: aquamarine; }
@@ -73,3 +83,16 @@
 .one { background-color: #e91e63; }
 .two { background-color: #9c27b0; }
 .three { background-color: #3f51b5; }
+
+.group_image { margin: 5px; font-size: 75%; }
+
+/* fixed thead */
+.th-clone, .thead-th-clone, .thead-clone { position: fixed; top: 50px; z-index: 10; }
+.sf_admin_list .th-clone { width: auto; top: 315px; left: 0; background-color: white; z-index: 9; }
+.sf_admin_list .thead-th-clone { width: auto; top: 154px; left: 0; z-index: 11; }
+.th-clone tbody, .thead-th-clone thead { border-right: 3px solid #a6c9e2; }
+
+/* popups */
+#content .ui-dialog { position: fixed; top: 50%; left: 50%; width:50%; max-width: 600px; min-width: 500px; height: auto; transform: translateX(-50%) translateY(-50%); display:none; }
+#content .ui-dialog.shuffle ol { cursor: move; -moz-user-select: none: user-select: none; }
+#content .ui-dialog.shuffle li { padding: 5px 10px; border: 1px solid grey; background-color: white; }

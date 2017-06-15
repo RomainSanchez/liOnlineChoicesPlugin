@@ -28,14 +28,14 @@ class ApiOAuthService extends EvenementService
     {
         $headerValue = $this->getAuthorizationHeader();
         if ( !$headerValue ) {
-            throw new ocAuthException('API Key not provided');
+            throw new liApiAuthException('API Key not provided');
         }
 
         $apiKey = preg_replace('/^Bearer\s+/', '', $headerValue);
         $this->token = $this->findRegisteredTokenByApiKey($apiKey);
 
         if ( null === $this->token || !$this->token instanceof OcToken) {
-            throw new ocAuthException('Invalid API authentication');
+            throw new liApiAuthException('Invalid API authentication');
         }
         return true;
     }
@@ -109,7 +109,7 @@ class ApiOAuthService extends EvenementService
         $token->refresh_token = $this->generateToken();
         $token->expires_at = $this->getExpirationTime();
         $token->oc_application_id = $app->id;
-        $token->OcTransaction[] = new OcTransaction();
+        $token->OcTransaction = new OcTransaction;
         $token->save();
 
         return $token;
@@ -125,7 +125,7 @@ class ApiOAuthService extends EvenementService
 
         $token = $q->fetchOne();
         if ( !$token instanceof OcToken ) {
-            throw new ocAuthException('Refresh token not found.');
+            throw new liApiAuthException('Refresh token not found.');
         }
         $token->token = $this->generateToken();
         $token->refresh_token = $this->generateToken();

@@ -31,7 +31,6 @@ class ApiCustomersService extends ApiEntityService
         'locale'        => ['type' => 'single', 'value' => 'Contact.culture'],
         'uid'           => ['type' => 'single', 'value' => 'Contact.vcard_uid'],
         'subscribedToNewsletter' => ['type' => 'single', 'value' => '!contact_email_no_newsletter'],
-        //'password'      => ['type' => 'single', 'value' => 'Contact.password'],
     ];
 
     /**
@@ -45,7 +44,7 @@ class ApiCustomersService extends ApiEntityService
     public function isIdentificated()
     {
         $token = $this->getOAuthService()->getToken();
-        return $token instanceof OcToken && $token->OcTransaction[0]->oc_professional_id !== NULL;
+        return $token instanceof OcToken && $token->OcTransaction->oc_professional_id !== NULL;
     }
 
     /**
@@ -72,17 +71,19 @@ class ApiCustomersService extends ApiEntityService
                 ->orderBy('t.created_at DESC')
                 ->fetchOne();
             if ( $transaction instanceof OcTransaction ) {
-                $token->OcTransaction[0] = $transaction;
-                $token->save();
+                $token->OcTransaction->oc_token_id = NULL;
+                $token->OcTransaction->save();
                 $transaction->OcToken = $token;
+                $token->OcTransaction = $transaction;
+                $transaction->save();
             }
             // else, create a new transaction
             else {
                 if ( !$token->OcTransaction ) {
-                     $token->OcTransaction[0] = new OcTransaction;
+                     $token->OcTransaction = new OcTransaction;
                 }
 
-                $transaction = $token->OcTransaction[0];
+                $transaction = $token->OcTransaction;
 
                 if ( !$transaction->oc_professional_id ) {
                     $transaction->OcProfessional = new OcProfessional;
@@ -134,7 +135,7 @@ class ApiCustomersService extends ApiEntityService
 
         $token = $this->getOAuthService()->getToken();
 
-        $actualTransaction = $token->OcTransaction[0];
+        $actualTransaction = $token->OcTransaction;
         $actualTransaction->OcToken = NULL;
         $actualTransaction->save();
 
@@ -168,7 +169,7 @@ class ApiCustomersService extends ApiEntityService
     {
         if ( !$this->isIdentificated() )
             return NULL;
-        return $this->getOAuthService()->getToken()->OcTransaction[0]->OcProfessional->Professional;
+        return $this->getOAuthService()->getToken()->OcTransaction->OcProfessional->Professional;
     }
 
     /**

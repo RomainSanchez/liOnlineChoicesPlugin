@@ -16,18 +16,20 @@ class ocApiOAuthActions extends jsonActions
     public function preExecute()
     {
         $this->getService('api_actions_service')
-            ->populateAccessControlHeaders($this->getResponse());
+            ->setResponse($this->getResponse())
+            ->populateAccessControlHeaders();
 
         parent::preExecute();
     }
 
     public function executePreflight(sfWebRequest $request)
     {
-        $response = $this->getResponse();
-        $response->clearHttpHeaders();
+        $this->getResponse()->clearHttpHeaders();
 
         $this->getService('api_actions_service')
-            ->populateAccessControlHeaders($response);
+            ->setResponse($this->getResponse())
+            ->populateAccessControlHeaders()
+            ->populateCacheControlHeader($this->getService('api_oauth_service')->getTokenLifetime(), 'private');
 
         return sfView::NONE;
     }
@@ -56,7 +58,7 @@ class ocApiOAuthActions extends jsonActions
             $newToken = $oauth->refreshToken($refresh, $app);
 
             if ( null === $newToken ) {
-                OcLogger::log($e->getMessage(), $this);
+                ApiLogger::log($e->getMessage(), $this);
                 return $this->createJsonErrorResponse('token cannot be refreshed', ApiHttpStatus::UNAUTHORIZED);
             }
         } else {

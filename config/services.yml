@@ -1,15 +1,11 @@
 # config/services.yml
 dev:
-  parameters:
+    parameters:
 
 all:
     parameters:
 
     services:
-        api_actions_service:
-            class: ApiActionsService
-        api_translation_service:
-            class: ApiTranslationService
         api_oauth_service:
             class: ApiOAuthService
         api_customers_service:
@@ -41,3 +37,5 @@ all:
                 - ['setCustomersService', ['@api_customers_service']]
         oc_configuration_service:
             class: OcConfigurationService
+        oc_decision_helper:
+            class: ocDecisionHelper

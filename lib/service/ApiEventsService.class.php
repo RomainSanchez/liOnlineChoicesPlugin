@@ -6,7 +6,7 @@
  */
 
 /**
- * Description of ApiCustomersService
+ * Description of ApiEventsService
  *
  * @author Baptiste SIMON <baptiste.simon@libre-informatique.fr>
  */
@@ -65,7 +65,7 @@ class ApiEventsService extends ApiEntityService
         // manifestations
         $query = [
             'criteria' => [
-                'event_id' => [
+                'event.id' => [
                     'type'  => 'equal',
                     'value' => $entity['id'],
                 ],

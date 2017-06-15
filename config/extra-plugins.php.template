@@ -4,6 +4,7 @@ return array(
 
       // add extra plugins here, one by line
       'liOnlineChoicesPlugin',
+      'liLibsApiPlugin',
       'sfDependencyInjectionPlugin',
   ),
   

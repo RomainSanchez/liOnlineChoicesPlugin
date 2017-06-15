@@ -40,7 +40,9 @@ OcTransaction:
   columns:
     oc_professional_id: integer
     transaction_id: integer
-    oc_token_id: integer
+    oc_token_id:
+        type: integer
+        unique: true
     checkout_state:
       type: enum
       values: [cart, new, fulfilled, cancelled]
@@ -199,6 +201,12 @@ OcSnapshot:
     day:
       type: timestamp
       notnull: true
+    group_id:
+      type: integer
+      notnull: true
+    workspace_id:
+      type: integer
+      notnull: true
     purpose:
       type: enum
       values: [temp, save, valid]
@@ -211,5 +219,13 @@ OcSnapshot:
       notnull: true
   relations:
     sfGuardUser:
+      foreignAlias: ocSnapshots
+    Workspace:
+      onDelete: SET NULL
+      onUpdate: CASCADE
+      foreignAlias: ocSnapshots
+    Group:
+      onDelete: CASCADE
+      onUpdate: CASCADE
       foreignAlias: ocSnapshots
 

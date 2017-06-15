@@ -272,6 +272,15 @@ oc_api_carts_items_resource_delete:
         id: \d+
         item_id: \d+
         sf_method: [DELETE]
+oc_api_carts_items_reorder:
+    url: /api/v2/carts/:id/items/reorder
+    class: sfRequestRoute
+    param: { module: ocApiCartItems, action: reorder }
+    options:
+        credentials: tck-onlinechoices-api-cart-items-edit
+    requirements:
+        id: \d+
+        sf_method: [POST]
 
 #
 # CHECKOUTS
@@ -531,20 +540,29 @@ oc_backend_load_snapshot:
     requirements:
         id: \d+
         sf_method: [GET, POST]
-
-oc_snapshot:
-  class: sfDoctrineRouteCollection
-  options:
-    model:                OcSnapshot
-    module:               ocSnapshot
-    prefix_path:          /oc_snapshot
-    column:               id
-    with_wildcard_routes: true
-
-oc_snapshot_validate:
-    url: /oc_snapshot/validate
+oc_backend_save_ordering:
+    url: /oc_backend/ordering/save
     class: sfRequestRoute
-    param: { module: ocSnapshot, action: validate }
+    param: { module: ocBackend, action: saveOrdering }
+    requirements:
+        id: \d+
+        sf_method: [POST]
+oc_backend_auto:
+    url: /oc_backend/auto
+    class: sfRequestRoute
+    param: { module: ocBackend, action: autoPositioning }
+    requirements:
+        sf_method: [GET, POST]
+oc_backend_validate:
+    url: /oc_backend/validate
+    class: sfRequestRoute
+    param: { module: ocBackend, action: validate }
+    requirements:
+        sf_method: [GET, POST]
+oc_backend_list_snapshots:
+    url: /oc_backend/list_snapshots
+    class: sfRequestRoute
+    param: { module: ocBackend, action: listSnapshots }
     requirements:
         sf_method: [GET, POST]
 
