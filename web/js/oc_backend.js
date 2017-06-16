@@ -489,7 +489,11 @@ liOC.loadHours = function(data) {
 }
 
 liOC.addPros = function(data) {
-  $('.real .plan_gauges th .gauge').attr('data-part', 0);
+  
+  liOC.prosData = data;
+  $(document).trigger('lioc.pros.loaded');
+    
+    $('.real .plan_gauges th .gauge').attr('data-part', 0);
   
   $.each(data, function(i, pro) {
     var row_pro = $('<tr class="sf_admin_row ui-widget-content"></tr>')

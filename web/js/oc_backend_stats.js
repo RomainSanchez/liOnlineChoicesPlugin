@@ -1,80 +1,149 @@
-if (LI === undefined)
-    var LI = {};
-if (LI.stats === undefined)
-    LI.stats = [];
+liOC = liOC || {};
+liOC.stats = liOC.stats || [];
 
-$(document).ready(function () {
-
-    LI.stats.ocBackend();
+//trigerred in oc_backend.js by liOC.addPros()
+$(document).on('lioc.pros.loaded', function () {
+    liOC.stats.ocBackend(liOC.prosData);
 });
 
-LI.stats.ocBackend = function () {
+liOC.stats.ocBackend = function (data) {
 
-    $('#content .jqplot').each(function () {
+    //groupedData => [{name:'Grp1', pros:[{name:'Pro1'},{name:'Pro2'}]]
+    var groupedData = liOC.stats.groupBy(data,
+            function (a) {
+                //return concatenation of group names (e.g "Group1-Group2")
+                return a.groups.map(function (grp) {
+                    return grp.name;
+                }).join('-');
+            });
 
-        var chart = $(this).find('.chart');
-        var id = chart.prop('id');
-        
-        //retrieve stats
-        var choix1 = [70, 80, 50, 80];
-        var choix2 = [30, 20, 40, 30];
-        var choix3 = [10, 24, 15, 20];
+    var choicesStats = liOC.stats.computeChoicesStats(groupedData);
 
-        var ticks = ['G1', 'G2', 'G3', 'G4'];
+    var chart = $('#content .stats.jqplot .chart');
+    var id = chart.prop('id');
 
-        //init jqplot with data array
-        var plot = $.jqplot(id, [choix1, choix2, choix3], {
-            seriesDefaults: {
-                renderer: $.jqplot.BarRenderer,
-                rendererOptions: {fillToZero: true}
-            },
-            series: [
-                {
-                    label: 'Choix 1',
-                    pointLabels: {
-                        show: true,
-                        labels: [1, 2, 3, 4]
-                    }
-                },
-                {
-                    label: 'Choix 2',
-                    pointLabels: {
-                        show: true,
-                        labels: [5, 6, 7, 8]
-                    }
-                },
-                {
-                    label: 'Choix 3',
-                    pointLabels: {
-                        show: true,
-                        labels: [9, 10, 11, 12]
-                    }
-                }
+    //retrieve stats
+    var choix1 = [57, 64];
+    var choix2 = [28, 27];
+    var choix3 = [14, 9];
 
-            ],
-            axes: {
-                xaxis: {
-                    renderer: $.jqplot.CategoryAxisRenderer,
-                    ticks: ticks
-                },
-                yaxis: {
-                    pad: 1.05
-                }
-            },
-            legend: {
-                show: true,
-                location: 'e',
-                placement: 'outside'
-            },
-            cursor: {
-                show: false,
-                showTooltip: false,
-                zoom: true
-            },
-            captureRightClick: true
+    var grpNames = [];
+    var grpSeries = [];
+    var choiceValues = [];
+
+    $.each(choicesStats.choices, function (choiceIndex, rankObj) {
+
+        var serieLabels = [];
+
+        //for each groupName in rankObj
+        $.each(rankObj, function (grpName, nbRank) {
+            if ($.inArray(grpName, grpNames) === -1) {
+                grpNames.push(grpName);
+            }
+
+            var grpIndex = grpNames.indexOf(grpName);
+            var nbChoices = choicesStats.nbChoices[grpName];
+            var choicePercent = Math.round((nbRank / nbChoices) * 100);
+
+            choiceValues[choiceIndex - 1] = choiceValues[choiceIndex - 1] || [];
+            choiceValues[choiceIndex - 1][grpIndex] = choicePercent;
+
+            console.log(choiceIndex - 1, grpIndex, choicePercent);
+
+            serieLabels.push(choicePercent + '%');
         });
 
-        LI.stats.resizable(plot, name, id);
-
+        grpSeries.push({
+            label: 'Choix ' + choiceIndex,
+            pointLabels: {
+                show: true,
+                labels: serieLabels
+            }
+        });
     });
+    console.log(choiceValues);
+
+    //init jqplot with data array
+    var plot = $.jqplot(id, choiceValues, {
+        seriesDefaults: {
+            renderer: $.jqplot.BarRenderer,
+            rendererOptions: {fillToZero: true}
+        },
+        series: grpSeries,
+        axes: {
+            xaxis: {
+                renderer: $.jqplot.CategoryAxisRenderer,
+                ticks: grpNames
+            },
+            yaxis: {
+                pad: 1.05
+            }
+        },
+        legend: {
+            show: true,
+            location: 'e',
+            placement: 'outside'
+        },
+        cursor: {
+            show: false,
+            showTooltip: false,
+            zoom: true
+        },
+        captureRightClick: true
+    });
+
+    LI.stats.resizable(plot, name, id);
+
+
+};
+
+/**
+ * 
+ * @param {type} array
+ * @param {type} groupFn function to retrieve the group key
+ * @return Array in the form => [{name:'Grp1', pros:[{name:'Pro1'},{name:'Pro2'}]]
+ */
+liOC.stats.groupBy = function (array, groupFn) {
+
+    var hash =  {};
+    var result = [];
+
+    array.forEach(function (a) {
+        var grpName = groupFn(a);
+        if (!hash[grpName]) {
+            hash[grpName] = {name: grpName, pros: []};
+            result.push(hash[grpName]);
+        }
+        hash[grpName].pros.push(a);
+    });
+
+    return result;
+};
+
+/**
+ * @return Array in the form => {<rank>: {<grp name>:<nbPro>, <grp name>:<nbPro>}}
+ */
+liOC.stats.computeChoicesStats = function (array) {
+
+    var stats = {nbChoices: {}, choices: {}};
+
+    array.forEach(function (grp) {
+        grp.pros.forEach(function (pro) {
+            pro.manifestations.forEach(function (manif) {
+
+                if (manif.rank == 0 || manif.accepted == 'human') {
+                    return;
+                }
+
+                stats.choices[manif.rank] = stats.choices[manif.rank] || {};
+                stats.choices[manif.rank][grp.name] = stats.choices[manif.rank][grp.name] || 0;
+                stats.choices[manif.rank][grp.name] += 1;
+
+                stats.nbChoices[grp.name] = stats.nbChoices[grp.name] || 0;
+                stats.nbChoices[grp.name] += 1;
+            });
+        });
+    });
+
+    return stats;
 };
