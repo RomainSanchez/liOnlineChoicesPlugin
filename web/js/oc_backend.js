@@ -9,7 +9,7 @@ liOC.createLinkDay = function() {
   return $('.sf_admin_list table tfoot a').clone();
 }
 
-liOC.choices = ['none', 'one', 'two', 'three'];
+liOC.choices = ['none', 'one', 'two', 'three', 'foor'];
 
 // init
 $(document).ready(function(){

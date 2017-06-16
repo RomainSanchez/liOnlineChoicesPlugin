@@ -3,10 +3,14 @@ liOC.stats = liOC.stats || [];
 
 //trigerred in oc_backend.js by liOC.addPros()
 $(document).on('lioc.pros.loaded', function () {
+    //hide actions buttons
+    $('#content .stats.jqplot .actions').hide();
+    
     liOC.stats.ocBackend(liOC.prosData);
 });
 
 liOC.stats.ocBackend = function (data) {
+
 
     //groupedData => [{name:'Grp1', pros:[{name:'Pro1'},{name:'Pro2'}]]
     var groupedData = liOC.stats.groupBy(data,
@@ -21,11 +25,6 @@ liOC.stats.ocBackend = function (data) {
 
     var chart = $('#content .stats.jqplot .chart');
     var id = chart.prop('id');
-
-    //retrieve stats
-    var choix1 = [57, 64];
-    var choix2 = [28, 27];
-    var choix3 = [14, 9];
 
     var grpNames = [];
     var grpSeries = [];

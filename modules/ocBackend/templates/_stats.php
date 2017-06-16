@@ -5,8 +5,8 @@
 	  <?php include_partial('global/chart_jqplot', array(
 	          'id'    => 'stats',
 	          'data'  => cross_app_url_for('tck', 'ocBackend/json'),
-	          'name' => __('Debts'),
-	          'width' => '900'
+	          'name' => __('Statistics'),
+	          'width' => '900',
 	         )) ?>
  
 
