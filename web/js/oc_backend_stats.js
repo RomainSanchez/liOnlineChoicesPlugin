@@ -48,8 +48,6 @@ liOC.stats.ocBackend = function (data) {
             choiceValues[choiceIndex - 1] = choiceValues[choiceIndex - 1] || [];
             choiceValues[choiceIndex - 1][grpIndex] = choicePercent;
 
-            console.log(choiceIndex - 1, grpIndex, choicePercent);
-
             serieLabels.push(choicePercent + '%');
         });
 
@@ -61,7 +59,6 @@ liOC.stats.ocBackend = function (data) {
             }
         });
     });
-    console.log(choiceValues);
 
     //init jqplot with data array
     var plot = $.jqplot(id, choiceValues, {
