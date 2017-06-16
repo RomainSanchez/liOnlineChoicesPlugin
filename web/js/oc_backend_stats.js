@@ -11,7 +11,6 @@ $(document).on('lioc.pros.loaded', function () {
 
 liOC.stats.ocBackend = function (data) {
 
-
     //groupedData => [{name:'Grp1', pros:[{name:'Pro1'},{name:'Pro2'}]]
     var groupedData = liOC.stats.groupBy(data,
             function (a) {

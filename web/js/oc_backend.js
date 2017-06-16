@@ -177,21 +177,12 @@ liOC.fixTableScrollVertical = function (table) {
     cloneTop = $('<table></table>').append(clone).addClass('thead-clone');
     cloneTop.width(table.width());
     thead.find('td, th').width('auto');
-    
-    /**
-     * HACK
-     * I don't know why the fixTableScroll is called too early
-     * It is a temporary fix !
-     */
-    setTimeout(function(){
-     
-        var cloneTdTh = cloneTop.find('td, th');
-        thead.find('td, th').each(function (index) {
-            var node = $(cloneTdTh[index]);
-            node.width($(this).width());
-        });
-        
-    },500);
+
+    var cloneTdTh = cloneTop.find('td, th');
+    thead.find('td, th').each(function (index) {
+        var node = $(cloneTdTh[index]);
+        node.width($(this).width());
+    });
 
     return cloneTop;
 }
@@ -433,7 +424,7 @@ liOC.refreshGauges = function () {
             }
         });
     });
-}
+};
 
 liOC.loadDay = function (data, length) {
     var header_gauges = liOC.createHeaderCell()
@@ -625,6 +616,15 @@ liOC.addPros = function (data) {
 
     liOC.sortPros();
     liOC.refreshGauges();
+    
+    /*
+     * HACK
+     * It seems that width values are not directly available, we have to wait...
+     */
+  setTimeout(function(){
+      liOC.fixTableScroll();
+  },500);  
+ 
 }
 
 liOC.computeRanks = function (elt) {
@@ -750,7 +750,6 @@ liOC.loadHeaders = function (date) {
             liOC.loadHours(data.manifestations);
             liOC.loadPros(data.length, date);
             liOC.refreshGauges();
-
             if (liOC.valid) {
                 liOC.disable();
             }
