@@ -12,7 +12,7 @@
     </div>
   </div>
   
-  <table class="real">
+  <table class="real with-fixed-header">
     
     <caption class="fg-toolbar ui-widget-header ui-corner-top">
       <h1><span class="ui-icon ui-icon-triangle-1-s"></span> <?php echo __('List of events', null, 'li_oc').' - '.$group ?></h1>

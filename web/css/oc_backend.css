@@ -98,4 +98,4 @@
 #content .ui-dialog.shuffle ol { cursor: move; -moz-user-select: none: user-select: none; }
 #content .ui-dialog.shuffle li { padding: 5px 10px; border: 1px solid grey; background-color: white; }
 
-#content #stats_chart{margin:auto;}
+#content #stats_chart{margin:15px auto 15px auto;}
