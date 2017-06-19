@@ -515,21 +515,40 @@ liOC.addPros = function (data) {
         }
 
         var cell_pro = $('<th></th>')
-                .append($('<input>').prop('type', 'hidden').prop('name', 'rank[]').val(pro.id).addClass('rank'))
-                .append($('<span>').addClass('rank').attr('data-rank', pro.rank).text(pro.rank))
-                .append($('<span>').addClass('name').text(pro.name))
-                .append('<br/>')
-                .append($('<span>').addClass('organism').text(pro.organism))
+                .append(
+                        $('<div>')
+                        .css('float', 'left')
+                        .append($('<input>').prop('type', 'hidden').prop('name', 'rank[]').val(pro.id).addClass('rank'))
+                        .append($('<span>').addClass('rank').attr('data-rank', pro.rank).text(pro.rank))
+                        .append($('<span>').addClass('name').text(pro.name))
+                        .append('<br/>')
+                        .append($('<span>').addClass('organism').text(pro.organism)))
+
                 .attr('data-id', pro.id);
 
+        //add flags by group
         $.each(pro.groups, function (i, group) {
             cell_pro.append(
-                    $('<span>')
+                    $('<div>')
+                    .css('float', 'left')
                     .addClass('group_image')
                     .append($('<img>').prop('src', group.picture ? group.picture : '').prop('alt', 'G').prop('title', group.name))
                     .attr('data-grp-id', group.id)
                     );
         });
+
+        //add unlock button
+        if (pro.checkout_state === 'new') {
+            cell_pro.append(
+                    $('<div>')
+                    .addClass('fg-button-mini fg-button ui-state-default fg-button-icon-left ui-state-active')
+                    .append($('<span>').addClass('ui-icon ui-icon-unlocked'))
+                    .click(function (e) {
+                        liOC.unlockProCart(pro, this);
+                    }));
+        }
+
+
 
         row_pro.append(cell_pro);
 
@@ -616,16 +635,16 @@ liOC.addPros = function (data) {
 
     liOC.sortPros();
     liOC.refreshGauges();
-    
+
     /*
      * HACK
      * It seems that width values are not directly available, we have to wait...
      */
-  setTimeout(function(){
-      liOC.fixTableScroll();
-  },500);  
- 
-}
+    setTimeout(function () {
+        liOC.fixTableScroll();
+    }, 1000);
+
+};
 
 liOC.computeRanks = function (elt) {
     var rank = 1;
@@ -670,7 +689,21 @@ liOC.selectPro = function (e, elt) {
         $('.sf_admin_list table.th-clone tbody tr > th[data-id="' + $(elt).attr('data-id') + '"]').toggleClass('ui-state-highlight');
     }
     liOC.lastClickedLine = $(elt).closest('tr');
-}
+};
+
+liOC.unlockProCart = function (pro, elt) {
+    $.ajax({
+        url: 'ocBackend/unlockCart',
+        method: 'get',
+        data: {id: pro['id']},
+        complete: function (data) {
+            var resp = data.responseJSON;
+            if(resp.checkout_state == 'cart'){
+                $(elt).remove();
+            }
+        }
+    });
+};
 
 liOC.sortPros = function () {
     liOC.selectPros();
