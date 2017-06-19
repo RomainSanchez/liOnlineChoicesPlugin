@@ -670,33 +670,29 @@ class ocBackendActions extends autoOcBackendActions
 
         // get back authorized and targetted OcProfessionals and their OcTickets
         $q = Doctrine::getTable('OcProfessional')->createQuery('op')
-            ->select('op.id, op.rank, p.id, t.id, t.checkout_state, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
+            ->select('op.id, op.rank, p.id,  c.firstname, c.name, t.id, o.name, g.id, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
             ->innerJoin('op.Professional p')
             ->leftJoin('p.Groups grp')
+            ->leftJoin('op.OcTransactions t')
             ->leftJoin('p.Contact c')
             ->leftJoin('p.Organism o')
-            ->leftJoin('op.OcTransactions t')
-            ->leftJoin('t.OcTickets tck')
-            ->leftJoin('tck.Gauge g WITH g.workspace_id = ?', $this->getUser()->getGuardUser()->OcConfig->workspace_id)
-            ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
-            ->leftJoin('m.Event e')
             ->andWhere('p.id IN (SELECT gpro.professional_id FROM GroupProfessional gpro WHERE gpro.group_id = ?)', $this->getUser()->getGuardUser()->OcConfig->group_id)
             ->andWhere('op.id = ?', $proId)
         ;
-        //note : fetchOne does not work
-        $ocPros = $q->fetchArray();
+        //note : why fetchOne does not work?
+        $ocPro = $q->fetchOne();
        
-        if(!count($ocPros)){
+        if(!$ocPro){
             return; 
         }
         
-        $ocPro = $ocPros[0];
-        $ocTransaction = $ocPro['OcTransactions'][0];
-        $ocTransaction['checkout_state'] = 'cart';
+        $ocTransaction = $ocPro->getOcTransactions()[0];
+        $ocTransaction->setCheckoutState('cart');
+        //$ocTransaction->save();
 
         $this->json = [
-            'id' => $ocPro['id'],
-            'checkout_state' => $ocTransaction['checkout_state']
+            'id' => $ocPro->getId(),
+            'checkout_state' => $ocTransaction->getCheckoutState()
             ];
     }
 }
