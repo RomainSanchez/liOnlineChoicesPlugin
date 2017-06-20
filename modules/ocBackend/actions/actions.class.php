@@ -670,13 +670,6 @@ class ocBackendActions extends autoOcBackendActions
 
         // get back authorized and targetted OcProfessionals and their OcTickets
         $q = Doctrine::getTable('OcProfessional')->createQuery('op')
-            ->select('op.id, op.rank, p.id,  c.firstname, c.name, t.id, o.name, g.id, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
-            ->innerJoin('op.Professional p')
-            ->leftJoin('p.Groups grp')
-            ->leftJoin('op.OcTransactions t')
-            ->leftJoin('p.Contact c')
-            ->leftJoin('p.Organism o')
-            ->andWhere('p.id IN (SELECT gpro.professional_id FROM GroupProfessional gpro WHERE gpro.group_id = ?)', $this->getUser()->getGuardUser()->OcConfig->group_id)
             ->andWhere('op.id = ?', $proId)
         ;
         //note : why fetchOne does not work?
@@ -686,13 +679,13 @@ class ocBackendActions extends autoOcBackendActions
             return; 
         }
         
-        $ocTransaction = $ocPro->getOcTransactions()[0];
-        $ocTransaction->setCheckoutState('cart');
-        //$ocTransaction->save();
+        $ocTransaction = $ocPro->OcTransactions[0];
+        $ocTransaction->checkout_state = 'cart';
+        $ocTransaction->save();
 
         $this->json = [
-            'id' => $ocPro->getId(),
-            'checkout_state' => $ocTransaction->getCheckoutState()
+            'id' => $ocPro->id,
+            'checkout_state' => $ocTransaction->checkout_state
             ];
     }
 }
