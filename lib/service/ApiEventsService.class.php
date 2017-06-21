@@ -79,7 +79,7 @@ class ApiEventsService extends ApiEntityService
             'page'     => 1,
         ];
         
-        $entity['manifestations'] = $this->manifestationsService->findAll($query);
+        $entity['manifestations'] = $this->manifestationsService->findAll($query, /*includeEvents*/ false);
         
         return $entity;
     }
