@@ -19,10 +19,10 @@ class ApiCustomersService extends ApiEntityService
     protected static $FIELD_MAPPING = [
         'id'            => ['type' => 'single', 'value' => 'id'],
         'email'         => ['type' => 'single', 'value' => 'contact_email'],
+        'otherEmail'    => ['type' => null    , 'value' => 'Organism.email'],
         'firstName'     => ['type' => 'single', 'value' => 'Contact.firstname'],
         'lastName'      => ['type' => 'single', 'value' => 'Contact.name'],
         'shortName'     => ['type' => 'single', 'value' => 'Contact.shortname'],
-        'organism_email'=> ['type' => 'single', 'value' => 'Organism.email'],
         'address'       => ['type' => 'single', 'value' => 'Organism.address'],
         'zip'           => ['type' => 'single', 'value' => 'Organism.postalcode'],
         'city'          => ['type' => 'single', 'value' => 'Organism.city'],
