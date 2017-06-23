@@ -132,10 +132,27 @@
         <source>Shuffle ordering</source>
         <target>Mélanger l'ordre</target>
       </trans-unit>
-      <trans-unit id="20">
-        <source>Statistics of Events</source>
-        <target>Statistiques sur les évènements</target>
+      <trans-unit id="33">
+        <source>Unlock cart</source>
+        <target>Autoriser la modification du panier</target>
       </trans-unit>
+      <trans-unit id="34">
+        <source>Unvalidated Carts Group</source>
+        <target>Participants n’ayant pas encore validé leur choix</target>
+      </trans-unit>
+      <trans-unit id="35">
+        <source>Export participants with an unvalidated cart</source>
+        <target>Exporter les Participants n’ayant pas encore validé leur choix</target>
+      </trans-unit>
+      <trans-unit id="36">
+        <source>Accepted Pros Group</source>
+        <target>Participants dont le choix a été validé</target>
+      </trans-unit>
+      <trans-unit id="37">
+        <source>Export accepted participants</source>
+        <target>Exporter les Participants dont le choix a été validé</target>
+      </trans-unit>
+
     </body>
   </file>
 </xliff>

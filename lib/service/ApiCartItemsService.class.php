@@ -510,4 +510,9 @@ class ApiCartItemsService extends ApiEntityService
 
         return $entity;
     }
+    
+    public function getBaseEntityName()
+    {
+        return 'OcTicket';
+    }
 }

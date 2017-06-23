@@ -565,4 +565,17 @@ oc_backend_list_snapshots:
     param: { module: ocBackend, action: listSnapshots }
     requirements:
         sf_method: [GET, POST]
-
+oc_backend_export_pros_with_unvalidated_cart:
+    url: /oc_backend/export_pros_with_unvalidated_cart
+    class: sfRequestRoute
+    param: { module: ocBackend, action: exportProsWithUnvalidatedCart }
+    requirements:
+        sf_method: [POST]
+        
+oc_backend_export_accepted_pros_by_manifestation:
+    url: /oc_backend/export_accepted_pros_by_manifestation
+    class: sfRequestRoute
+    param: { module: ocBackend, action: exportAcceptedProsByManifestation }
+    requirements:
+        sf_method: [POST]
+        

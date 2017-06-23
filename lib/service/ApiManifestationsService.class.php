@@ -148,7 +148,7 @@ class ApiManifestationsService extends ApiEntityService
             $entity['event']['imageURL'] = url_for('@oc_api_picture?id=' . $entity['event']['imageId']);
         }
 
-
+        //fix for excluding events 
         $includeEvents = (isset($options['includeEvents']) ?
             $options['includeEvents'] : true);
 
@@ -181,5 +181,10 @@ class ApiManifestationsService extends ApiEntityService
     public function getOAuthService()
     {
         return $this->oauth;
+    }
+
+    public function getBaseEntityName()
+    {
+        return 'Manifestation';
     }
 }
