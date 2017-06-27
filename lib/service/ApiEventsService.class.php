@@ -104,4 +104,9 @@ class ApiEventsService extends ApiEntityService
     {
         return $this->oauth;
     }
+    
+     public function getBaseEntityName()
+    {
+        return 'Event';
+    }
 }

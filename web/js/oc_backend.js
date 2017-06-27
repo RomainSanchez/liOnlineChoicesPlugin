@@ -4,10 +4,11 @@ if (liOC === undefined) {
 
 liOC.createHeaderCell = function () {
     return $('.sf_admin_list table tfoot .ui-th-column').clone();
-}
+};
+
 liOC.createLinkDay = function () {
     return $('.sf_admin_list table tfoot a').clone();
-}
+};
 
 liOC.choices = ['none', 'one', 'two', 'three', 'foor'];
 
@@ -29,7 +30,8 @@ $(document).ready(function () {
                     _csrf_token: $('#_csrf_token').val()
                 })
                 .done(function (data) {
-                    $('.real .plan_gauges .gauge').attr('data-part', 0)
+                    $('.real .plan_gauges .gauge').attr('data-part', 0);
+                    $('.real .plan_gauges .gauge_first_choice').attr('data-part', 0);
                     liOC.loadPositions(data);
                     liOC.refreshGauges();
                     liOC.fixTableScroll();
@@ -69,7 +71,7 @@ $(document).ready(function () {
                     $('#transition').fadeIn('medium');
                     liOC.loadSnapshot($(this).prop('href'));
                     $('.popup_close').click();
-                })
+                });
                 $('#transition .close').click();
                 $('.snapshot_load').show();
             },
@@ -84,7 +86,7 @@ $(document).ready(function () {
         $('#transition').fadeIn('medium');
         liOC.loadSnapshot($(this).prop('href'));
         $('.popup_close').click();
-    })
+    });
 
     $('.popup_close').click(function () {
         $('.snapshot_load').hide();
@@ -129,6 +131,10 @@ $(document).ready(function () {
             $('#transition .close').click();
         });
     });
+    $('#export-pros').click(function () {
+        var url = $(this).attr('data-url');
+        liOC.exportProsWithUnvalidatedCart(url, liOC.eventData.current.day);
+    });
 });
 
 // horizontal+vertical
@@ -147,7 +153,7 @@ liOC.fixTableScrollBoth = function (table) {
     var top = table.position().top;
 
     return cloneTopLeft;
-}
+};
 
 // horizontal
 liOC.fixTableScrollHorizontal = function (table) {
@@ -165,7 +171,7 @@ liOC.fixTableScrollHorizontal = function (table) {
     });
 
     return cloneLeft;
-}
+};
 
 // vertical
 liOC.fixTableScrollVertical = function (table) {
@@ -185,11 +191,11 @@ liOC.fixTableScrollVertical = function (table) {
     });
 
     return cloneTop;
-}
+};
 
 liOC.fixTableReset = function () {
     $('.sf_admin_list').find('.th-clone, .thead-clone, .thead-th-clone').remove();
-}
+};
 
 liOC.fixTableScroll = function () {
 
@@ -202,7 +208,7 @@ liOC.fixTableScroll = function () {
         left: liOC.fixTableScrollHorizontal(table),
         top: liOC.fixTableScrollVertical(table),
         both: liOC.fixTableScrollBoth(table)
-    }
+    };
 
     $.each(clones, function (i, clone) {
         clone.hide().insertBefore(table);
@@ -241,14 +247,14 @@ liOC.fixTableScroll = function () {
             liOC.fixTableScroll();
         }, 500);
     });
-}
+};
 
 liOC.blockContextMenu = function () {
     $('.sf_admin_list table').contextmenu(function (e) {
         e.preventDefault();
         return false;
     });
-}
+};
 
 liOC.gaugeChange = function (cell, value) {
     $('.plan_gauges').each(function () {
@@ -259,15 +265,15 @@ liOC.gaugeChange = function (cell, value) {
             gauge.attr('data-part', part);
         });
     });
-}
+};
 
 liOC.gaugeInc = function (cell) {
     liOC.gaugeChange(cell, 1);
-}
+};
 
 liOC.gaugeDec = function (cell) {
     liOC.gaugeChange(cell, -1);
-}
+};
 
 liOC.disable = function () {
     $('.sf_admin_actions_block .fg-button')
@@ -276,7 +282,7 @@ liOC.disable = function () {
     $('.cell_choices')
             .removeClass('cell_choices')
             .off();
-}
+};
 
 liOC.checkError = function (data) {
     if (data.error == 'Error') {
@@ -287,7 +293,7 @@ liOC.checkError = function (data) {
     }
 
     return false;
-}
+};
 
 liOC.validate = function (url) {
     $('#transition').fadeIn('medium');
@@ -309,7 +315,7 @@ liOC.validate = function (url) {
                 }
             });
 
-}
+};
 
 liOC.loadPositions = function (data) {
     $('.real .cell_choices').removeClass('none algo human');
@@ -323,9 +329,15 @@ liOC.loadPositions = function (data) {
                 var gauge = $('.real .plan_gauges th').eq(g_id + 1).find('.gauge');
                 gauge.attr('data-part', parseInt(gauge.attr('data-part')) + 1);
             }
+
+            //1st choices
+            if (manif.rank == 1) {
+                var gauge = $('.real .plan_gauges th').eq(g_id).find('.gauge_first_choice');
+                gauge.attr('data-part', parseInt(gauge.attr('data-part')) + 1);
+            }
         });
     });
-}
+};
 
 liOC.loadSnapshot = function (url) {
     $.ajax({
@@ -334,7 +346,7 @@ liOC.loadSnapshot = function (url) {
         method: 'get',
         success: function (data) {
             $('.real .plan_gauges .gauge').attr('data-part', 0);
-            $('.real .plan_gauges .gauge_first_choice').attr('data-part', 0)
+            $('.real .plan_gauges .gauge_first_choice').attr('data-part', 0);
             liOC.loadPositions(data);
             liOC.refreshGauges();
             liOC.fixTableScroll();
@@ -346,7 +358,7 @@ liOC.loadSnapshot = function (url) {
             liOC.checkError(data);
         }
     });
-}
+};
 
 liOC.createSnapshot = function () {
     var snapshots = [];
@@ -378,7 +390,7 @@ liOC.createSnapshot = function () {
     });
 
     return snapshots;
-}
+};
 
 liOC.saveSnapshot = function () {
     var snapshots = liOC.createSnapshot();
@@ -400,7 +412,7 @@ liOC.saveSnapshot = function () {
                 }
                 $('#transition .close').click();
             });
-}
+};
 
 liOC.refreshGauges = function () {
     $('.plan_gauges th').each(function () {
@@ -453,11 +465,12 @@ liOC.loadDay = function (data, length) {
     }
 
     $('<span></span>').appendTo(header_day).text(data.current.day);
-}
+};
 
 liOC.loadHours = function (data) {
 
     var i = 0;
+    var exportLabel = $('[data-i18n-label="i18n_export_grp_cart"]').attr('data-i18n-value');
 
     $.each(data, function (key, manifestation) {
         var header_hours = liOC.createHeaderCell()
@@ -473,7 +486,23 @@ liOC.loadHours = function (data) {
                     .attr('data-id', event.id)
                     .attr('data-grp-id', manifestation.time_id)
                     .appendTo('.real .plan_events');
-            $('<span></span>').appendTo(header_events).text(event.name);
+
+            $('<div>')
+                    .css('float', 'left')
+                    .append($('<span>').text(event.name))
+                    .appendTo(header_events);
+
+            $('<div>')
+                    .addClass('fg-button-mini fg-button ui-state-default fg-button-icon-left')
+                    .append($('<span>').addClass('ui-icon ui-icon-person'))
+                    .attr('title', exportLabel)
+                    .appendTo(header_events)
+                    .click(function (e) {
+                        var url = $('[data-url-label="url_export_pros"]').attr('data-url-value');
+                        /*warning : var event is not an event but a manifestation*/
+                        liOC.exportAcceptedProsByManifestation(url, event);
+                    });
+
 
             var header_gauges = liOC.createHeaderCell()
                     .attr('data-id', event.gauge.id)
@@ -498,7 +527,7 @@ liOC.loadHours = function (data) {
 
         header_hours.attr('data-max', i);
     });
-}
+};
 
 liOC.addPros = function (data) {
 
@@ -506,6 +535,8 @@ liOC.addPros = function (data) {
     $(document).trigger('lioc.pros.loaded');
 
     $('.real .plan_gauges th .gauge').attr('data-part', 0);
+
+    var unlockCartLabel = $('[data-i18n-label="i18n_unlock_cart"]').attr('data-i18n-value');
 
     $.each(data, function (i, pro) {
         var row_pro = $('<tr class="sf_admin_row ui-widget-content"></tr>')
@@ -541,14 +572,13 @@ liOC.addPros = function (data) {
         if (pro.checkout_state === 'new') {
             cell_pro.append(
                     $('<div>')
-                    .addClass('fg-button-mini fg-button ui-state-default fg-button-icon-left ui-state-active')
+                    .addClass('fg-button-mini fg-button ui-state-default fg-button-icon-left')
                     .append($('<span>').addClass('ui-icon ui-icon-unlocked'))
+                    .attr('title', unlockCartLabel)
                     .click(function (e) {
                         liOC.unlockProCart(pro, this);
                     }));
         }
-
-
 
         row_pro.append(cell_pro);
 
@@ -659,13 +689,14 @@ liOC.computeRanks = function (elt) {
         $('.sf_admin_list table tbody tr.ui-state-highlight').removeClass('ui-state-highlight');
     }, 500);
     liOC.lastClickedLine = undefined;
-}
+};
 
 liOC.selectPros = function () {
     $('.sf_admin_list table.real tbody tr > th').click(function (e) {
         liOC.selectPro(e, this);
     });
-}
+};
+
 liOC.selectPro = function (e, elt) {
     if (e.shiftKey && liOC.lastClickedLine != undefined) {
         var start = 0;
@@ -698,7 +729,7 @@ liOC.unlockProCart = function (pro, elt) {
         data: {id: pro['id']},
         complete: function (data) {
             var resp = data.responseJSON;
-            if(resp.checkout_state == 'cart'){
+            if (resp.checkout_state == 'cart') {
                 $(elt).remove();
             }
         }
@@ -731,7 +762,7 @@ liOC.sortPros = function () {
         liOC.prosSaveRanks();
         return false;
     });
-}
+};
 
 liOC.prosSaveRanks = function (callback) {
     $.ajax({
@@ -745,7 +776,7 @@ liOC.prosSaveRanks = function (callback) {
             $('#transition .close').click();
         }
     });
-}
+};
 
 liOC.loadPros = function (length, date) {
     $.ajax({
@@ -755,22 +786,22 @@ liOC.loadPros = function (length, date) {
         success: function (data) {
             liOC.addPros(data);
             liOC.fixTableScroll();
-            $(document).on('contextmenu', 'td', function (e) {
-                e.preventDefault();
-                return false;
-            });
+            /*$(document).on('contextmenu', 'td', function (e) {
+             e.preventDefault();
+             return false;
+             });*/
         },
         error: function (data) {
             console.log(data);
             liOC.checkError(data);
         }
     });
-}
+};
 
 liOC.initGUI = function () {
     $('.plan_body').html('');
     $('.plan_header tr').remove('> *:not(.participants)');
-}
+};
 
 liOC.loadHeaders = function (date) {
     $.ajax({
@@ -778,6 +809,7 @@ liOC.loadHeaders = function (date) {
         data: {},
         method: 'get',
         success: function (data) {
+            liOC.eventData = data;
             liOC.initGUI();
             liOC.loadDay(data, data.length);
             liOC.loadHours(data.manifestations);
@@ -792,4 +824,69 @@ liOC.loadHeaders = function (date) {
             liOC.checkError(data);
         }
     });
-}
+};
+
+liOC.exportAcceptedProsByManifestation = function (url, manif) {
+
+    var ids = liOC.createSnapshot().filter(function (pro) {
+        return pro.manifestations.some(function (m) {
+            return (m.id == manif.id && m.accepted != 'none');
+        });
+    }).map(function (pro) {
+        return pro.id;
+    });
+
+    if (ids.length === 0) {
+        LI.alert('Aucune donnée à exporter', 'notice', 2000);
+        return;
+    }
+
+    liOC.syncPostUsingForm(url, {'manifestationId': manif.id, 'ids[]': ids});
+
+};
+
+liOC.exportProsWithUnvalidatedCart = function (url, date) {
+
+    var ids = liOC.prosData.filter(function (pro) {
+        return (pro.checkout_state == 'cart');
+    }).map(function (pro) {
+        return pro.id;
+    });
+
+    if (ids.length === 0) {
+        LI.alert('Aucune donnée à exporter', 'notice', 2000);
+        return;
+    }
+    liOC.syncPostUsingForm(url, {'date': date, 'ids[]': ids});
+
+
+
+};
+
+
+liOC.syncPostUsingForm = function (url, parameters) {
+    var form = $("<form>")
+            .attr("method", "POST")
+            .attr("action", url);
+
+    $.each(parameters, function (key, value) {
+        if (Array.isArray(value)) {
+            $.each(value, function (i, v) {
+                $("<input type='hidden'>")
+                        .attr("name", key)
+                        .attr("value", v)
+                        .appendTo(form);
+            });
+        } else {
+            $("<input type='hidden'>")
+                    .attr("name", key)
+                    .attr("value", value)
+                    .appendTo(form);
+        }
+
+    });
+    ///temporary add form in dom
+    form.appendTo("body");
+    //send and remove form
+    form.submit();
+};

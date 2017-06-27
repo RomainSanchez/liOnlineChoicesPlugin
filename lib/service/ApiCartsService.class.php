@@ -214,4 +214,9 @@ class ApiCartsService extends ApiEntityService
             ->leftJoin('root.OcToken Token')
         ;
     }
+    
+    public function getBaseEntityName()
+    {
+        return 'OcTransaction';
+    }
 }

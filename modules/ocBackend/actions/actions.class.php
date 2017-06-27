@@ -648,7 +648,7 @@ class ocBackendActions extends autoOcBackendActions
 
             $event = array();
             $event['id'] = $manif['manif_id'];
-            $event['name'] = $manif['event_short_name'];
+            $event['name'] = $manif['event_short_name'] ? $manif['event_short_name'] : $manif['event_name'];
             $gauge = array();
             $gauge['id'] = $manif['gauge_id'];
             $gauge['part'] = $manif['part'];
@@ -672,13 +672,12 @@ class ocBackendActions extends autoOcBackendActions
         $q = Doctrine::getTable('OcProfessional')->createQuery('op')
             ->andWhere('op.id = ?', $proId)
         ;
-        //note : why fetchOne does not work?
         $ocPro = $q->fetchOne();
-       
-        if(!$ocPro){
-            return; 
+
+        if ( !$ocPro ) {
+            throw new liEvenementException(sprintf(' id %s is not a valid id for OcProfessional', $proId));
         }
-        
+
         $ocTransaction = $ocPro->OcTransactions[0];
         $ocTransaction->checkout_state = 'cart';
         $ocTransaction->save();
@@ -686,6 +685,95 @@ class ocBackendActions extends autoOcBackendActions
         $this->json = [
             'id' => $ocPro->id,
             'checkout_state' => $ocTransaction->checkout_state
-            ];
+        ];
+    }
+
+    public function executeExportProsWithUnvalidatedCart(sfWebRequest $request)
+    {
+        $this->getContext()->getConfiguration()->loadHelpers(['I18N', 'CrossAppLink']);
+        $ids = $request->getParameter('ids');
+        $date = $request->getParameter('date');
+
+        $group = $this->createGroup();
+        $group->name = __('Unvalidated Carts Group')
+            . ' - ' . $date . ' - ' . date('Y-m-d H:i:s');
+        $group->save();
+
+        $pros = $this->findAllProsByOcProIds($ids);
+        $this->saveGroupProsFromPros($pros, $group->id);
+
+        $this->redirect(cross_app_url_for('rp', 'group/show?id=' . $group->id));
+    }
+
+    public function executeExportAcceptedProsByManifestation(sfWebRequest $request)
+    {
+        $this->getContext()->getConfiguration()->loadHelpers(['I18N', 'CrossAppLink']);
+        $ids = $request->getParameter('ids');
+        $manifId = $request->getParameter('manifestationId');
+
+        $manif = $this->findManifestationById($manifId);
+
+        $group = $this->createGroup();
+        $manifName = empty($manif->event_short_name) ? $manif->event_name : $manif->event_short_name;
+        $group->name = __('Accepted Pros Group')
+            . ' - ' . $manifName . ' - ' . $manif->Location->name
+            . ' (' . $manif->manif_start . ') - ' . date('Y-m-d H:i:s');
+        $group->save();
+
+        $pros = $this->findAllProsByOcProIds($ids);
+        $this->saveGroupProsFromPros($pros, $group->id);
+
+        $this->redirect(cross_app_url_for('rp', 'group/show?id=' . $group->id));
+    }
+
+    private function findManifestationById($id)
+    {
+
+        $qManif = Doctrine_Query::create()
+            ->select('ts.id, ts.name AS time_name, ts.starts_at AS time_start, ts.ends_at AS time_end, m.happens_at AS manif_start, m.duration AS manif_duration')
+            ->addSelect('m.id AS manif_id, e.id, et.name AS event_name, et.short_name AS event_short_name, g.id AS gauge_id, g.value AS gauge')
+            ->addSelect("(SELECT count(*) FROM OcTicket k WHERE k.gauge_id = g.id AND accepted IN ('algo', 'human')) AS part")
+            ->distinct()
+            ->from('Manifestation m')
+            ->innerJoin('m.Event e')
+            ->leftJoin('e.Translation et WITH et.lang = ?', $this->getUser()->getCulture())
+            ->innerJoin('m.Gauges g')
+            ->innerJoin('m.OcTimeSlots ts')
+            ->andWhereIn('e.meta_event_id', array_keys($this->getUser()->getMetaEventsCredentials()))
+            ->andWhere('g.workspace_id = ?', $this->getUser()->getGuardUser()->OcConfig->workspace_id)
+            ->orderBy('ts.starts_at, et.short_name')
+            ->andWhere('m.id = ?', $id)
+        ;
+        return $qManif->fetchOne();
+    }
+
+    private function findAllProsByOcProIds($ids = [])
+    {
+        $qPro = Doctrine::getTable('OcProfessional')->createQuery('op')
+            ->select('op.id, p.id')
+            ->innerJoin('op.Professional p')
+            ->andWhereIn('op.id', $ids)
+        ;
+
+        return $qPro->execute();
+    }
+
+    private function saveGroupProsFromPros($pros, $groupId)
+    {
+        foreach ( $pros as $pro ) {
+            $grpPro = new GroupProfessional();
+            $grpPro->professional_id = $pro->professional_id;
+            $grpPro->group_id = $groupId;
+            $grpPro->save();
+        }
+    }
+
+    private function createGroup()
+    {
+        $group = new Group();
+        if ( $this->getUser() instanceof sfGuardSecurityUser ) {
+            $group->sf_guard_user_id = $this->getUser()->getId();
+        }
+        return $group;
     }
 }
