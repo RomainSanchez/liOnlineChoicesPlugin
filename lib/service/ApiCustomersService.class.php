@@ -150,7 +150,7 @@ class ApiCustomersService extends ApiEntityService
 
     public function update(array $data)
     {
-        $accessor = new ocPropertyAccessor;
+        $accessor = new liApiPropertyAccessor;
         if ( !$this->isIdentificated() ) {
             return false;
         }
