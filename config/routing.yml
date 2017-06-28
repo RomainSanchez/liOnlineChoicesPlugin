@@ -559,6 +559,12 @@ oc_backend_validate:
     param: { module: ocBackend, action: validate }
     requirements:
         sf_method: [GET, POST]
+oc_backend_validate_initial_choices:
+    url: /oc_backend/validate_initial_choices
+    class: sfRequestRoute
+    param: { module: ocBackend, action: validateInitialChoices }
+    requirements:
+        sf_method: [GET, POST]
 oc_backend_list_snapshots:
     url: /oc_backend/list_snapshots
     class: sfRequestRoute

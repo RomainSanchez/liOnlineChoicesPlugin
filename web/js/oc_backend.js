@@ -19,36 +19,57 @@ $(document).ready(function () {
     liOC.loadHeaders($('.real .plan_day').attr('data-day'));
 
     $('.positioning').click(function () {
-        $('#transition').fadeIn('medium');
-        var snapshots = liOC.createSnapshot();
-        $.post($(this).attr('data-url'),
-                {
-                    content: JSON.stringify(snapshots),
-                    name: $('#snapshot_name').val(),
-                    date: $('.real .plan_day th').eq(1).attr('data-date'),
-                    purpose: 'valid',
-                    _csrf_token: $('#_csrf_token').val()
-                })
-                .done(function (data) {
-                    $('.real .plan_gauges .gauge').attr('data-part', 0);
-                    $('.real .plan_gauges .gauge_first_choice').attr('data-part', 0);
-                    liOC.loadPositions(data);
-                    liOC.refreshGauges();
-                    liOC.fixTableScroll();
-                    liOC.blockContextMenu();
-                    $('#transition .close').click();
-                })
-                .fail(function (data) {
-                    $('#transition .close').click();
-                    console.log(data);
-                })
-                ;
-    });
+
+        this.saveSnapshot($(this).attr('data-url'), 'valid'/*purpose*/,
+                /*on success*/
+                        function (data) {
+                            $('.real .plan_gauges .gauge').attr('data-part', 0);
+                            $('.real .plan_gauges .gauge_first_choice').attr('data-part', 0);
+                            liOC.loadPositions(data);
+                            liOC.refreshGauges();
+                            liOC.fixTableScroll();
+                            liOC.blockContextMenu();
+                        }
+                );
+
+                var snapshots = liOC.createSnapshot();
+                $.post($(this).attr('data-url'),
+                        {
+                            content: JSON.stringify(snapshots),
+                            name: $('#snapshot_name').val(),
+                            date: $('.real .plan_day th').eq(1).attr('data-date'),
+                            purpose: 'valid',
+                            _csrf_token: $('#_csrf_token').val()
+                        })
+                        .done(function (data) {
+                            $('.real .plan_gauges .gauge').attr('data-part', 0);
+                            $('.real .plan_gauges .gauge_first_choice').attr('data-part', 0);
+                            liOC.loadPositions(data);
+                            liOC.refreshGauges();
+                            liOC.fixTableScroll();
+                            liOC.blockContextMenu();
+                            $('#transition .close').click();
+                        })
+                        .fail(function (data) {
+                            $('#transition .close').click();
+                            console.log(data);
+                        })
+                        ;
+            });
 
     $('.validate').click(function () {
         $('#transition').fadeIn('medium');
         if (confirm('Etes-vous sûr de vouloir transposer la sélection en billeterie ? Cette action est définitive.')) {
             liOC.validate($(this).attr('data-url'));
+        } else {
+            $('#transition .close').click();
+        }
+    });
+
+    $('.validate-initial-choices').click(function () {
+        $('#transition').fadeIn('medium');
+        if (confirm('Etes-vous sûr de vouloir valider les choix initiaux ?')) {
+            liOC.validateInitialChoices($(this).attr('data-url'));
         } else {
             $('#transition .close').click();
         }
@@ -93,9 +114,8 @@ $(document).ready(function () {
     });
 
     $('.save_snapshot_popup').click(function () {
-        $('#transition').fadeIn('medium');
         $('.popup_close').click();
-        liOC.saveSnapshot();
+        liOC.saveSnapshot($(this).attr('data-url'), 'save');
     });
 
     $('.popup_close').click(function () {
@@ -296,24 +316,13 @@ liOC.checkError = function (data) {
 };
 
 liOC.validate = function (url) {
-    $('#transition').fadeIn('medium');
+    liOC.saveSnapshot(url, 'valid');
+};
 
-    var snapshots = liOC.createSnapshot();
-
-    $.post(url,
-            {
-                content: JSON.stringify(snapshots),
-                name: $('#snapshot_name').val(),
-                date: $('.real .plan_day th').eq(1).attr('data-date'),
-                purpose: 'valid',
-                _csrf_token: $('#_csrf_token').val()
-            },
-            function (data) {
-                $('#transition .close').click();
-                if (!liOC.checkError(data)) {
-                    liOC.disable();
-                }
-            });
+liOC.validateInitialChoices = function (url) {
+    liOC.saveSnapshot(url, 'init', function () {
+        $('.validate-initial-choices').remove();
+    });
 
 };
 
@@ -392,23 +401,27 @@ liOC.createSnapshot = function () {
     return snapshots;
 };
 
-liOC.saveSnapshot = function () {
+liOC.saveSnapshot = function (url, purpose = 'save' /*save|init|valid*/, successFn, errorFn) {
+
+    $('#transition').fadeIn('medium');
     var snapshots = liOC.createSnapshot();
 
-    $.post($('.save_snapshot_popup').attr('data-url'),
-            {
-                content: JSON.stringify(snapshots),
-                name: $('#snapshot_name').val(),
-                date: $('.real .plan_day th').eq(1).attr('data-date'),
-                purpose: 'save',
-                _csrf_token: $('#_csrf_token').val()
-            },
-            function (data) {
+    $.post(url, {
+        content: JSON.stringify(snapshots),
+        name: $('#snapshot_name').val(),
+        date: $('.real .plan_day th').eq(1).attr('data-date'),
+        purpose: purpose,
+        _csrf_token: $('#_csrf_token').val()
+    })
+            .always(function (data) {
                 console.log(data);
                 if (data.error == 'Error') {
+                    (errorFn || $.noop)(data);
                     $.each(data.message, function (key, value) {
                         LI.alert(key + ' : ' + value, 'error');
                     });
+                } else {
+                    (successFn || $.noop)(data);
                 }
                 $('#transition .close').click();
             });

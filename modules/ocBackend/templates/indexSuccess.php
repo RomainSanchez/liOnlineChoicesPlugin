@@ -28,7 +28,13 @@
         <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-auto') ): ?>
         <span data-url="<?php echo url_for('oc_backend/auto'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all positioning"><?php echo __('Auto positioning', null, 'li_oc') ?></span>
         <?php endif ?>
+        
+        
+        
         <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-transpose') ): ?>
+            <?php if ( $initialChoicesActionEnabled) : ?>
+            <span data-url="<?php echo url_for('oc_backend/validate_initial_choices'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate-initial-choices"><?php echo __('Validate initial choices', null, 'li_oc') ?></span>
+            <?php endif ?>
         <span data-url="<?php echo url_for('oc_backend/validate'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate"><?php echo __('Transpose', null, 'li_oc') ?></span>
         <?php endif ?>
       </div>

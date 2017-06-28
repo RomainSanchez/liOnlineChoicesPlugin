@@ -73,6 +73,8 @@ class ocBackendActions extends autoOcBackendActions
 
         $this->group = $this->getUser()->getGuardUser()->OcConfig->Group->name;
         $this->workspace = $this->getUser()->getGuardUser()->OcConfig->Workspace->name;
+        $group_id = $this->getUser()->getGuardUser()->OcConfig->group_id;
+        $workspace_id = $this->getUser()->getGuardUser()->OcConfig->workspace_id;
 
         $this->snapshots = Doctrine::getTable('OcSnapshot')->createQuery('s')
             ->andWhere('date(s.day) = ?', $this->day)
@@ -83,6 +85,42 @@ class ocBackendActions extends autoOcBackendActions
             ->andWhere('g.display_everywhere')
             ->execute()
         ;
+
+        $this->initialChoicesActionEnabled 
+            = $this->noTransactionsAndNoInitSnapshotExist($this->day);
+            
+            
+    }
+    
+    private function noTransactionsAndNoInitSnapshotExist($date){
+        
+        $group_id = $this->getUser()->getGuardUser()->OcConfig->group_id;
+        $workspace_id = $this->getUser()->getGuardUser()->OcConfig->workspace_id;
+        
+        
+        $lastInitSnapQuery = Doctrine::getTable('OcSnapshot')
+                ->getLastInit($group_id, $workspace_id, $date);
+        
+        $ocProsWithOcTrQuery = Doctrine::getTable('OcProfessional')->createQuery('op')
+            ->select('op.id, op.rank, p.id, t.id, t.checkout_state, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
+            ->innerJoin('op.Professional p')
+            ->leftJoin('p.Groups grp')
+            ->leftJoin('p.Contact c')
+            ->leftJoin('p.Organism o')
+            ->leftJoin('op.OcTransactions t')
+            ->leftJoin('t.OcTickets tck')
+            ->leftJoin('tck.Gauge g WITH g.workspace_id = ?', $workspace_id)
+            ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
+            ->leftJoin('m.Event e')
+            ->andWhere('p.id IN (SELECT gpro.professional_id FROM GroupProfessional gpro WHERE gpro.group_id = ?)', $group_id)
+            ->having('COUNT(t.id) > 0')
+            ->groupBy('op.id')
+            ;
+        
+        // no transactions and no init snap already saved -> ok
+        return($lastInitSnapQuery->count() == 0 && $ocProsWithOcTrQuery->count() == 0);
+        
+        
     }
 
     public function executeAutoPositioning(sfWebRequest $request)
@@ -275,7 +313,7 @@ class ocBackendActions extends autoOcBackendActions
         $this->isDebug($request->hasParameter('debug'));
     }
 
-    protected function updateOcTicket($snapshot)
+    protected function updateOcTicket($snapshot, $createOcTransaction = false)
     {
         $sf_guard_user_id = null;
         $this->gauges = array();
@@ -322,42 +360,57 @@ class ocBackendActions extends autoOcBackendActions
                 ->fetchOne()
             ;
 
-            if ( $oc_transaction ) {
-                $oc_tickets = array();
-                foreach ( $oc_transaction->OcTickets as $oc_ticket ) {
-                    $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
+            if ( !$oc_transaction ) {
+                if ( !$createOcTransaction ) {
+                    continue;
                 }
+                $oc_pro = Doctrine::getTable('OcProfessional')->createQuery('ocp')
+                    ->leftJoin('ocp.Professional p')
+                    ->leftJoin('p.Contact c')
+                    ->andWhere('ocp.id = ?', intval($contact['id']))
+                    ->fetchOne()
+                ;
+                $oc_transaction = new OcTransaction();
+                $oc_transaction->oc_token_id = NULL;
+                $oc_transaction->OcProfessional = $oc_pro;
+                $oc_transaction->save();
+            }
 
-                foreach ( $contact['manifestations'] as $contact_manifestation ) {
-                    if ( array_key_exists(intval($contact_manifestation['gauge_id']), $oc_tickets) ) {
-                        $oc_ticket->accepted = $contact_manifestation['accepted'];
-                        $oc_ticket->save();
-                        unset($oc_tickets[intval($contact_manifestation['gauge_id'])]);
-                    } else {
-                        $m_id = intval($contact_manifestation['id']);
-                        if ( !array_key_exists($m_id, $manifestations) ) {
-                            $manifestations[$m_id] = Doctrine::getTable('Manifestation')->FindOneById($m_id);
-                        }
 
-                        $oc_ticket = new Octicket();
-                        $oc_ticket->sf_guard_user_id = $sf_guard_user_id;
-                        $oc_ticket->automatic = true;
-                        $oc_ticket->rank = 0;
-                        $oc_ticket->oc_transaction_id = $oc_transaction->id;
-                        $oc_ticket->price_id = $manifestations[$m_id]->PriceManifestations[0]->price_id;
-                        $oc_ticket->gauge_id = $manifestations[$m_id]->Gauges[0]->id;
-                        $oc_ticket->accepted = $contact_manifestation['accepted'];
-                        $oc_ticket->save();
+            $oc_tickets = array();
+            foreach ( $oc_transaction->OcTickets as $oc_ticket ) {
+                $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
+            }
+
+            foreach ( $contact['manifestations'] as $contact_manifestation ) {
+                if ( array_key_exists(intval($contact_manifestation['gauge_id']), $oc_tickets) ) {
+                    $oc_ticket->accepted = $contact_manifestation['accepted'];
+                    $oc_ticket->save();
+                    unset($oc_tickets[intval($contact_manifestation['gauge_id'])]);
+                } else {
+                    $m_id = intval($contact_manifestation['id']);
+                    if ( !array_key_exists($m_id, $manifestations) ) {
+                        $manifestations[$m_id] = Doctrine::getTable('Manifestation')->FindOneById($m_id);
                     }
+
+                    $oc_ticket = new Octicket();
+                    $oc_ticket->sf_guard_user_id = $sf_guard_user_id;
+                    $oc_ticket->automatic = true;
+                    $oc_ticket->rank = 0;
+                    $oc_ticket->oc_transaction_id = $oc_transaction->id;
+                    $oc_ticket->price_id = $manifestations[$m_id]->PriceManifestations[0]->price_id;
+                    $oc_ticket->gauge_id = $manifestations[$m_id]->Gauges[0]->id;
+                    $oc_ticket->accepted = $contact_manifestation['accepted'];
+                    $oc_ticket->save();
                 }
+            }
 
-                foreach ( $oc_tickets as $oc_ticket ) {
-                    if ( $oc_ticket->rank > 0 ) {
-                        $oc_ticket->accepted = 'none';
-                        $oc_ticket->save();
-                    } else {
-                        $oc_ticket->delete();
-                    }
+            foreach ( $oc_tickets as $oc_ticket ) {
+                if ( $oc_ticket->rank > 0 ) {
+                    $oc_ticket->accepted = 'none';
+                    $oc_ticket->save();
+                } else {
+                    $oc_ticket->delete();
                 }
             }
         }
@@ -465,6 +518,56 @@ class ocBackendActions extends autoOcBackendActions
                 $snapshot->delete();
             }
         }
+    }
+
+    public function executeValidateInitialChoices(sfWebRequest $request)
+    {
+        $this->setTemplate('json');
+        $this->isDebug($request->hasParameter('debug'));
+
+        $this->json = array();
+        $this->json['error'] = 'Success';
+
+        $group_id = $this->getUser()->getGuardUser()->OcConfig->group_id;
+        $workspace_id = $this->getUser()->getGuardUser()->OcConfig->workspace_id;
+        $day = date($request->getParameter('date'));
+
+        $canBeValided = $this->noTransactionsAndNoInitSnapshotExist($day);
+
+        if ( !$canBeValided ) {
+            $this->json['error'] = 'Error';
+            $this->json['message'][] = "Les choix initiaux sont déjà validés.";
+            return;
+        }
+        $request->setParameter('name', 'Validation des choix initiaux');
+        $json = $this->saveSnapshot($request);
+
+        if ( $json['error'] != 'Success' ) {
+            $this->json = $json;
+            $this->json['error'] = 'Error';
+            $this->json['message'][] = "Une erreur est survenue";
+            return;
+        }
+        
+        $snapshot = Doctrine::getTable('OcSnapshot')->getLastInit($group_id, $workspace_id, $day)->fetchOne();
+
+        if ( !$snapshot ) {
+            $this->json['error'] = 'Error';
+            $this->json['message'][] = 'No snapshot present';
+            return;
+        }
+
+        try {
+            $this->updateOcTicket($snapshot, true/*create OcTransactions*/);
+        } catch ( liEvenementException $e ) {
+            $snapshot->delete();
+            $this->json['error'] = 'Error';
+            $this->json['message'][] = $e->getMessage();
+            return;
+        }
+
+
+        
     }
 
     public function executePros(sfWebRequest $request)

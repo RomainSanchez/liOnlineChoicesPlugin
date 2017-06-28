@@ -209,7 +209,7 @@ OcSnapshot:
       notnull: true
     purpose:
       type: enum
-      values: [temp, save, valid]
+      values: [temp, save, valid, init]
       default: temp
     content:
       type: string

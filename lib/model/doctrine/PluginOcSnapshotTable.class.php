@@ -39,4 +39,18 @@ class PluginOcSnapshotTable extends TraceableTable
         
       return $q;
     }
+    
+    public function getLastInit($grpId, $wsId, $day = null) 
+    {
+      $q = $this->createQuery('ocs');
+      $root = $q->getRootAlias();
+      
+      $q->andWhere("$root.purpose = ?", 'init')
+        ->andWhere("$root.day = ?", $day)
+        ->andWhere("$root.group_id = ?", $grpId)
+        ->andWhere("$root.workspace_id = ?", $wsId)
+        ->orderBy("$root.created_at DESC");
+        
+      return $q;
+    }
 }
