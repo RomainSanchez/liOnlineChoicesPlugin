@@ -42,10 +42,17 @@
             
           <div class="sf_admin_actions_block floatright">
               
+            <?php if ( $initialChoicesActionEnabled) : ?>
+                <span data-url="<?php echo url_for('oc_backend/validate_initial_choices'); ?>"
+                      class="fg-button ui-widget ui-state-default ui-corner-all validate-initial-choices">
+                          <?php echo __('Validate initial choices', null, 'li_oc') ?>
+                </span>
+            <?php endif ?>  
+              
             <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-rank') ): ?>
                 <span class="fg-button ui-widget ui-state-default ui-corner-all shuffle"><?php echo __('Shuffle ordering', null, 'li_oc') ?></span>
                 <span class="fg-button ui-widget ui-state-default ui-corner-all ranks"><a href="<?php echo url_for('oc_backend_save_ordering') ?>" target="_blank"><?php echo __('Save ordering', null, 'li_oc') ?></a></span>
-            <?php endif ?>
+            <?php endif ?>    
                 
             <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-auto') ): ?>
                 <span data-url="<?php echo url_for('oc_backend/auto'); ?>" 
@@ -55,12 +62,7 @@
             <?php endif ?>
 
             <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-transpose') ): ?>
-                <?php if ( $initialChoicesActionEnabled) : ?>
-                <span data-url="<?php echo url_for('oc_backend/validate_initial_choices'); ?>"
-                      class="fg-button ui-widget ui-state-default ui-corner-all validate-initial-choices">
-                          <?php echo __('Validate initial choices', null, 'li_oc') ?>
-                </span>
-                <?php endif ?>
+                
                 <span data-url="<?php echo url_for('oc_backend/validate'); ?>" 
                       class="fg-button ui-widget ui-state-default ui-corner-all validate">
                           <?php echo __('Transpose', null, 'li_oc') ?>
