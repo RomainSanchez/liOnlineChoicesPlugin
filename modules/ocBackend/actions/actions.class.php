@@ -649,7 +649,7 @@ class ocBackendActions extends autoOcBackendActions
             $pro['rank'] = $ocPro['rank'];
             $pro['name'] = $ocPro['Professional']['Contact']['firstname'] . ' ' . $ocPro['Professional']['Contact']['name'];
             $pro['organism'] = $ocPro['Professional']['Organism']['name'];
-            $pro['checkout_state'] = $ocPro['OcTransactions'][0]['checkout_state'];
+            $pro['checkout_state'] = $ocPro['OcTransactions'] ? $ocPro['OcTransactions'][0]['checkout_state'] : 'cart';
             $pro['manifestations'] = [];
             $pro['groups'] = [];
             foreach ( $ocPro['Professional']['Groups'] as $group ) {
