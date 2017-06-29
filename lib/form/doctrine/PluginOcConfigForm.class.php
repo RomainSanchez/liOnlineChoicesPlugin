@@ -21,11 +21,13 @@ abstract class PluginOcConfigForm extends BaseOcConfigForm
     $this->widgetSchema['group_id']
         ->setOption('add_empty', true)
         ->setOption('query', Doctrine::getTable('Group')->createQuery('g')) // filtering done by the GroupTable::createQuery()
+        ->setOption('order_by', ['name', 'asc'])
     //    ->setOption('expanded', true)
     ;
     $this->widgetSchema['workspace_id']
         ->setOption('add_empty', true)
         ->setOption('query', $ws = Doctrine::getTable('Workspace')->createQuery('ws'))
+        ->setOption('order_by', ['name', 'asc'])
     //    ->setOption('expanded', true)
     ;
     
