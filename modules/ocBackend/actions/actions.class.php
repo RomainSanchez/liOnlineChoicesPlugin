@@ -21,7 +21,7 @@ class ocBackendActions extends autoOcBackendActions
             $this->setup = $this->getContext()->getContainer()
                 ->get('oc_configuration_service')
                 ->getConfigurationFor($this->getUser());
-        } catch ( ocConfigurationException $e ) {
+        } catch ( liApiConfigurationException $e ) {
             $this->getRequest()->setParameter('back_to', 'ocBackend/index');
             $this->forward('ocSetup', 'index');
         }

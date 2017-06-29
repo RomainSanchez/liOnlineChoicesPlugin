@@ -17,7 +17,7 @@ class OcConfigurationService
      * 
      * @param  $user            sfBasicSecurityUser
      * @return array            configuration
-     * @throws ocSetupException if no exception is found
+     * @throws liApiConfigurationException if no exception is found
      *
      */
     public function getConfigurationFor(sfBasicSecurityUser $user)
@@ -28,7 +28,7 @@ class OcConfigurationService
         ;
         
         if ( !$config ) {
-            throw new ocConfigurationException('No configuration found.');
+            throw new liApiConfigurationException('No configuration found.');
         }
         
         return $config->toArray();
