@@ -101,3 +101,10 @@
 #content #stats_chart{margin:15px auto 15px auto;}
 
 th .fg-button{float:right;font-size: 0px; padding: 16px 16px 0 0;}
+
+.fg-button.ui-state-disabled.current-date {
+    opacity: 1;
+    color: white;
+    font-weight: bold;
+    background: #5c9ccc url(images/ui-bg_gloss-wave_55_5c9ccc_500x100.png) 50% 50% repeat-x;
+}

@@ -2,49 +2,37 @@
 <?php include_partial('ocBackend/assets') ?>
 
       
-
-
 <div id="sf_admin_container">
   <?php include_partial('ocBackend/flashes') ?>
 
-  
   <input id="_csrf_token" type="hidden" value="<?php echo $_csrf_token ?>">
   
   <form id="sf_admin_content">
-    
-      <div class="sf_admin_actions_block floatleft">
-        <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-snapshot') ): ?>
-        <span class="fg-button ui-widget ui-state-default ui-corner-all save_popup"><?php echo __('Save state', null, 'li_oc') ?></span>
-        <?php endif ?>
-        <?php if ( $sf_user->hasCredential('tck-onlinechoices-data') ): ?>
-        <span data-url="<?php echo url_for('oc_backend_list_snapshots'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all load_popup"><?php echo __('Load state', null, 'li_oc') ?></span>
-        <?php endif ?>
+     <div class="floatleft" style="margin-bottom:15px">
+      <?php foreach($datesData as $date): ?>
+     
+          <?php if($date['current']): ?>
+            <span class="fg-button ui-widget ui-state-default ui-corner-all current-date ui-state-disabled" >
+                <?php echo $date['day']; ?>
+            </span>
+          <?php else: ?>
+          <span  class="fg-button ui-widget ui-state-default ui-corner-all" >
+               <a href="?date=<?php echo $date['date']; ?>" >
+                    <?php echo $date['day']; ?>
+               </a>
+            </span>
+          <?php endif; ?>
+      <?php endforeach; ?>
       </div>
-      <div class="sf_admin_actions_block floatright">
-        <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-rank') ): ?>
-        <span class="fg-button ui-widget ui-state-default ui-corner-all shuffle"><?php echo __('Shuffle ordering', null, 'li_oc') ?></span>
-        <span class="fg-button ui-widget ui-state-default ui-corner-all ranks"><a href="<?php echo url_for('oc_backend_save_ordering') ?>" target="_blank"><?php echo __('Save ordering', null, 'li_oc') ?></a></span>
-        <?php endif ?>
-        <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-auto') ): ?>
-        <span data-url="<?php echo url_for('oc_backend/auto'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all positioning"><?php echo __('Auto positioning', null, 'li_oc') ?></span>
-        <?php endif ?>
-        
-        
-        
-        <?php if ( $sf_user->hasCredential('tck-onlinechoices-data-transpose') ): ?>
-            <?php if ( $initialChoicesActionEnabled) : ?>
-            <span data-url="<?php echo url_for('oc_backend/validate_initial_choices'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate-initial-choices"><?php echo __('Validate initial choices', null, 'li_oc') ?></span>
-            <?php endif ?>
-        <span data-url="<?php echo url_for('oc_backend/validate'); ?>" class="fg-button ui-widget ui-state-default ui-corner-all validate"><?php echo __('Transpose', null, 'li_oc') ?></span>
-        <?php endif ?>
-      </div>
-
-      <?php include_partial('ocBackend/list', array('day' => $day, 'group' => $group)) ?>
+      
+      <?php include_partial('ocBackend/list', array(
+          'day' => $day,
+          'group' => $group,
+          'initialChoicesActionEnabled'=>$initialChoicesActionEnabled)) ?>
+      
       <?php include_partial('ocBackend/stats'); ?>
 
-
   </form>
-
   <?php include_partial('ocBackend/themeswitcher') ?>
 </div>
 

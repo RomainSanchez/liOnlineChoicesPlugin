@@ -83,7 +83,9 @@ $(document).ready(function () {
         $('#transition').fadeIn('medium');
         $.ajax({
             url: $(this).attr('data-url'),
-            data: {},
+            data: {
+                date: $('.real .plan_day th').eq(1).attr('data-date')
+            },
             method: 'get',
             success: function (data) {
                 $('.list_snapshots').html(data);
@@ -405,7 +407,12 @@ liOC.saveSnapshot = function (url, purpose = 'save' /*save|init|valid*/, success
 
     $('#transition').fadeIn('medium');
     var snapshots = liOC.createSnapshot();
-
+    
+    if(!snapshots.length){
+        LI.alert('Aucune donnée à enregistrer.');
+        return;
+    }
+    
     $.post(url, {
         content: JSON.stringify(snapshots),
         name: $('#snapshot_name').val(),
@@ -461,7 +468,7 @@ liOC.loadDay = function (data, length) {
             .attr('data-date', data.current.date)
             .appendTo('.real .plan_day');
 
-    var previous = $('<div class="plan_previous floatleft"></div>').appendTo(header_day);
+    /*var previous = $('<div class="plan_previous floatleft"></div>').appendTo(header_day);
     var next = $('<div class="plan_next floatright"></div>').appendTo(header_day);
 
     if (data.previous.day) {
@@ -475,7 +482,7 @@ liOC.loadDay = function (data, length) {
                 .text(data.next.day)
                 .appendTo(next)
                 .prop('href', '?date=' + data.next.date);
-    }
+    }*/
 
     $('<span></span>').appendTo(header_day).text(data.current.day);
 };
@@ -544,14 +551,15 @@ liOC.loadHours = function (data) {
 
 liOC.addPros = function (data) {
 
+    
     liOC.prosData = data;
     $(document).trigger('lioc.pros.loaded');
-
     $('.real .plan_gauges th .gauge').attr('data-part', 0);
 
     var unlockCartLabel = $('[data-i18n-label="i18n_unlock_cart"]').attr('data-i18n-value');
 
     $.each(data, function (i, pro) {
+       
         var row_pro = $('<tr class="sf_admin_row ui-widget-content"></tr>')
                 .appendTo('.real .plan_body');
         if (i % 2) {

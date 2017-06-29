@@ -58,6 +58,10 @@ liOC.stats.ocBackend = function (data) {
         });
     });
 
+    if(!grpSeries.length){
+        return;
+    }
+
     //init jqplot with data array
     var plot = $.jqplot(id, choiceValues, {
         seriesDefaults: {

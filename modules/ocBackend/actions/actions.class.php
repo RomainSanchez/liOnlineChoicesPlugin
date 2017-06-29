@@ -66,6 +66,7 @@ class ocBackendActions extends autoOcBackendActions
     public function executeIndex(sfWebRequest $request)
     {
         //parent::executeIndex($request);
+        $this->getContext()->getConfiguration()->loadHelpers(['Date', 'Array']);
 
         $this->form = new OcSnapshotForm();
         $this->_csrf_token = $this->form->getCSRFToken();
@@ -73,8 +74,6 @@ class ocBackendActions extends autoOcBackendActions
 
         $this->group = $this->getUser()->getGuardUser()->OcConfig->Group->name;
         $this->workspace = $this->getUser()->getGuardUser()->OcConfig->Workspace->name;
-        $group_id = $this->getUser()->getGuardUser()->OcConfig->group_id;
-        $workspace_id = $this->getUser()->getGuardUser()->OcConfig->workspace_id;
 
         $this->snapshots = Doctrine::getTable('OcSnapshot')->createQuery('s')
             ->andWhere('date(s.day) = ?', $this->day)
@@ -86,21 +85,29 @@ class ocBackendActions extends autoOcBackendActions
             ->execute()
         ;
 
-        $this->initialChoicesActionEnabled 
-            = $this->noTransactionsAndNoInitSnapshotExist($this->day);
-            
-            
+        $this->initialChoicesActionEnabled = $this->noTransactionsAndNoInitSnapshotExist($this->day);
+
+        $dates = $this->getDates();
+        $day = array_search($this->day, array_column($dates, 'm_start'));
+        $this->datesData = [];
+        foreach ( $dates as $eachDay => $eachDate ) {
+            $this->datesData[] = [
+                'date' => $eachDate['m_start'],
+                'day' => format_date(strtotime($eachDate['m_start']), 'EEEE d MMMM yyyy'),
+                'current' => ($eachDay == $day)];
+        }
     }
-    
-    private function noTransactionsAndNoInitSnapshotExist($date){
-        
+
+    private function noTransactionsAndNoInitSnapshotExist($date)
+    {
+
         $group_id = $this->getUser()->getGuardUser()->OcConfig->group_id;
         $workspace_id = $this->getUser()->getGuardUser()->OcConfig->workspace_id;
-        
-        
+
+
         $lastInitSnapQuery = Doctrine::getTable('OcSnapshot')
-                ->getLastInit($group_id, $workspace_id, $date);
-        
+            ->getLastInit($group_id, $workspace_id, $date);
+
         $ocProsWithOcTrQuery = Doctrine::getTable('OcProfessional')->createQuery('op')
             ->select('op.id, op.rank, p.id, t.id, t.checkout_state, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
             ->innerJoin('op.Professional p')
@@ -113,14 +120,12 @@ class ocBackendActions extends autoOcBackendActions
             ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
             ->leftJoin('m.Event e')
             ->andWhere('p.id IN (SELECT gpro.professional_id FROM GroupProfessional gpro WHERE gpro.group_id = ?)', $group_id)
-            ->having('COUNT(t.id) > 0')
+            ->having('COUNT(tck.id) > 0')
             ->groupBy('op.id')
-            ;
-        
+        ;
+
         // no transactions and no init snap already saved -> ok
         return($lastInitSnapQuery->count() == 0 && $ocProsWithOcTrQuery->count() == 0);
-        
-        
     }
 
     public function executeAutoPositioning(sfWebRequest $request)
@@ -548,7 +553,7 @@ class ocBackendActions extends autoOcBackendActions
             $this->json['message'][] = "Une erreur est survenue";
             return;
         }
-        
+
         $snapshot = Doctrine::getTable('OcSnapshot')->getLastInit($group_id, $workspace_id, $day)->fetchOne();
 
         if ( !$snapshot ) {
@@ -558,16 +563,13 @@ class ocBackendActions extends autoOcBackendActions
         }
 
         try {
-            $this->updateOcTicket($snapshot, true/*create OcTransactions*/);
+            $this->updateOcTicket($snapshot, true/* create OcTransactions */);
         } catch ( liEvenementException $e ) {
             $snapshot->delete();
             $this->json['error'] = 'Error';
             $this->json['message'][] = $e->getMessage();
             return;
         }
-
-
-        
     }
 
     public function executePros(sfWebRequest $request)
@@ -579,18 +581,20 @@ class ocBackendActions extends autoOcBackendActions
         $this->json = array();
 
         $date = $request->getParameter('date');
-        if ( $date && !strtotime($date) )
+        if ( $date && !strtotime($date) ){
             return;
+        }
 
         $dates = $this->getDates();
-        if ( count($dates) == 0 )
+        if ( count($dates) == 0 ){
             return;
+        }
 
-        if ( !$date )
+        if ( !$date ){
             $date = $dates[0]['m_start'];
-
+        }
         // add any contact in the target group that does not have an OcProfessional yet
-        $q = Doctrine::getTable('Professional')->createQuery('p')
+        $qPro = Doctrine::getTable('Professional')->createQuery('p')
             ->select('p.id')
             ->leftJoin('p.OcProfessionals op')
             ->andWhere('op.id IS NULL')
@@ -601,14 +605,14 @@ class ocBackendActions extends autoOcBackendActions
             ->andWhere('conf.sf_guard_user_id = ?', $this->getUser()->getId())
             ->orderBy('c.name, c.firstname')
         ;
-        foreach ( $q->fetchArray() as $i => $p ) {
+        foreach ( $qPro->fetchArray() as $i => $p ) {
             $pro = new OcProfessional;
             $pro->professional_id = $p['id'];
             $pro->save();
         }
 
         // get back authorized and targetted OcProfessionals and their OcTickets
-        $q = Doctrine::getTable('OcProfessional')->createQuery('op')
+        $qOcPro = Doctrine::getTable('OcProfessional')->createQuery('op')
             ->select('op.id, op.rank, p.id, t.id, t.checkout_state, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
             ->innerJoin('op.Professional p')
             ->leftJoin('p.Groups grp')
@@ -636,7 +640,7 @@ class ocBackendActions extends autoOcBackendActions
              */
             ->orderBy('op.rank, c.name, c.firstname')
         ;
-        $ocProfessionals = $q->fetchArray();
+        $ocProfessionals = $qOcPro->fetchArray();
 
         foreach ( $ocProfessionals as $ocPro ) {
             $pro = array();
@@ -683,15 +687,18 @@ class ocBackendActions extends autoOcBackendActions
         $current = $previous = $next = null;
 
         $date = $request->getParameter('date');
-        if ( $date && !strtotime($date) )
+        if ( $date && !strtotime($date) ){
             return;
+        }
 
         $dates = $this->getDates();
-        if ( count($dates) == 0 )
+        if ( count($dates) == 0 ){
             return;
+        }
 
-        if ( !$date )
+        if ( !$date ){
             $date = $dates[0]['m_start'];
+        }
 
         $q = Doctrine_Query::create()
             ->select('ts.id, ts.name AS time_name, ts.starts_at AS time_start, ts.ends_at AS time_end, m.happens_at AS manif_start, m.duration AS manif_duration')
