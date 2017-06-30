@@ -86,8 +86,14 @@ class ApiCustomersService extends ApiEntityService
 
                 $transaction = $token->OcTransaction;
 
-                if ( !$transaction->oc_professional_id ) {
+                $oc_pro = Doctrine::getTable('OcProfessional')->createQuery('ocp')
+                  ->andWhere('ocp.professional_id = ?', $pro->id)
+                  ->fetchOne();
+
+                if ( !$oc_pro ) {
                     $transaction->OcProfessional = new OcProfessional;
+                } else {
+                  $transaction->OcProfessional = $oc_pro;
                 }
 
                 $transaction->OcProfessional->Professional = $pro;
