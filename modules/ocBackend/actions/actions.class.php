@@ -389,8 +389,6 @@ class ocBackendActions extends autoOcBackendActions
                 $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
             }
 
-            sfContext::getInstance()->getLogger()->warning('Ticket Creation');
-
             foreach ( $contact['manifestations'] as $contact_manifestation ) {
                 if ( array_key_exists(intval($contact_manifestation['gauge_id']), $oc_tickets) ) {
                     $oc_ticket->accepted = $contact_manifestation['accepted'];
