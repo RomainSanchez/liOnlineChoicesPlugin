@@ -106,7 +106,7 @@ class ocBackendActions extends autoOcBackendActions
 
 
         $lastInitSnapQuery = Doctrine::getTable('OcSnapshot')
-            ->getLastInit($group_id, $workspace_id, $date);
+            ->getLastInit($date);
 
         $ocProsWithOcTrQuery = Doctrine::getTable('OcProfessional')->createQuery('op')
             ->select('op.id, op.rank, p.id, t.id, t.checkout_state, c.firstname, c.name, o.name, g.id, m.id, tck.rank, tck.accepted, grp.id, grp.name, grp.picture_id, grp.display_everywhere')
@@ -117,9 +117,10 @@ class ocBackendActions extends autoOcBackendActions
             ->leftJoin('op.OcTransactions t')
             ->leftJoin('t.OcTickets tck')
             ->leftJoin('tck.Gauge g WITH g.workspace_id = ?', $workspace_id)
-            ->leftJoin('g.Manifestation m WITH date(m.happens_at) = ?', $date)
+            ->leftJoin('g.Manifestation m')
             ->leftJoin('m.Event e')
             ->andWhere('p.id IN (SELECT gpro.professional_id FROM GroupProfessional gpro WHERE gpro.group_id = ?)', $group_id)
+            ->andWhere('date(m.happens_at) = ?', $date)
             ->having('COUNT(tck.id) > 0')
             ->groupBy('op.id')
         ;
@@ -384,8 +385,11 @@ class ocBackendActions extends autoOcBackendActions
 
             $oc_tickets = array();
             foreach ( $oc_transaction->OcTickets as $oc_ticket ) {
+                if ( date($oc_ticket->Gauge->Manifestation->happens_at) == date($snapshot->day) )
                 $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
             }
+
+            sfContext::getInstance()->getLogger()->warning('Ticket Creation');
 
             foreach ( $contact['manifestations'] as $contact_manifestation ) {
                 if ( array_key_exists(intval($contact_manifestation['gauge_id']), $oc_tickets) ) {
@@ -554,7 +558,7 @@ class ocBackendActions extends autoOcBackendActions
             return;
         }
 
-        $snapshot = Doctrine::getTable('OcSnapshot')->getLastInit($group_id, $workspace_id, $day)->fetchOne();
+        $snapshot = Doctrine::getTable('OcSnapshot')->getLastInit($day)->fetchOne();
 
         if ( !$snapshot ) {
             $this->json['error'] = 'Error';

@@ -28,29 +28,25 @@ class PluginOcSnapshotTable extends TraceableTable
       return $q;
     }
     
-    public function getLastValid($day = null) 
+    public function getLast($day = null, $type = null)
     {
       $q = $this->createQuery('ocs');
       $root = $q->getRootAlias();
       
-      $q->andWhere("$root.purpose = ?", 'valid')
+      $q->andWhere("$root.purpose = ?", $type)
         ->andWhere("$root.day = ?", $day)
         ->orderBy("$root.created_at DESC");
         
       return $q;
     }
     
-    public function getLastInit($grpId, $wsId, $day = null) 
+    public function getLastValid($day = null) 
     {
-      $q = $this->createQuery('ocs');
-      $root = $q->getRootAlias();
-      
-      $q->andWhere("$root.purpose = ?", 'init')
-        ->andWhere("$root.day = ?", $day)
-        ->andWhere("$root.group_id = ?", $grpId)
-        ->andWhere("$root.workspace_id = ?", $wsId)
-        ->orderBy("$root.created_at DESC");
-        
-      return $q;
+      return $this->getLast($day, 'valid');
+    }
+    
+    public function getLastInit($day = null) 
+    {
+      return $this->getLast($day, 'init');
     }
 }
