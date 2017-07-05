@@ -156,7 +156,7 @@ class ApiCustomersService extends ApiEntityService
         return true;
     }
 
-    public function update(array $data)
+    public function update($id, array $data)
     {
         $accessor = new liApiPropertyAccessor;
         if ( !$this->isIdentificated() ) {

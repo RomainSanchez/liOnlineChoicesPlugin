@@ -42,6 +42,9 @@ class ocApiCustomersActions extends apiActions
         $email = $request->getParameter('email');
         $password = $request->getParameter('password');
 
+        sfContext::getInstance()->getLogger()->warning($email);
+        sfContext::getInstance()->getLogger()->warning($password);
+
         if ( !( $email && $password ) ) {
             return $this->createJsonResponse([
                     'code' => ApiHttpStatus::BAD_REQUEST,
@@ -128,7 +131,7 @@ class ocApiCustomersActions extends apiActions
         $data = $request->getParameter('application/json', []);
         $customers = $this->getService('api_customers_service');
 
-        return $customers->update($data)
+        return $customers->update(null, $data)
             ? $this->createJsonResponse($customers->getIdentifiedCustomer())
             : $this->createJsonResponse([
                 'code' => ApiHttpStatus::INTERNAL_SERVER_ERROR,
