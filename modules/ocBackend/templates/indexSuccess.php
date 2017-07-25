@@ -7,8 +7,26 @@
 
   <input id="_csrf_token" type="hidden" value="<?php echo $_csrf_token ?>">
   
+  
+    <?php echo $config_form->renderFormTag(url_for('oc_backend_update_context')) ?>
+        <div class='fg-toolbar ui-widget-header ui-corner-all'>
+            <h2><u><?php echo __('Context Setup', null, 'li_oc') ?></u></h2>
+      
+            <?php echo $config_form->renderHiddenFields() ?>
+            <?php echo $config_form['group_id']->renderLabel() ?>
+            <?php echo $config_form['group_id']->render() ?>
+            <?php echo $config_form['workspace_id']->renderLabel() ?>
+            <?php echo $config_form['workspace_id']->render() ?>
+            <button type="submit" class="fg-button ui-widget ui-state-default ui-corner-all">
+                <?php echo __('Validate', null, 'li_oc'); ?>
+            </button>  
+        </div>
+    </form>
+  
   <form id="sf_admin_content">
+    
      <div class="floatleft" style="margin-bottom:15px">
+          
       <?php foreach($datesData as $date): ?>
      
           <?php if($date['current']): ?>

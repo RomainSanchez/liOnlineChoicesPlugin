@@ -157,7 +157,10 @@
         <source>Export accepted participants</source>
         <target>Exporter les Participants dont le choix a été validé</target>
       </trans-unit>
-
+      <trans-unit id="39">
+        <source>Available Dates</source>
+        <target>Dates disponibles</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

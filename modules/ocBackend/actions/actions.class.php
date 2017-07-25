@@ -68,13 +68,24 @@ class ocBackendActions extends autoOcBackendActions
         //parent::executeIndex($request);
         $this->getContext()->getConfiguration()->loadHelpers(['Date', 'Array']);
 
+        $ocConfig = $this->getUser()->getGuardUser()->OcConfig;
+        $workspace = $ocConfig->Workspace;
+        $group = $ocConfig->Group;
+        
+        
+        $this->config_form = new OcConfigForm();
+        $this->config_form->bind($ocConfig->toArray());
+        
+        
         $this->form = new OcSnapshotForm();
         $this->_csrf_token = $this->form->getCSRFToken();
         $this->valid = $this->isValidated();
 
-        $this->group = $this->getUser()->getGuardUser()->OcConfig->Group->name;
-        $this->workspace = $this->getUser()->getGuardUser()->OcConfig->Workspace->name;
+        $this->group = $group->name;
+        $this->workspace = $workspace->name;
 
+        
+        
         $this->snapshots = Doctrine::getTable('OcSnapshot')->createQuery('s')
             ->andWhere('date(s.day) = ?', $this->day)
             ->orderBy('s.created_at DESC')
@@ -98,6 +109,21 @@ class ocBackendActions extends autoOcBackendActions
         }
     }
 
+    public function executeUpdateContext(sfWebRequest $request)
+    {
+       $config_form = new OcConfigForm();
+       $data = $request->getParameter($config_form->getName());
+       
+       $ocConfig = $this->getUser()->getGuardUser()->OcConfig;
+       
+       $ocConfig->workspace_id = $data['workspace_id'];
+       $ocConfig->group_id = $data['group_id'];
+       $ocConfig->save();
+       
+        
+        $this->redirect('ocBackend/index'.($this->day ? '?date='. $this->day : ''));
+    }
+    
     private function noTransactionsAndNoInitSnapshotExist($date)
     {
 

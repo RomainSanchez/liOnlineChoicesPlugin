@@ -585,3 +585,10 @@ oc_backend_export_accepted_pros_by_manifestation:
     requirements:
         sf_method: [POST]
         
+oc_backend_update_context:
+    url: /oc_backend/update_context
+    class: sfRequestRoute
+    param: { module: ocBackend, action: updateContext }
+    requirements:
+        sf_method: [POST]
+        
