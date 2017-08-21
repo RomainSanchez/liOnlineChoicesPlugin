@@ -350,6 +350,10 @@ class ocBackendActions extends autoOcBackendActions
         $sf_guard_user_id = null;
         $this->gauges = array();
 
+        $ocConfig = $this->getUser()->getGuardUser()->OcConfig;
+        $workspace = $ocConfig->Workspace;
+        $group = $ocConfig->Group;
+
         if ( sfContext::hasInstance() )
             if ( sfContext::getInstance()->getUser() instanceof sfGuardSecurityUser )
                 if ( sfContext::getInstance()->getUser()->getId() )
@@ -426,13 +430,15 @@ class ocBackendActions extends autoOcBackendActions
                         $manifestations[$m_id] = Doctrine::getTable('Manifestation')->FindOneById($m_id);
                     }
 
+                    $m_gauges = $manifestations[$m_id]->Gauges->toKeyValueArray('workspace_id', 'id');
+
                     $oc_ticket = new Octicket();
                     $oc_ticket->sf_guard_user_id = $sf_guard_user_id;
                     $oc_ticket->automatic = true;
                     $oc_ticket->rank = 0;
                     $oc_ticket->oc_transaction_id = $oc_transaction->id;
-                    $oc_ticket->price_id = $manifestations[$m_id]->PriceManifestations[0]->price_id;
-                    $oc_ticket->gauge_id = $manifestations[$m_id]->Gauges[0]->id;
+                    $oc_ticket->price_id = $workspace->Prices[0]->id;
+                    $oc_ticket->gauge_id = $m_gauges[$workspace->id];
                     $oc_ticket->accepted = $contact_manifestation['accepted'];
                     $oc_ticket->save();
                 }
