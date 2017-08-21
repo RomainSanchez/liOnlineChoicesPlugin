@@ -417,8 +417,12 @@ class ocBackendActions extends autoOcBackendActions
 
             $oc_tickets = array();
             foreach ( $oc_transaction->OcTickets as $oc_ticket ) {
-                if ( date($oc_ticket->Gauge->Manifestation->happens_at) == date($snapshot->day) )
-                $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
+                $manifestation = !array_key_exists($oc_ticket->Gauge->manifestation_id, $manifestations)
+                  ? $manifestations[$oc_ticket->Gauge->manifestation_id]
+                  : Doctrine_Query::create()->from('Manifestation m')->select('m.id, m.happens_at')->andWhere('m.id = ?', $oc_ticket->Gauge->manifestation_id)->fetchOne();
+                $manifestations[$manifestation->id] = $manifestation;
+                if ( date($manifestation->happens_at) == date($snapshot->day) )
+                    $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
             }
 
             foreach ( $contact['manifestations'] as $contact_manifestation ) {
@@ -429,7 +433,7 @@ class ocBackendActions extends autoOcBackendActions
                 } else {
                     $m_id = intval($contact_manifestation['id']);
                     if ( !array_key_exists($m_id, $manifestations) ) {
-                        $manifestations[$m_id] = Doctrine::getTable('Manifestation')->FindOneById($m_id);
+                        $manifestations[$m_id] = Doctrine_Query::create()->from('Manifestation m')->select('m.id, m.happens_at')->andWhere('m.id = ?', $oc_ticket->Gauge->manifestation_id)->fetchOne();
                     }
 
                     $m_gauges = $manifestations[$m_id]->Gauges->toKeyValueArray('workspace_id', 'id');
@@ -528,6 +532,7 @@ class ocBackendActions extends autoOcBackendActions
             }
 
             foreach ( $oc_transaction->OcTickets as $oc_ticket ) {
+              if ( $oc_ticket->accepted != 'none' ) {
                 $ticket = new Ticket();
                 $ticket->transaction_id = $oc_transaction->transaction_id;
                 $ticket->automatic = true;
@@ -547,22 +552,15 @@ class ocBackendActions extends autoOcBackendActions
                     continue;
                 }
 
-                $oc_transaction->Transaction->Tickets[] = $ticket;
+                $oc_transaction->Transaction->Tickets[] = $ticket;  
+              }
             }
 
-            $to_save[] = $oc_transaction->Transaction;
-            //$oc_transaction->Transaction->save();
-        }
-
-        if ( $this->json['error'] == 'Success' ) {
-            foreach ( $to_save as $transaction ) {
-                $transaction->save();
-            }
-        } else {
-            $snapshot = Doctrine::getTable('OcSnapshot')->getLastValid($this->day)->fetchOne();
-            if ( $snapshot ) {
-                $snapshot->delete();
-            }
+            //$to_save[] = $oc_transaction->Transaction;
+            $oc_transaction->Transaction->save();
+            $oc_transaction->Transaction->Tickets->free();
+            $oc_transaction->Transaction->free();
+            $oc_transaction->free();
         }
     }
 
