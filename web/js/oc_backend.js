@@ -59,7 +59,7 @@ $(document).ready(function () {
 
     $('.validate').click(function () {
         $('#transition').fadeIn('medium');
-        if (confirm('Etes-vous sûr de vouloir transposer la sélection en billeterie ? Cette action est définitive.')) {
+        if (confirm('Etes-vous sûr de vouloir transposer la sélection en billetterie ? Cette action est définitive.')) {
             liOC.validate($(this).attr('data-url'));
         } else {
             $('#transition .close').click();
@@ -397,8 +397,12 @@ liOC.createSnapshot = function () {
         });
         if (contact.manifestations.length > 0) {
             snapshots.push(contact);
+        } else {
+          console.log(contact);
         }
     });
+
+    console.log(snapshots.length);
 
     return snapshots;
 };

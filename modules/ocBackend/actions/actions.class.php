@@ -415,9 +415,8 @@ class ocBackendActions extends autoOcBackendActions
             }
 
             // gets back existing OcTickets for the selected day
-            $oc_tickets = array();
+            $oc_tickets = new Doctrine_Collection('OcTicket');
             foreach ( $oc_transaction->OcTickets as $oc_ticket ) {
-               
                 if ( !isset($manifestations[$oc_ticket->Gauge->manifestation_id]) ) {
                   $manifestations[$oc_ticket->Gauge->manifestation_id] = Doctrine_Query::create()
                     ->from('Manifestation m')
@@ -428,19 +427,21 @@ class ocBackendActions extends autoOcBackendActions
                   ;
                 }
                 $manifestation = $manifestations[$oc_ticket->Gauge->manifestation_id];
-                if ( date($manifestation->happens_at) == date($snapshot->day) )
+                if ( date('Ymd', strtotime($manifestation->happens_at)) == date('Ymd', strtotime($snapshot->day)) )
                     $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
             }
 
             // creates new OcTickets
             foreach ( $contact['manifestations'] as $contact_manifestation ) {
                 if ( isset($oc_tickets[$contact_manifestation['gauge_id']]) ) {
+                    // updates existing OcTickets
                     $oc_ticket = $oc_tickets[$contact_manifestation['gauge_id']];
                     $oc_ticket->accepted = $contact_manifestation['accepted'];
                     $oc_ticket->save();
                     unset($oc_tickets[$contact_manifestation['gauge_id']]);
                 } else {
-                    $m_id = intval($contact_manifestation['id']);
+                    // creates new OcTickets
+                    $m_id = $contact_manifestation['id'];
                     if ( !isset($manifestations[$m_id]) ) {
                       $manifestations[$m_id] = Doctrine_Query::create()
                           ->from('Manifestation m')
@@ -465,7 +466,7 @@ class ocBackendActions extends autoOcBackendActions
                 }
             }
             
-            // for existing OcTickets, process them
+            // for not-accepted existing OcTickets, process them
             foreach ( $oc_tickets as $oc_ticket ) {
                 if ( $oc_ticket->rank > 0 ) {
                     $oc_ticket->accepted = 'none';
@@ -508,7 +509,7 @@ class ocBackendActions extends autoOcBackendActions
         }
 
         try {
-            $this->updateOcTicket($snapshot);
+            $this->updateOcTicket($snapshot, true);
         } catch ( liEvenementException $e ) {
             $this->json['error'] = 'Error';
             $this->json['message'][] = $e->getMessage();
@@ -717,8 +718,8 @@ class ocBackendActions extends autoOcBackendActions
                     'picture' => $group['picture_id'] ? url_for('@oc_api_picture?id=' . $group['picture_id']) : null,
                 ];
             }
-
-            if ( count($ocPro['OcTransactions']) > 0 )
+ 
+            if ( count($ocPro['OcTransactions']) > 0 ) {
                 foreach ( $ocPro['OcTransactions'][0]['OcTickets'] as $ticket ) {
                     $manifestation = array();
                     $manifestation['id'] = $ticket['Gauge']['Manifestation']['id'];
@@ -726,7 +727,9 @@ class ocBackendActions extends autoOcBackendActions
                     $manifestation['accepted'] = $ticket['accepted'];
                     $pro['manifestations'][] = $manifestation;
                 }
-
+            }
+            
+            
             $this->json[] = $pro;
         }
     }
