@@ -362,14 +362,16 @@ class ocBackendActions extends autoOcBackendActions
         $contacts = unserialize($snapshot->content);
         $manifestations = array();
 
-        array_walk_recursive($contacts, function($item, $key) {
-            if ( $key == 'gauge_id' ) {
-                if ( array_key_exists($item, $this->gauges) )
-                    $this->gauges[$item] ++;
-                else
-                    $this->gauges[$item] = 1;
+        foreach ($contacts as $contact) {
+          foreach ($contact['manifestations'] as $manifestation) {
+            if ( $manifestation['accepted'] != 'none' ) {
+              if ( array_key_exists($manifestation['gauge_id'], $this->gauges) ) 
+                  $this->gauges[$manifestation['gauge_id']]++;
+              else
+                  $this->gauges[$manifestation['gauge_id']] = 1;  
             }
-        });
+          }
+        }
 
         $gauges = Doctrine_Query::create()
             ->select('id, value')
@@ -468,6 +470,9 @@ class ocBackendActions extends autoOcBackendActions
 
         $day = date($request->getParameter('date'));
 
+        $ocConfig = $this->getUser()->getGuardUser()->OcConfig;
+        $workspace = $ocConfig->Workspace;
+
         $json = $this->saveSnapshot($request);
 
         if ( $json['error'] != 'Success' ) {
@@ -504,6 +509,8 @@ class ocBackendActions extends autoOcBackendActions
             ->leftJoin('ocp.Professional p')
             ->leftJoin('p.Contact c')
             ->andWhere('date(m.happens_at) = ?', $snapshot->day)
+            ->andWhere('g.workspace_id = ?', $workspace->id)
+            ->andWhere('oct.oc_professional_id IS NOT NULL')
             ->execute()
         ;
 
