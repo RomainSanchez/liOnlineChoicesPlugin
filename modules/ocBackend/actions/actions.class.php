@@ -414,26 +414,41 @@ class ocBackendActions extends autoOcBackendActions
                 $oc_transaction->save();
             }
 
-
+            // gets back existing OcTickets for the selected day
             $oc_tickets = array();
             foreach ( $oc_transaction->OcTickets as $oc_ticket ) {
-                $manifestation = !array_key_exists($oc_ticket->Gauge->manifestation_id, $manifestations)
-                  ? $manifestations[$oc_ticket->Gauge->manifestation_id]
-                  : Doctrine_Query::create()->from('Manifestation m')->select('m.id, m.happens_at')->andWhere('m.id = ?', $oc_ticket->Gauge->manifestation_id)->fetchOne();
-                $manifestations[$manifestation->id] = $manifestation;
+               
+                if ( !isset($manifestations[$oc_ticket->Gauge->manifestation_id]) ) {
+                  $manifestations[$oc_ticket->Gauge->manifestation_id] = Doctrine_Query::create()
+                    ->from('Manifestation m')
+                    ->innerJoin('m.Gauges g')
+                    ->select('m.id, m.happens_at, g.id, g.workspace_id')
+                    ->andWhere('m.id = ?', $oc_ticket->Gauge->manifestation_id)
+                    ->fetchOne()
+                  ;
+                }
+                $manifestation = $manifestations[$oc_ticket->Gauge->manifestation_id];
                 if ( date($manifestation->happens_at) == date($snapshot->day) )
                     $oc_tickets[$oc_ticket->gauge_id] = $oc_ticket;
             }
 
+            // creates new OcTickets
             foreach ( $contact['manifestations'] as $contact_manifestation ) {
-                if ( array_key_exists(intval($contact_manifestation['gauge_id']), $oc_tickets) ) {
+                if ( isset($oc_tickets[$contact_manifestation['gauge_id']]) ) {
+                    $oc_ticket = $oc_tickets[$contact_manifestation['gauge_id']];
                     $oc_ticket->accepted = $contact_manifestation['accepted'];
                     $oc_ticket->save();
-                    unset($oc_tickets[intval($contact_manifestation['gauge_id'])]);
+                    unset($oc_tickets[$contact_manifestation['gauge_id']]);
                 } else {
                     $m_id = intval($contact_manifestation['id']);
-                    if ( !array_key_exists($m_id, $manifestations) ) {
-                        $manifestations[$m_id] = Doctrine_Query::create()->from('Manifestation m')->select('m.id, m.happens_at')->andWhere('m.id = ?', $oc_ticket->Gauge->manifestation_id)->fetchOne();
+                    if ( !isset($manifestations[$m_id]) ) {
+                      $manifestations[$m_id] = Doctrine_Query::create()
+                          ->from('Manifestation m')
+                          ->innerJoin('m.Gauges g')
+                          ->select('m.id, m.happens_at, g.id, g.workspace_id')
+                          ->andWhere('m.id = ?', $m_id)
+                          ->fetchOne()
+                        ;
                     }
 
                     $m_gauges = $manifestations[$m_id]->Gauges->toKeyValueArray('workspace_id', 'id');
@@ -449,7 +464,8 @@ class ocBackendActions extends autoOcBackendActions
                     $oc_ticket->save();
                 }
             }
-
+            
+            // for existing OcTickets, process them
             foreach ( $oc_tickets as $oc_ticket ) {
                 if ( $oc_ticket->rank > 0 ) {
                     $oc_ticket->accepted = 'none';
@@ -467,7 +483,7 @@ class ocBackendActions extends autoOcBackendActions
     {
         $this->setTemplate('json');
         $this->isDebug($request->hasParameter('debug'));
-
+        
         $sf_guard_user_id = null;
         $this->json = array();
         $this->json['error'] = 'Success';
