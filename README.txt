@@ -4,9 +4,9 @@ To install this plugin, you have to :
 3. add data in your config/extra-plugins.php file using the data in the %SF_PLUGIN_DIR%/config/extra-plugins.php.template
 4. add its needed modules into the apps/*/config/extra-modules.php as it is proposed in the plugin config/ dir
 5. build the model, filters and forms, and create the database
-6. activate the modules in your targetted sf1 app as proposed in the config/extra-modules.php.template provided by the plugin
+6. activate the modules in your targeted sf1 app as proposed in the config/extra-modules.php.template provided by the plugin
 7. discover new submenus in the "ticketing" menu and various modules
 
-Depedencies:
+Dependencies:
 - sfDependencyInjectionPlugin
 - liLibsApiPlugin
